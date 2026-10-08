@@ -10,16 +10,21 @@
   },
   "tooltip": {
     "population": "Population",
-    "noData": "No usage data"
+    "noData": "No usage data",
+    "weekly": "Per week",
+    "affected": "Affected",
+    "estimate": "est. {year}"
   },
   "legend": {
-    "title": "Weekly time on social media"
+    "title": "Weekly time on social media",
+    "titleYear": "Weekly time · est. {year}"
   },
   "back": "Back to the map",
   "headline": {
     "affected": "Affected",
     "line": "{count} affected spend more than {duration} in the feed here, every day.",
-    "avg": "Average {daily} a day · {weekly} a week"
+    "perWeek": "per week",
+    "perDay": "per day"
   },
   "time": {
     "hm": "{h} h {m} min",
@@ -106,7 +111,11 @@
   "timeline": {
     "title": "Daily time on social media, worldwide",
     "unit": "min a day",
-    "ariaLabel": "Line chart: average daily minutes on social media, 2012 to 2025"
+    "ariaLabel": "Line chart: average daily minutes on social media, 2012 to 2025",
+    "play": "Play timeline",
+    "pause": "Pause timeline",
+    "worldAffected": "affected worldwide",
+    "estimate": "Before 2025, country values are estimates that follow the global trend."
   },
   "info": {
     "button": "About the numbers",
@@ -118,6 +127,7 @@
       "Generations are counted as of {year}. Age structure, user rates and the weighting by generation are rough global estimates, with US device data as a guide.",
       "Health issues come from EU adolescents and are projected onto ages 10–19 in every country, using a modelled spread of weekend screen time.",
       "Reasons come from a global survey of internet users aged 16–64. Multiple answers were possible.",
+      "The timeline scales every country by the global trend of data 2 (2012–2025), so earlier years are estimates. Population is held at today’s level.",
       "All figures are estimates, not measurements."
     ]
   },

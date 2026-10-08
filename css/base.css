@@ -21,9 +21,9 @@
   --text-xl: 1.5rem;
   --text-num: 2rem;
 
-  /* Layout reserved around the zoomed country: top = timeline, bottom = headline + controls (read by js/ui/map.js). */
-  --zoom-pad-top: 176px;
-  --zoom-pad-bottom: 270px;
+  /* Layout reserved around the zoomed country: top = back button, bottom = headline + controls (read by js/ui/map.js). */
+  --zoom-pad-top: 96px;
+  --zoom-pad-bottom: 330px;
   --map-pad-top: 84px;
   --map-pad-bottom: 130px;
   --panel-width: clamp(280px, 28vw, 440px);

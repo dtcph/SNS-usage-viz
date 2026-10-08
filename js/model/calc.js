@@ -40,7 +40,19 @@ export function createModel(raw, config = cfg) {
   const years = Object.keys(raw.france.weeklyMin).map(Number).sort((a, b) => a - b);
   const franceTeenHoursPerDay = raw.france.weeklyMin[years.at(-1)]['13-19'] / 7 / 60;
 
-  return { config, raw, generations, weeklyByA3, deviceTotal, franceTeenHoursPerDay, franceWeeklyMin: weeklyByA3.get('FRA') };
+  // Data 2: global daily minutes per year. Used as a trend to scale country values back in time (an estimate:
+  // every country is assumed to follow the global curve, anchored at its own latest value from data 1).
+  const trend = new Map(raw.daily.series.map((d) => [d.year, d.minutes]));
+  const trendYears = [...trend.keys()].sort((a, b) => a - b);
+  const latestYear = trendYears.at(-1);
+
+  return { config, raw, generations, weeklyByA3, trend, latestYear, deviceTotal, franceTeenHoursPerDay, franceWeeklyMin: weeklyByA3.get('FRA') };
+}
+
+/** Multiplier for country time in `year` relative to the latest year (1 for null / the latest year / unknown years). */
+export function yearFactor(model, year) {
+  const v = year == null ? null : model.trend.get(year);
+  return v == null ? 1 : v / model.trend.get(model.latestYear);
 }
 
 /** Normalised population shares per generation for a country (sum = 1). */
@@ -120,10 +132,14 @@ export function healthIssues(model, a3, weeklyMin, population, selectedIds) {
   return { teens, distribution: dist, issues };
 }
 
-/** Everything the UI needs for one country + selection. Returns null for countries without data 1. */
-export function describeCountry(model, a3, population, selectedIds) {
-  const weeklyMin = model.weeklyByA3.get(a3);
-  if (weeklyMin == null) return null;
+/**
+ * Everything the UI needs for one country + selection. Returns null for countries without data 1.
+ * `year` (optional, 2012-latest) scales the time by the global trend; weeklyMin/dailyMin/affected then are estimates.
+ */
+export function describeCountry(model, a3, population, selectedIds, year = null) {
+  const baseWeekly = model.weeklyByA3.get(a3);
+  if (baseWeekly == null) return null;
+  const weeklyMin = baseWeekly * yearFactor(model, year);
   const dailyMin = weeklyMin / 7;
   const aff = affectedPeople(model, a3, dailyMin, population, selectedIds);
   return {
@@ -131,8 +147,18 @@ export function describeCountry(model, a3, population, selectedIds) {
     population: filteredPopulation(model, a3, population, selectedIds),
     ...aff,
     reasons: usageReasonCounts(model, aff.affected),
-    health: healthIssues(model, a3, weeklyMin, population, selectedIds),
+    health: healthIssues(model, a3, baseWeekly, population, selectedIds), // teen distribution always uses the latest data
   };
+}
+
+/** Affected people summed over all countries with data 1 and a known population (respects the age selection). */
+export function worldAffected(model, populationByA3, selectedIds, year = null) {
+  let total = 0;
+  for (const a3 of model.weeklyByA3.keys()) {
+    const pop = populationByA3[a3];
+    if (pop != null) total += describeCountry(model, a3, pop, selectedIds, year).affected;
+  }
+  return total;
 }
 
 /** 125 -> { h: 2, m: 5 } */

@@ -112,6 +112,8 @@ export const SCREENTIME_CATEGORY_DISTRIBUTION = {
 // ---- Display ------------------------------------------------------------------------------------------------
 /** Count-up animation of numbers (ms). Everything else is animated through CSS variables (css/animations.css). */
 export const COUNT_UP_DURATION_MS = 1100;
+/** Timeline playback: time per year step (ms). */
+export const TIMELINE_STEP_MS = 900;
 /** Max. usage reasons shown in the popup (sorted by size). */
 export const USAGE_REASONS_VISIBLE = 8;
 /** Number of colour classes of the heatmap (css/theme-*.css define --rb-0 ... --rb-6, blue -> pink -> red). */

@@ -21,7 +21,8 @@ export function createStore(initial) {
 
 /** Fields: country (ISO alpha-3 | null), ageGroups (array of generation ids), lang, theme, zone ('left'|'middle'|'right'),
  *  population ({byA3, source, date} | null while loading), infoOpen,
+ *  year (2012..latest shown on the globe by the timeline; null = latest),
  *  highlight ({share 0-1, context, label} | null: chart column hovered in a popup, drawn into the country). */
 export const initialState = (ageGroups, lang, theme) => ({
-  country: null, ageGroups, lang, theme, zone: 'middle', population: null, infoOpen: false, highlight: null,
+  country: null, ageGroups, lang, theme, zone: 'middle', population: null, infoOpen: false, year: null, highlight: null,
 });

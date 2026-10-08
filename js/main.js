@@ -3,7 +3,7 @@ import { DEFAULT_LANG, LANGUAGES, GENERATIONS, REFERENCE_YEAR } from './config.j
 import { createStore, initialState } from './state.js';
 import { loadAll } from './data/loader.js';
 import { loadPopulation } from './data/population.js';
-import { createModel, describeCountry } from './model/calc.js';
+import { createModel, describeCountry, worldAffected } from './model/calc.js';
 import { buildGenerations } from './model/generations.js';
 import { createI18n, loadLang } from './ui/i18n.js';
 import { createMap } from './ui/map.js';
@@ -40,10 +40,17 @@ async function main() {
   loadPopulation(data.index).then((population) => store.set({ population }));
 
   const tooltip = createTooltip($('tooltip'));
-  const map = createMap({ svg: $('map'), topology: data.topology, index: data.index, model, store, getI18n: () => i18n, tooltip });
-  const legend = createLegend($('legend'), { extent: map.extent });
-  const timeline = createTimeline({ el: $('timeline'), series: data.raw.daily.series });
-  const headline = createHeadline({ nameEl: $('headline-name'), lineEl: $('headline-line'), avgEl: $('headline-avg') });
+  let legend = null;
+  const map = createMap({ svg: $('map'), topology: data.topology, index: data.index, model, store, getI18n: () => i18n, tooltip, onHoverTime: (m) => legend?.mark(m) });
+  legend = createLegend($('legend'), { extent: map.extent });
+  const timeline = createTimeline({
+    el: $('timeline'), series: data.raw.daily.series, store, getI18n: () => i18n,
+    totalFor: (year) => worldAffected(model, store.get().population.byA3, store.get().ageGroups, year),
+  });
+  const headline = createHeadline({
+    nameEl: $('headline-name'), lineEl: $('headline-line'), weekEl: $('stat-week'), dayEl: $('stat-day'),
+    weekLabelEl: $('stat-week-label'), dayLabelEl: $('stat-day-label'),
+  });
   const panels = await createPanels({ container: $('panels'), store });
   initZones({ store });
   createInfo({ store, getI18n: () => i18n });
@@ -87,14 +94,15 @@ async function main() {
   store.subscribe((s, prev) => {
     document.body.classList.toggle('is-zoomed', !!s.country);
     if (s.theme !== prev.theme) { document.documentElement.dataset.theme = s.theme; remember('theme', s.theme); }
-    if (s.lang !== prev.lang) { legend.render(i18n); timeline.render(i18n); renderFooter(); }
+    if (s.lang !== prev.lang || s.year !== prev.year) legend.render(i18n, s.year, model.latestYear);
+    if (s.lang !== prev.lang) renderFooter();
     if (s.population !== prev.population) renderFooter();
     if (s.country !== prev.country) headline.reset();
     if (s.highlight && (s.zone !== prev.zone || s.country !== prev.country || s.ageGroups !== prev.ageGroups)) store.set({ highlight: null });
     if (s.country !== prev.country || s.ageGroups !== prev.ageGroups || s.lang !== prev.lang || s.population !== prev.population || s.zone !== prev.zone) renderCountry();
   });
 
-  legend.render(i18n); timeline.render(i18n); renderFooter();
+  legend.render(i18n, null, model.latestYear); renderFooter();
 
   // ---- global input ----
   $('back').addEventListener('click', () => store.set({ country: null }));

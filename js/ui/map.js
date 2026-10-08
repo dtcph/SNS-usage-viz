@@ -4,7 +4,7 @@ import { feature, geoArea, geoCentroid, geoGraticule10, geoOrthographic, geoPath
 import {
   GLOBE_INITIAL_CENTER, GLOBE_ZOOM_MAX, GLOBE_ZOOM_MIN, MAP_COLOR_STEPS, MAP_HIDDEN_IDS, ZOOM_FILL, ZOOM_MAX_SCALE, ZOOM_MIN_PART_AREA_RATIO,
 } from '../config.js';
-import { filteredPopulation } from '../model/calc.js';
+import { describeCountry, yearFactor } from '../model/calc.js';
 import { createCounter } from './counter.js';
 import { readMotion, readPx } from './motion.js';
 
@@ -21,8 +21,9 @@ const RAD_TO_DEG = 180 / Math.PI;
  * @param {object} o.store
  * @param {() => object} o.getI18n
  * @param {object} o.tooltip
+ * @param {(minutes:number|null)=>void} [o.onHoverTime]  weekly minutes of the hovered country (for the legend marker)
  */
-export function createMap({ svg: svgEl, topology, index, model, store, getI18n, tooltip }) {
+export function createMap({ svg: svgEl, topology, index, model, store, getI18n, tooltip, onHoverTime = () => {} }) {
   const svg = select(svgEl);
   const features = feature(topology, topology.objects.countries).features
     .filter((f) => !MAP_HIDDEN_IDS.includes(String(f.id ?? '').padStart(3, '0')));
@@ -33,7 +34,7 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
     const country = num ? index.byNum.get(num) ?? null : null;
     const a3 = country?.a3 ?? null;
     const weeklyMin = a3 ? model.weeklyByA3.get(a3) : undefined;
-    return { f, num, a3, a2: country?.a2 ?? null, weeklyMin, hasData: weeklyMin != null, name: f.properties?.name ?? '' };
+    return { f, num, a3, a2: country?.a2 ?? null, weeklyMin, hasData: weeklyMin != null, name: f.properties?.name ?? '', step: null };
   });
 
   // Startup diagnostics: anything that cannot be linked is listed once in the console.
@@ -57,8 +58,21 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   const sphere = gRoot.append('path').attr('class', 'sphere');
   const graticule = gRoot.append('path').attr('class', 'graticule');
   const paths = gRoot.selectAll('path.country').data(entries).join('path')
-    .attr('class', (e) => `country ${e.hasData ? `has-data rb${colorStep(e.weeklyMin)}` : 'nodata'}`)
+    .attr('class', (e) => `country ${e.hasData ? 'has-data' : 'nodata'}`)
     .attr('data-a3', (e) => e.a3);
+
+  /** Heatmap class per country for the year on the timeline (fixed colour scale, so change over time is visible). */
+  function colorize() {
+    const factor = yearFactor(model, store.get().year);
+    paths.each(function (e) {
+      if (!e.hasData) return;
+      const step = colorStep(e.weeklyMin * factor);
+      if (step === e.step) return;
+      if (e.step != null) this.classList.remove(`rb${e.step}`);
+      this.classList.add(`rb${step}`);
+      e.step = step;
+    });
+  }
   const nodeByA3 = new Map();
   paths.each(function (e) { if (e.a3) nodeByA3.set(e.a3, this); });
 
@@ -196,15 +210,23 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
     const e = lastEvent;
     if (!e) return;
     const entry = store.get().country || drag?.moved ? null : entryOf(e.target);
-    if (!entry) { tooltip.hide(); return; }
+    if (!entry) { tooltip.hide(); onHoverTime(null); return; }
     const i18n = getI18n();
-    const pop = store.get().population?.byA3[entry.a3];
+    const { population, ageGroups, year } = store.get();
+    const pop = population?.byA3[entry.a3];
     const lines = [];
-    if (pop != null) {
-      const value = entry.hasData ? filteredPopulation(model, entry.a3, pop, store.get().ageGroups) : pop; // filter only applies where data exists
-      lines.push(`${i18n.t('tooltip.population')}: ${i18n.compact(value)}`);
+    const vm = entry.hasData && pop != null ? describeCountry(model, entry.a3, pop, ageGroups, year) : null;
+    if (pop != null) lines.push(`${i18n.t('tooltip.population')}: ${i18n.compact(vm ? vm.population : pop)}`); // age filter only applies where data exists
+    if (entry.hasData) {
+      const weekly = entry.weeklyMin * yearFactor(model, year);
+      const est = year != null && year !== model.latestYear ? ` · ${i18n.t('tooltip.estimate', { year })}` : '';
+      lines.push(`${i18n.t('tooltip.weekly')}: ${i18n.hoursMinutes(weekly)}${est}`);
+      if (vm) lines.push(`${i18n.t('tooltip.affected')}: ${i18n.compact(vm.affected)}`);
+      onHoverTime(weekly);
+    } else {
+      lines.push(i18n.t('tooltip.noData'));
+      onHoverTime(null);
     }
-    if (!entry.hasData) lines.push(i18n.t('tooltip.noData'));
     tooltip.show(i18n.countryName(entry.a2, entry.name), lines, e.clientX, e.clientY);
   }
 
@@ -218,7 +240,7 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
     if (drag && e.pointerId === drag.id) {
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
       if (!drag.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD_PX) return;
-      if (!drag.moved) { drag.moved = true; svgEl.setPointerCapture(e.pointerId); svg.classed('is-dragging', true); tooltip.hide(); }
+      if (!drag.moved) { drag.moved = true; svgEl.setPointerCapture(e.pointerId); svg.classed('is-dragging', true); tooltip.hide(); onHoverTime(null); }
       const k = RAD_TO_DEG / view.scale; // 1 px at the globe centre = the angle it covers, so the surface follows the cursor
       view = { ...view, lam: view.lam + dx * k, phi: Math.max(-90, Math.min(90, view.phi - dy * k)) };
       drag.x = e.clientX; drag.y = e.clientY;
@@ -236,7 +258,7 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   };
   svgEl.addEventListener('pointerup', endDrag);
   svgEl.addEventListener('pointercancel', endDrag);
-  svgEl.addEventListener('pointerleave', () => { lastEvent = null; tooltip.hide(); });
+  svgEl.addEventListener('pointerleave', () => { lastEvent = null; tooltip.hide(); onHoverTime(null); });
 
   svgEl.addEventListener('wheel', (e) => {
     e.preventDefault();
@@ -252,15 +274,17 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
     if (suppressClick) { suppressClick = false; return; } // the click that ends a drag
     const entry = entryOf(e.target);
     const { country } = store.get();
-    if (country) { if (!entry || entry.a3 !== country) store.set({ country: null }); return; } // click outside the chosen country: back
-    if (entry?.hasData) { tooltip.hide(); store.set({ country: entry.a3, zone: 'middle' }); }
+    if (country) { onHoverTime(null); if (!entry || entry.a3 !== country) store.set({ country: null }); return; } // click outside the chosen country: back
+    if (entry?.hasData) { tooltip.hide(); onHoverTime(null); store.set({ country: entry.a3, zone: 'middle', year: null }); }
   });
 
   store.subscribe((s, prev) => {
     if (s.country !== prev.country) { setHighlight(null); sync(true); }
     if (s.highlight !== prev.highlight) setHighlight(s.highlight);
+    if (s.year !== prev.year) colorize();
   });
 
+  colorize();
   layout();
   view = worldView();
   drawNow();

@@ -17,6 +17,7 @@ Open the printed address (ES modules need http, not `file://`).
 2. Click a country with data: the globe turns and zooms to it. ESC, a click outside the country, or the back button returns.
 3. Zoomed: pointer in the left third opens **Health issues**, right third **Reasons for scrolling**, middle stays calm. The control bar has priority over the zones.
 3b. The popups are column charts (count above, group below). Hovering a column fills the chosen country from the bottom up to that share (height-based) and counts up the percentage inside it.
+3c. Overview timeline (top right): play or drag along the line to see the globe change from 2012 to 2025 and the worldwide count of affected people. Data 2 is global only, so earlier country values are estimates that follow the global trend (population held constant).
 4. Control bar: age chips (multi-select, "All" resets, at least one stays on), dark mode, EN / 한국어. "i" explains the assumptions.
 
 ## Structure

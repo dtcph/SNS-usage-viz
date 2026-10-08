@@ -1,11 +1,14 @@
 /* Headline, popups (fly in from the sides), timeline */
 .headline {
-  position: fixed; z-index: 5; left: 50%; bottom: 142px; transform: translateX(-50%);
+  position: fixed; z-index: 5; left: 50%; bottom: 128px; transform: translateX(-50%);
   width: min(calc(33vw - var(--space-5)), 460px); text-align: center;
 }
 .headline-name { font-size: var(--text-xl); font-weight: 300; }
-.headline-line { margin-top: var(--space-2); font-size: var(--text-l); line-height: 1.55; }
-.headline-avg { margin-top: var(--space-2); font-size: var(--text-s); color: var(--ink-soft); }
+.headline-line { margin-top: var(--space-3); font-size: var(--text-l); line-height: 1.55; }
+.stats { display: flex; justify-content: center; gap: var(--space-6); margin-top: var(--space-3); }
+.stat { display: grid; justify-items: center; }
+.stat-val { font-size: var(--text-xl); font-weight: 300; line-height: 1.15; white-space: nowrap; }
+.stat-label { font-size: var(--text-s); color: var(--ink-soft); }
 .num { font-variant-numeric: tabular-nums; font-weight: 500; }
 
 /* The shell is a fixed column that never catches the mouse; only the card does. */
@@ -59,22 +62,39 @@
 .panel-empty { margin-top: var(--space-4); color: var(--ink-soft); line-height: 1.6; }
 .panel-empty strong { display: block; color: var(--ink); font-weight: 400; margin-bottom: var(--space-1); }
 
-/* Timeline: top centre, inside the neutral zone so it never sits under a popup. */
+/* Timeline: overview only, top right under the info button. */
 .timeline {
-  position: fixed; z-index: 5; top: var(--page-margin); left: 50%; transform: translateX(-50%);
-  width: min(calc(33vw - var(--space-5)), 360px);
+  position: fixed; z-index: 5; top: calc(var(--page-margin) + 48px); right: var(--page-margin);
+  width: min(300px, 24vw); min-width: 240px; padding: var(--space-4); border-radius: var(--radius-l);
+  background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-soft); backdrop-filter: blur(10px);
 }
-.timeline svg { display: block; width: 100%; height: auto; overflow: visible; }
-.timeline-title { font-size: var(--text-s); fill: var(--ink-soft); font-family: var(--font); }
-.timeline-label { font-size: 10.5px; fill: var(--ink-soft); font-family: var(--font); }
+.tl-head { display: flex; align-items: center; gap: var(--space-3); }
+.tl-play {
+  flex: none; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line-strong); display: grid; place-items: center;
+  color: var(--ink); transition: background-color var(--fade-duration) var(--fade-easing);
+}
+.tl-play:hover { background: var(--accent-soft); }
+.tl-play svg { width: 12px; height: 12px; fill: currentColor; }
+.tl-year { font-size: var(--text-xl); font-weight: 300; line-height: 1; }
+.tl-title { font-size: var(--text-s); color: var(--ink-soft); line-height: 1.25; }
+.tl-chart-wrap { margin-top: var(--space-3); }
+.tl-chart { display: block; width: 100%; height: auto; overflow: visible; }
+.timeline-label { font-size: 10px; fill: var(--ink-soft); font-family: var(--font); }
 .timeline-axis { stroke: var(--line); stroke-width: 1; }
 .timeline-line {
-  fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
-  stroke-dasharray: 1; stroke-dashoffset: 1; /* path has pathLength="1" */
+  fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1; /* paths have pathLength="1" */
 }
-.timeline-dot { fill: var(--accent); opacity: 0; transition: opacity var(--fade-duration) var(--fade-easing) var(--draw-duration); }
-.is-zoomed .timeline-line { stroke-dashoffset: 0; transition: stroke-dashoffset var(--draw-duration) var(--anim-easing); }
-.is-zoomed .timeline-dot { opacity: 1; }
+.timeline-base { stroke: var(--line-strong); }
+.timeline-played { stroke: var(--accent); }
+.timeline-guide { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 2 3; opacity: 0.6; }
+.timeline-dot { fill: var(--accent); stroke: var(--surface-solid); stroke-width: 2; }
+.timeline-hit { fill: transparent; cursor: ew-resize; }
+body:not(.is-zoomed) .timeline-line { stroke-dashoffset: 0; transition: stroke-dashoffset var(--draw-duration) var(--anim-easing); }
+.tl-total { margin-top: var(--space-2); display: flex; align-items: baseline; gap: var(--space-2); }
+.tl-total-num { font-size: var(--text-xl); font-weight: 300; }
+.tl-total-label { font-size: var(--text-s); color: var(--ink-soft); }
+.tl-note { margin-top: var(--space-2); font-size: 10.5px; line-height: 1.4; color: var(--ink-soft); opacity: 0.85; }
 
 /* Level fill inside the chosen country while a chart column is hovered. */
 .hl-layer { pointer-events: none; }
