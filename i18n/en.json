@@ -1,0 +1,130 @@
+{
+  "app": {
+    "title": "Out of the Pull",
+    "subtitle": "Doomscrolling, country by country"
+  },
+  "map": {
+    "ariaLabel": "World map of weekly time spent on social media",
+    "loading": "Loading …",
+    "error": "The map could not be loaded. Please check the connection and reload."
+  },
+  "tooltip": {
+    "population": "Population",
+    "noData": "No usage data"
+  },
+  "legend": {
+    "title": "Weekly time on social media"
+  },
+  "back": "Back to the map",
+  "headline": {
+    "affected": "Affected",
+    "line": "{count} affected spend more than {duration} in the feed here, every day.",
+    "avg": "Average {daily} a day · {weekly} a week"
+  },
+  "time": {
+    "hm": "{h} h {m} min",
+    "h": "{h} h",
+    "m": "{m} min"
+  },
+  "age": {
+    "label": "Age groups",
+    "all": "All",
+    "range": "{from}–{to}"
+  },
+  "gen": {
+    "alpha": "Gen Alpha",
+    "genZ": "Gen Z",
+    "millennials": "Millennials",
+    "genX": "Gen X",
+    "boomers": "Boomers"
+  },
+  "controls": {
+    "theme": "Dark mode",
+    "language": "Language"
+  },
+  "health": {
+    "title": "Health issues",
+    "basis": "Basis: EU adolescents 10–19, projected",
+    "teens": "adolescents in this selection",
+    "empty": "No adolescents aged 10–19 in this selection.",
+    "emptyHint": "Choose Gen Alpha or Gen Z to see this view.",
+    "issue": {
+      "tiredEyes": "Tired eyes",
+      "veryTired": "Feeling very tired or overwhelmed",
+      "concentrate": "Trouble concentrating",
+      "sleep": "Trouble sleeping",
+      "substances": "Using substances"
+    },
+    "ofTeens": "of adolescents",
+    "short": {
+      "tiredEyes": "Tired eyes",
+      "veryTired": "Exhausted",
+      "concentrate": "Focus",
+      "sleep": "Sleep",
+      "substances": "Substances"
+    }
+  },
+  "usage": {
+    "title": "Reasons for scrolling",
+    "note": "Multiple answers possible, so the numbers overlap.",
+    "reason": {
+      "friendsFamily": "Staying in touch with friends and family",
+      "spareTime": "Filling spare time",
+      "news": "Reading the news",
+      "findContent": "Finding content",
+      "talkedAbout": "Seeing what people talk about",
+      "products": "Finding products to buy",
+      "inspiration": "Finding inspiration",
+      "sports": "Following sports",
+      "liveStreams": "Watching live streams",
+      "newContacts": "Making new contacts",
+      "brands": "Following favourite brands",
+      "opinions": "Sharing opinions",
+      "work": "Work and networking",
+      "celebrities": "Following celebrities and influencers",
+      "fomo": "Not missing out (FOMO)"
+    },
+    "ofAffected": "of the affected",
+    "short": {
+      "friendsFamily": "Friends",
+      "spareTime": "Spare time",
+      "news": "News",
+      "findContent": "Content",
+      "talkedAbout": "Buzz",
+      "products": "Shopping",
+      "inspiration": "Ideas",
+      "sports": "Sports",
+      "liveStreams": "Live",
+      "newContacts": "Contacts",
+      "brands": "Brands",
+      "opinions": "Opinions",
+      "work": "Work",
+      "celebrities": "Stars",
+      "fomo": "FOMO"
+    }
+  },
+  "timeline": {
+    "title": "Daily time on social media, worldwide",
+    "unit": "min a day",
+    "ariaLabel": "Line chart: average daily minutes on social media, 2012 to 2025"
+  },
+  "info": {
+    "button": "About the numbers",
+    "title": "About the numbers",
+    "close": "Close",
+    "items": [
+      "“Affected” means social-media users who spend at least {threshold} a day in feeds. Individual daily times are assumed to vary exponentially around each country’s average.",
+      "Country averages are weekly times from Q4 2025 (video excluded). {share} of each population is assumed to use social media.",
+      "Generations are counted as of {year}. Age structure, user rates and the weighting by generation are rough global estimates, with US device data as a guide.",
+      "Health issues come from EU adolescents and are projected onto ages 10–19 in every country, using a modelled spread of weekend screen time.",
+      "Reasons come from a global survey of internet users aged 16–64. Multiple answers were possible.",
+      "All figures are estimates, not measurements."
+    ]
+  },
+  "footer": {
+    "popLoading": "Population: loading …",
+    "popLive": "Population: live",
+    "popSnapshot": "Population: snapshot from {date}",
+    "popNone": "Population: unavailable"
+  }
+}

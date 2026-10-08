@@ -1,0 +1,31 @@
+/* Dark theme: calm blue-grey (no pure black), pastel colours a little more saturated. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #1b1d27;
+  --surface: rgba(38, 41, 54, 0.82);
+  --surface-solid: #262936;
+  --ink: #e6e4ee;
+  --ink-soft: #a2a1b3;
+  --line: rgba(230, 228, 238, 0.14);
+  --line-strong: rgba(230, 228, 238, 0.34);
+  --accent: #a995f2;
+  --accent-soft: rgba(169, 149, 242, 0.2);
+  --shadow-soft: 0 10px 30px rgba(8, 9, 16, 0.38), 0 1px 3px rgba(8, 9, 16, 0.3);
+
+  --land-stroke: #1b1d27;
+  --nodata: #363947;
+  --dim-opacity: 0.2;
+  --rb-0: #5f93cc;
+  --rb-1: #4fadaa;
+  --rb-2: #7cbd70;
+  --rb-3: #cdbf63;
+  --rb-4: #dc9d5a;
+  --rb-5: #d57474;
+  --rb-6: #b975c4;
+
+  --bar: linear-gradient(90deg, #5f93cc, #7cbd70, #cdbf63, #d57474, #b975c4);
+  --hl-fill: rgba(150, 125, 235, 0.85);
+  --hl-ink: #ffffff;
+  --grain-opacity: 0.05;
+  --grain-blend: screen;
+}

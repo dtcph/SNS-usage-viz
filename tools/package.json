@@ -1,0 +1,28 @@
+{
+  "name": "sns-usage-viz-tools",
+  "private": true,
+  "type": "module",
+  "description": "One-off build tools (not part of the runtime).",
+  "scripts": {
+    "data": "node xls-to-json.mjs ../data-src ../data",
+    "country-map": "node build-country-map.mjs ../data/country-map.json",
+    "population": "node build-population-snapshot.mjs",
+    "vendor": "rollup -c rollup.config.mjs"
+  },
+  "dependencies": {
+    "xlsx": "0.18.5",
+    "i18n-iso-countries": "7.14.0",
+    "d3-geo": "3.1.1",
+    "d3-selection": "3.0.0",
+    "d3-zoom": "3.0.0",
+    "d3-transition": "3.0.1",
+    "d3-scale": "4.0.2",
+    "d3-shape": "3.2.0",
+    "d3-interpolate": "3.0.1",
+    "topojson-client": "3.1.0",
+    "world-atlas": "2.0.2",
+    "rollup": "4.24.0",
+    "@rollup/plugin-node-resolve": "15.3.0",
+    "@rollup/plugin-terser": "0.4.4"
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "statisticId": 1673190,
+  "source": "European Commission",
+  "period": "March 30, to April 16, 2026",
+  "published": "June 2026",
+  "unit": "percent of adolescents reporting the issue in the past 30 days",
+  "basis": "EU adolescents (13-18 surveyed); projected onto ages 10-19",
+  "categories": [
+    {
+      "id": "c0",
+      "label": "12 and more hours",
+      "minHours": 12,
+      "maxHours": null
+    },
+    {
+      "id": "c1",
+      "label": "10 to less than 12 hours",
+      "minHours": 10,
+      "maxHours": 12
+    },
+    {
+      "id": "c2",
+      "label": "8 to less than 10 hours",
+      "minHours": 8,
+      "maxHours": 10
+    },
+    {
+      "id": "c3",
+      "label": "6 to less than 8 hours",
+      "minHours": 6,
+      "maxHours": 8
+    },
+    {
+      "id": "c4",
+      "label": "4 to less than 6 hours",
+      "minHours": 4,
+      "maxHours": 6
+    },
+    {
+      "id": "c5",
+      "label": "2 to less than 4 hours",
+      "minHours": 2,
+      "maxHours": 4
+    },
+    {
+      "id": "c6",
+      "label": "Less than 2 hours",
+      "minHours": 0,
+      "maxHours": 2
+    }
+  ],
+  "issues": [
+    {
+      "id": "tiredEyes",
+      "label": "Tired eyes",
+      "pct": [
+        46,
+        46,
+        43,
+        37,
+        30,
+        24,
+        17
+      ]
+    },
+    {
+      "id": "veryTired",
+      "label": "Feeling very tired or overwhelmed",
+      "pct": [
+        46,
+        46,
+        42,
+        37,
+        29,
+        21,
+        19
+      ]
+    },
+    {
+      "id": "concentrate",
+      "label": "Finding it hard to concentrate or stay focused",
+      "pct": [
+        45,
+        43,
+        42,
+        37,
+        27,
+        22,
+        18
+      ]
+    },
+    {
+      "id": "sleep",
+      "label": "Problems sleeping",
+      "pct": [
+        44,
+        41,
+        40,
+        33,
+        25,
+        20,
+        18
+      ]
+    },
+    {
+      "id": "substances",
+      "label": "Using substances",
+      "pct": [
+        23,
+        20,
+        17,
+        15,
+        10,
+        9,
+        12
+      ]
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "statisticId": 433871,
+  "source": "GWI; We Are Social; DataReportal; Hootsuite",
+  "period": "2012 to 2025",
+  "published": "February 2025",
+  "unit": "minutes per day",
+  "series": [
+    {
+      "year": 2012,
+      "minutes": 90
+    },
+    {
+      "year": 2013,
+      "minutes": 95
+    },
+    {
+      "year": 2014,
+      "minutes": 104
+    },
+    {
+      "year": 2015,
+      "minutes": 111
+    },
+    {
+      "year": 2016,
+      "minutes": 128
+    },
+    {
+      "year": 2017,
+      "minutes": 134
+    },
+    {
+      "year": 2018,
+      "minutes": 142
+    },
+    {
+      "year": 2019,
+      "minutes": 145
+    },
+    {
+      "year": 2020,
+      "minutes": 145
+    },
+    {
+      "year": 2021,
+      "minutes": 145
+    },
+    {
+      "year": 2022,
+      "minutes": 147
+    },
+    {
+      "year": 2023,
+      "minutes": 151
+    },
+    {
+      "year": 2024,
+      "minutes": 143
+    },
+    {
+      "year": 2025,
+      "minutes": 141
+    }
+  ]
+}
