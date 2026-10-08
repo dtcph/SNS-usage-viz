@@ -103,7 +103,7 @@ body:not(.is-zoomed) .timeline-line { stroke-dashoffset: 0; transition: stroke-d
   fill: var(--hl-fill); transform-box: fill-box; transform-origin: bottom;
   transform: scaleY(var(--level, 0)); transition: transform var(--popup-duration) var(--popup-easing);
 }
-/* Level readout inside the country: the number (masked by the outline) stands on the fill's top edge in the fill colour, the white label sits on a chip below it. */
+/* Level readout inside the country: the number stands on the fill's top edge in the fill colour, the white label sits on a chip below it (only the fill is masked). */
 .hl-texts {
   transform: translateY(calc(var(--lift, 0px) * -1)); opacity: 0;
   transition: transform var(--popup-duration) var(--popup-easing), opacity var(--popup-duration) var(--popup-easing);

@@ -82,15 +82,14 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   // Highlight layer: a level-fill clipped to the chosen country, driven by chart hovers in the popups.
   const hlLayer = gRoot.append('g').attr('class', 'hl-layer');
   const clipShape = hlLayer.append('clipPath').attr('id', 'hl-clip').append('path');
-  // The big number is masked by the country outline (like the fill); the label chip is not, so it is always readable.
-  const hlMasked = hlLayer.append('g').attr('clip-path', 'url(#hl-clip)');
-  const hlFill = hlMasked.append('rect').attr('class', 'hl-fill');
-  const hlTexts = hlMasked.append('g').attr('class', 'hl-texts'); // lifted together with the fill level
-  const hlNum = hlTexts.append('text').attr('class', 'hl-num').attr('text-anchor', 'middle');
+  // Only the fill is masked by the country outline. The number and the label chip are not, so they stay fully readable
+  // (thin countries such as Chile would hide most of the number otherwise). Both are lifted together with the fill level.
+  const hlFill = hlLayer.append('g').attr('clip-path', 'url(#hl-clip)').append('rect').attr('class', 'hl-fill');
   const hlLabelGroup = hlLayer.append('g').attr('class', 'hl-texts');
+  const hlNum = hlLabelGroup.append('text').attr('class', 'hl-num').attr('text-anchor', 'middle');
   const hlChip = hlLabelGroup.append('rect').attr('class', 'hl-chip').attr('rx', 9);
   const hlLabel = hlLabelGroup.append('text').attr('class', 'hl-label').attr('text-anchor', 'middle');
-  const hlLifted = [hlTexts, hlLabelGroup];
+  const hlLifted = [hlLabelGroup];
   const readoutCounter = createCounter(hlNum.node(), (n) => getI18n().compact(n));
 
   // ---- globe state ----
@@ -230,18 +229,18 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
       hlFill.attr('x', x0).attr('y', y0).attr('width', hlGeom.w).attr('height', hlGeom.h).style('--level', 0);
       hlLifted.forEach((g) => g.style('--lift', '0px').classed('is-on', false));
       readoutCounter.set(0);
-      // Number size depends on the country only, never on the value, so it stays the same while hovering. It is sized for
-      // a worst-case width (HL_NUM_CHARS characters) at about half the country width, since tall countries clip at the sides.
+      // Number size depends on the country only, never on the value, so it stays the same while hovering. Large for
+      // contrast: up to 70 % of the country width for a worst-case count (HL_NUM_CHARS characters) and 30 % of its height.
       const { w, h } = hlGeom;
-      hlGeom.numSize = Math.max(20, Math.min(120, (0.5 * w) / (0.62 * HL_NUM_CHARS), 0.25 * h));
-      hlGeom.labelSize = Math.max(11, Math.min(16, w * 0.045));
+      hlGeom.numSize = Math.max(40, Math.min(110, (0.7 * w) / (0.62 * HL_NUM_CHARS), 0.3 * h));
+      hlGeom.labelSize = Math.max(12, Math.min(16, w * 0.045));
     }
     const { w, h, cx, y1, numSize, labelSize: fs } = hlGeom;
     hlNum.attr('x', cx).attr('y', y1).style('font-size', `${numSize}px`);
 
     // Context + label: white on a chip in the fill colour, just below the edge; wider than the country is fine.
-    const maxChars = Math.max(14, Math.min(26, Math.floor((0.9 * w) / (0.54 * fs))));
-    const lines = [...wrap(hl.context, maxChars, 2), ...wrap(hl.label, maxChars, 3)];
+    const maxChars = Math.max(24, Math.min(32, Math.floor((0.9 * w) / (0.54 * fs)))); // not clipped, so thin countries may get a wider chip
+    const lines = [...wrap(hl.context, maxChars, 1), ...wrap(hl.label, maxChars, 2)];
     hlLabel.attr('x', cx).attr('y', y1).style('font-size', `${fs}px`).selectAll('tspan').remove();
     lines.forEach((line, i) => hlLabel.append('tspan').attr('x', cx).attr('dy', i === 0 ? fs * 2.1 : fs * 1.3).text(line));
     const bb = hlLabel.node().getBBox();
