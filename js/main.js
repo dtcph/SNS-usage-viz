@@ -1,5 +1,5 @@
 // Entry point: loads data, wires the store to the UI modules.
-import { DEFAULT_LANG, LANGUAGES, GENERATIONS, REFERENCE_YEAR } from './config.js';
+import { DEFAULT_LANG, DOOMSCROLL_THRESHOLD_MIN_PER_DAY, LANGUAGES, GENERATIONS, REFERENCE_YEAR } from './config.js';
 import { createStore, initialState } from './state.js';
 import { loadAll } from './data/loader.js';
 import { loadPopulation } from './data/population.js';
@@ -48,7 +48,7 @@ async function main() {
     totalFor: (year) => worldAffected(model, store.get().population.byA3, store.get().ageGroups, year),
   });
   const headline = createHeadline({
-    nameEl: $('headline-name'), lineEl: $('headline-line'), weekEl: $('stat-week'), dayEl: $('stat-day'),
+    nameEl: $('headline-name'), lineEl: $('headline-line'), basisEl: $('headline-basis'), weekEl: $('stat-week'), dayEl: $('stat-day'),
     weekLabelEl: $('stat-week-label'), dayLabelEl: $('stat-day-label'),
   });
   const panels = await createPanels({ container: $('panels'), store });
@@ -85,6 +85,10 @@ async function main() {
     panels.setZone(zone, !!country);
   }
 
+  function renderDefinition() {
+    $('definition').textContent = i18n.t('app.definition', { duration: i18n.hoursMinutes(DOOMSCROLL_THRESHOLD_MIN_PER_DAY) });
+  }
+
   function renderFooter() {
     const { population } = store.get();
     const key = !population ? 'footer.popLoading' : population.source === 'live' ? 'footer.popLive' : population.source === 'snapshot' ? 'footer.popSnapshot' : 'footer.popNone';
@@ -95,14 +99,14 @@ async function main() {
     document.body.classList.toggle('is-zoomed', !!s.country);
     if (s.theme !== prev.theme) { document.documentElement.dataset.theme = s.theme; remember('theme', s.theme); }
     if (s.lang !== prev.lang || s.year !== prev.year) legend.render(i18n, s.year, model.latestYear);
-    if (s.lang !== prev.lang) renderFooter();
+    if (s.lang !== prev.lang) { renderFooter(); renderDefinition(); }
     if (s.population !== prev.population) renderFooter();
     if (s.country !== prev.country) headline.reset();
     if (s.highlight && (s.zone !== prev.zone || s.country !== prev.country || s.ageGroups !== prev.ageGroups)) store.set({ highlight: null });
     if (s.country !== prev.country || s.ageGroups !== prev.ageGroups || s.lang !== prev.lang || s.population !== prev.population || s.zone !== prev.zone) renderCountry();
   });
 
-  legend.render(i18n, null, model.latestYear); renderFooter();
+  legend.render(i18n, null, model.latestYear); renderFooter(); renderDefinition();
 
   // ---- global input ----
   $('back').addEventListener('click', () => store.set({ country: null }));

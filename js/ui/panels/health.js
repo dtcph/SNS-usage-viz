@@ -18,7 +18,7 @@ export function create(card, { store }) {
   const chart = createChart($('.chart-host'), {
     onHover(i) {
       const item = i == null ? null : items[i];
-      store.set({ highlight: item ? { share: item.share, context: i18nNow.t('health.ofTeens'), label: item.label } : null });
+      store.set({ highlight: item ? { share: item.share, count: item.count, context: i18nNow.t('health.ofTeens', { pct: i18nNow.percent(item.share) }), label: item.label } : null });
     },
   });
 

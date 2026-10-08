@@ -2,7 +2,7 @@
 import { DOOMSCROLL_THRESHOLD_MIN_PER_DAY } from '../config.js';
 import { createCounter } from './counter.js';
 
-export function createHeadline({ nameEl, lineEl, weekEl, dayEl, weekLabelEl, dayLabelEl }) {
+export function createHeadline({ nameEl, lineEl, basisEl, weekEl, dayEl, weekLabelEl, dayLabelEl }) {
   let counter = null, weekCounter = null, dayCounter = null, key = '', shownFor = null;
 
   function build(i18n) {
@@ -23,7 +23,10 @@ export function createHeadline({ nameEl, lineEl, weekEl, dayEl, weekLabelEl, day
     render({ i18n, vm, id, name }) {
       if (i18n.lang !== key || !counter) { key = i18n.lang; build(i18n); shownFor = null; }
       nameEl.textContent = name ?? '';
-      if (!vm) { counter.set(0); weekCounter.set(0); dayCounter.set(0); return; }
+      if (!vm) { counter.set(0); weekCounter.set(0); dayCounter.set(0); basisEl.textContent = ''; return; }
+      basisEl.textContent = i18n.t('headline.basis', {
+        population: i18n.compact(vm.population), users: i18n.compact(vm.users), duration: i18n.hoursMinutes(DOOMSCROLL_THRESHOLD_MIN_PER_DAY),
+      });
       const from = shownFor === id ? undefined : 0;
       counter.to(vm.affected, { from });
       weekCounter.to(vm.weeklyMin, { from });

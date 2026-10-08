@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "Out of the Pull",
-    "subtitle": "Doomscrolling, country by country"
+    "subtitle": "Doomscrolling, country by country",
+    "definition": "Affected: social-media users who spend at least {duration} a day in feeds."
   },
   "map": {
     "ariaLabel": "World map of weekly time spent on social media",
@@ -24,7 +25,8 @@
     "affected": "Affected",
     "line": "{count} affected spend more than {duration} in the feed here, every day.",
     "perWeek": "per week",
-    "perDay": "per day"
+    "perDay": "per day",
+    "basis": "Of the {population} people shown, {users} use social media. “Affected” are those who spend {duration} or more a day in feeds."
   },
   "time": {
     "hm": "{h} h {m} min",
@@ -60,7 +62,7 @@
       "sleep": "Trouble sleeping",
       "substances": "Using substances"
     },
-    "ofTeens": "of adolescents",
+    "ofTeens": "{pct} of adolescents",
     "short": {
       "tiredEyes": "Tired eyes",
       "veryTired": "Exhausted",
@@ -89,7 +91,7 @@
       "celebrities": "Following celebrities and influencers",
       "fomo": "Not missing out (FOMO)"
     },
-    "ofAffected": "of the affected",
+    "ofAffected": "{pct} of the affected",
     "short": {
       "friendsFamily": "Friends",
       "spareTime": "Spare time",

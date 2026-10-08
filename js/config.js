@@ -122,6 +122,11 @@ export const MAP_COLOR_STEPS = 7;
 export const GLOBE_INITIAL_CENTER = [10, 20];
 export const GLOBE_ZOOM_MIN = 0.8;
 export const GLOBE_ZOOM_MAX = 6;
+/** Dragging eases towards the pointer (time constant, ms); a released fast drag keeps spinning and decays (time constant, ms; 0 = no inertia). */
+export const GLOBE_DRAG_SMOOTHING_MS = 70;
+export const GLOBE_INERTIA_DECAY_MS = 320;
+/** Cap for the release speed, degrees per second. */
+export const GLOBE_MAX_SPIN_DEG_PER_S = 260;
 /** Zoom fit: share of the neutral middle third the country may fill (0-1), and a cap on the zoom factor. */
 export const ZOOM_FILL = 0.92;
 export const ZOOM_MAX_SCALE = 40;

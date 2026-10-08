@@ -1,10 +1,11 @@
 /* Headline, popups (fly in from the sides), timeline */
 .headline {
-  position: fixed; z-index: 5; left: 50%; bottom: 128px; transform: translateX(-50%);
+  position: fixed; z-index: 5; left: 50%; bottom: 122px; transform: translateX(-50%);
   width: min(calc(33vw - var(--space-5)), 460px); text-align: center;
 }
 .headline-name { font-size: var(--text-xl); font-weight: 300; }
 .headline-line { margin-top: var(--space-3); font-size: var(--text-l); line-height: 1.55; }
+.headline-basis { margin-top: var(--space-2); font-size: var(--text-s); line-height: 1.5; color: var(--ink-soft); }
 .stats { display: flex; justify-content: center; gap: var(--space-6); margin-top: var(--space-3); }
 .stat { display: grid; justify-items: center; }
 .stat-val { font-size: var(--text-xl); font-weight: 300; line-height: 1.15; white-space: nowrap; }
@@ -109,6 +110,6 @@ body:not(.is-zoomed) .timeline-line { stroke-dashoffset: 0; transition: stroke-d
   transition: opacity var(--fade-duration) var(--fade-easing);
 }
 .land-readout.is-visible { opacity: 1; }
-.readout-num { font-size: 2.6rem; font-weight: 300; line-height: 1.1; }
+.readout-num { font-size: 2.4rem; font-weight: 300; line-height: 1.1; }
 .readout-context { font-size: var(--text-s); color: var(--ink-soft); }
 .readout-label { font-size: var(--text-s); margin-top: 2px; }

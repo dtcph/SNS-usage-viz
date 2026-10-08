@@ -2,7 +2,7 @@
 // Hover styling is CSS only; pointer handling is rAF-throttled; the globe is redrawn at most once per frame.
 import { feature, geoArea, geoCentroid, geoGraticule10, geoOrthographic, geoPath, interpolateArray, scaleQuantize, select } from '../../vendor/d3-lite.js';
 import {
-  GLOBE_INITIAL_CENTER, GLOBE_ZOOM_MAX, GLOBE_ZOOM_MIN, MAP_COLOR_STEPS, MAP_HIDDEN_IDS, ZOOM_FILL, ZOOM_MAX_SCALE, ZOOM_MIN_PART_AREA_RATIO,
+  GLOBE_DRAG_SMOOTHING_MS, GLOBE_INERTIA_DECAY_MS, GLOBE_INITIAL_CENTER, GLOBE_MAX_SPIN_DEG_PER_S, GLOBE_ZOOM_MAX, GLOBE_ZOOM_MIN, MAP_COLOR_STEPS, MAP_HIDDEN_IDS, ZOOM_FILL, ZOOM_MAX_SCALE, ZOOM_MIN_PART_AREA_RATIO,
 } from '../config.js';
 import { describeCountry, yearFactor } from '../model/calc.js';
 import { createCounter } from './counter.js';
@@ -11,6 +11,8 @@ import { readMotion, readPx } from './motion.js';
 const PAD_X = 24;
 const DRAG_THRESHOLD_PX = 4;
 const RAD_TO_DEG = 180 / Math.PI;
+const MIN_SPIN_DEG_PER_S = 3;
+const VELOCITY_WINDOW_MS = 110;
 
 /**
  * @param {object} o
@@ -84,7 +86,7 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   const readoutNum = readout.querySelector('.readout-num');
   const readoutContext = readout.querySelector('.readout-context');
   const readoutLabel = readout.querySelector('.readout-label');
-  const readoutCounter = createCounter(readoutNum, (n) => getI18n().percent(n / 100));
+  const readoutCounter = createCounter(readoutNum, (n) => getI18n().compact(n));
 
   // ---- globe state ----
   const projection = geoOrthographic().clipAngle(90);
@@ -101,8 +103,38 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
     graticule.attr('d', pathGen(graticuleLines));
     paths.attr('d', (e) => pathGen(e.f));
   }
-  let drawRaf = 0;
-  const requestDraw = () => { if (!drawRaf) drawRaf = requestAnimationFrame(() => { drawRaf = 0; drawNow(); }); };
+
+  // ---- smooth interaction: the view eases towards a target; a fast release keeps spinning (inertia) ----
+  const target = { lam: view.lam, phi: view.phi, scale: view.scale };
+  const spin = { lam: 0, phi: 0 }; // degrees per second
+  let loopRaf = 0, lastTick = 0, drag = null;
+  const clampPhi = (p) => Math.max(-90, Math.min(90, p));
+  const syncTarget = () => { target.lam = view.lam; target.phi = view.phi; target.scale = view.scale; spin.lam = spin.phi = 0; };
+  const stopLoop = () => { cancelAnimationFrame(loopRaf); loopRaf = 0; spin.lam = spin.phi = 0; };
+
+  function tick(now) {
+    const dt = Math.min(64, now - lastTick);
+    lastTick = now;
+    const spinning = !drag?.moved && Math.hypot(spin.lam, spin.phi) > MIN_SPIN_DEG_PER_S;
+    if (spinning) {
+      target.lam += (spin.lam * dt) / 1000;
+      target.phi = clampPhi(target.phi + (spin.phi * dt) / 1000);
+      const decay = Math.exp(-dt / GLOBE_INERTIA_DECAY_MS);
+      spin.lam *= decay; spin.phi *= decay;
+      if (Math.abs(target.phi) === 90) spin.phi = 0; // stopped at a pole
+    } else spin.lam = spin.phi = 0;
+    const a = 1 - Math.exp(-dt / GLOBE_DRAG_SMOOTHING_MS);
+    view = {
+      ...view,
+      lam: view.lam + (target.lam - view.lam) * a,
+      phi: view.phi + (target.phi - view.phi) * a,
+      scale: Math.exp(Math.log(view.scale) + (Math.log(target.scale) - Math.log(view.scale)) * a),
+    };
+    const settled = !spinning && Math.abs(target.lam - view.lam) < 0.01 && Math.abs(target.phi - view.phi) < 0.01 && Math.abs(Math.log(target.scale / view.scale)) < 0.0005;
+    if (settled) { view = { ...view, lam: target.lam, phi: target.phi, scale: target.scale }; loopRaf = 0; } else loopRaf = requestAnimationFrame(tick);
+    drawNow();
+  }
+  function startLoop() { if (!loopRaf) { lastTick = performance.now(); loopRaf = requestAnimationFrame(tick); } }
 
   function layout() {
     width = svgEl.clientWidth; height = svgEl.clientHeight;
@@ -142,21 +174,22 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
 
   // ---- flight between views (same duration/easing variables as the CSS) ----
   let flightRaf = 0;
-  function flyTo(target, animate) {
+  function flyTo(destination, animate) {
     cancelAnimationFrame(flightRaf);
+    stopLoop();
     const { duration, ease } = readMotion('zoom');
-    if (!animate || duration <= 20) { view = target; drawNow(); return; }
+    if (!animate || duration <= 20) { view = destination; syncTarget(); drawNow(); return; }
     const from = view;
-    let lam = target.lam; // take the short way round
+    let lam = destination.lam; // take the short way round
     while (lam - from.lam > 180) lam -= 360;
     while (lam - from.lam < -180) lam += 360;
-    const lerp = interpolateArray([from.lam, from.phi, Math.log(from.scale), from.tx, from.ty], [lam, target.phi, Math.log(target.scale), target.tx, target.ty]);
+    const lerp = interpolateArray([from.lam, from.phi, Math.log(from.scale), from.tx, from.ty], [lam, destination.phi, Math.log(destination.scale), destination.tx, destination.ty]);
     const t0 = performance.now();
     const step = (now) => {
       const p = Math.min(1, (now - t0) / duration), v = lerp(ease(p));
       view = { lam: v[0], phi: v[1], scale: Math.exp(v[2]), tx: v[3], ty: v[4] };
       drawNow();
-      if (p < 1) flightRaf = requestAnimationFrame(step); else view = target;
+      if (p < 1) flightRaf = requestAnimationFrame(step); else { view = destination; syncTarget(); }
     };
     flightRaf = requestAnimationFrame(step);
   }
@@ -182,7 +215,7 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
     readoutLabel.textContent = hl.label;
     readout.classList.add('is-visible');
     requestAnimationFrame(() => hlFill.style('--level', hl.share));
-    readoutCounter.to(hl.share * 100);
+    readoutCounter.to(hl.count);
   }
 
   let shown = null; // country currently flown to
@@ -203,13 +236,13 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
 
   // ---- pointer: drag rotates, wheel zooms (world state only) ----
   const entryOf = (target) => target.closest?.('.country')?.__data__ ?? null;
-  let drag = null, suppressClick = false, lastEvent = null, raf = 0;
+  let suppressClick = false, lastEvent = null, raf = 0;
 
   function flushPointer() {
     raf = 0;
     const e = lastEvent;
     if (!e) return;
-    const entry = store.get().country || drag?.moved ? null : entryOf(e.target);
+    const entry = store.get().country || drag?.moved || loopRaf ? null : entryOf(e.target); // no tooltip while the globe moves
     if (!entry) { tooltip.hide(); onHoverTime(null); return; }
     const i18n = getI18n();
     const { population, ageGroups, year } = store.get();
@@ -233,7 +266,8 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   svgEl.addEventListener('pointerdown', (e) => {
     if (store.get().country || e.button !== 0) return;
     cancelAnimationFrame(flightRaf);
-    drag = { x: e.clientX, y: e.clientY, moved: false, id: e.pointerId };
+    syncTarget(); // grabbing the globe stops any spin
+    drag = { x: e.clientX, y: e.clientY, moved: false, id: e.pointerId, samples: [] };
   });
   svgEl.addEventListener('pointermove', (e) => {
     lastEvent = e;
@@ -241,10 +275,14 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
       if (!drag.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD_PX) return;
       if (!drag.moved) { drag.moved = true; svgEl.setPointerCapture(e.pointerId); svg.classed('is-dragging', true); tooltip.hide(); onHoverTime(null); }
-      const k = RAD_TO_DEG / view.scale; // 1 px at the globe centre = the angle it covers, so the surface follows the cursor
-      view = { ...view, lam: view.lam + dx * k, phi: Math.max(-90, Math.min(90, view.phi - dy * k)) };
+      const k = RAD_TO_DEG / target.scale; // 1 px at the globe centre = the angle it covers, so the surface follows the cursor
+      target.lam += dx * k;
+      target.phi = clampPhi(target.phi - dy * k);
       drag.x = e.clientX; drag.y = e.clientY;
-      requestDraw();
+      const now = performance.now();
+      drag.samples.push({ t: now, lam: target.lam, phi: target.phi });
+      while (drag.samples.length > 2 && now - drag.samples[0].t > VELOCITY_WINDOW_MS) drag.samples.shift();
+      startLoop();
       return;
     }
     if (!raf) raf = requestAnimationFrame(flushPointer);
@@ -252,7 +290,18 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   const endDrag = (e) => {
     if (!drag || e.pointerId !== drag.id) return;
     suppressClick = drag.moved;
-    if (drag.moved && svgEl.hasPointerCapture(e.pointerId)) svgEl.releasePointerCapture(e.pointerId);
+    if (drag.moved) {
+      if (svgEl.hasPointerCapture(e.pointerId)) svgEl.releasePointerCapture(e.pointerId);
+      // release speed from the last ~110 ms of movement; a pause before releasing means no spin
+      const first = drag.samples[0], last = drag.samples.at(-1), now = performance.now();
+      const span = last.t - first.t;
+      if (GLOBE_INERTIA_DECAY_MS > 0 && span > 8 && now - last.t < 60) {
+        const cap = (v) => Math.max(-GLOBE_MAX_SPIN_DEG_PER_S, Math.min(GLOBE_MAX_SPIN_DEG_PER_S, v));
+        spin.lam = cap(((last.lam - first.lam) / span) * 1000);
+        spin.phi = cap(((last.phi - first.phi) / span) * 1000);
+      }
+      startLoop();
+    }
     drag = null;
     svg.classed('is-dragging', false);
   };
@@ -266,8 +315,9 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
     tooltip.hide();
     userZoom = Math.max(GLOBE_ZOOM_MIN, Math.min(GLOBE_ZOOM_MAX, userZoom * Math.exp(-e.deltaY * 0.0015)));
     cancelAnimationFrame(flightRaf);
-    view = { ...view, scale: radius * userZoom };
-    requestDraw();
+    if (!loopRaf) syncTarget();
+    target.scale = radius * userZoom;
+    startLoop();
   }, { passive: false });
 
   svgEl.addEventListener('click', (e) => {

@@ -12,7 +12,7 @@ export function create(card, { store }) {
   const chart = createChart($('.chart-host'), {
     onHover(i) {
       const item = i == null ? null : items[i];
-      store.set({ highlight: item ? { share: item.pct / 100, context: i18nNow.t('usage.ofAffected'), label: item.label } : null });
+      store.set({ highlight: item ? { share: item.pct / 100, count: item.count, context: i18nNow.t('usage.ofAffected', { pct: i18nNow.percent(item.pct / 100) }), label: item.label } : null });
     },
   });
 

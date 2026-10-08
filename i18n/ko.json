@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "소용돌이에서 벗어나기",
-    "subtitle": "나라별 둠스크롤링"
+    "subtitle": "나라별 둠스크롤링",
+    "definition": "영향을 받는 사람들: 하루 {duration} 이상 피드에서 시간을 보내는 소셜 미디어 이용자."
   },
   "map": {
     "ariaLabel": "소셜 미디어 주간 이용 시간 세계 지도",
@@ -24,7 +25,8 @@
     "affected": "영향을 받는 사람들",
     "line": "영향을 받는 사람들 {count}이 이곳에서 매일 {duration} 이상을 피드 속에서 보냅니다.",
     "perWeek": "주간",
-    "perDay": "하루"
+    "perDay": "하루",
+    "basis": "표시된 {population} 중 {users}이 소셜 미디어를 이용합니다. ‘영향을 받는 사람들’은 하루 {duration} 이상 피드에서 시간을 보내는 사람들입니다."
   },
   "time": {
     "hm": "{h}시간 {m}분",
@@ -60,7 +62,7 @@
       "sleep": "잠들기 어려움",
       "substances": "약물·물질 사용"
     },
-    "ofTeens": "청소년 중",
+    "ofTeens": "청소년의 {pct}",
     "short": {
       "tiredEyes": "눈 피로",
       "veryTired": "극심한 피로",
@@ -89,7 +91,7 @@
       "celebrities": "셀럽·인플루언서 팔로우",
       "fomo": "뒤처지지 않기 (FOMO)"
     },
-    "ofAffected": "영향을 받는 사람들 중",
+    "ofAffected": "영향을 받는 사람들의 {pct}",
     "short": {
       "friendsFamily": "지인·가족",
       "spareTime": "여가",
