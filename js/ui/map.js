@@ -81,12 +81,14 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   // Highlight layer: a level-fill clipped to the chosen country, driven by chart hovers in the popups.
   const hlLayer = gRoot.append('g').attr('class', 'hl-layer');
   const clipShape = hlLayer.append('clipPath').attr('id', 'hl-clip').append('path');
-  const hlFill = hlLayer.append('g').attr('clip-path', 'url(#hl-clip)').append('rect').attr('class', 'hl-fill');
-  const readout = document.getElementById('land-readout');
-  const readoutNum = readout.querySelector('.readout-num');
-  const readoutContext = readout.querySelector('.readout-context');
-  const readoutLabel = readout.querySelector('.readout-label');
-  const readoutCounter = createCounter(readoutNum, (n) => getI18n().compact(n));
+  // Everything inside this group is masked by the country outline: the level fill, the big number sitting on its top edge
+  // (same colour as the fill) and the white label below the edge.
+  const hlMasked = hlLayer.append('g').attr('clip-path', 'url(#hl-clip)');
+  const hlFill = hlMasked.append('rect').attr('class', 'hl-fill');
+  const hlTexts = hlMasked.append('g').attr('class', 'hl-texts'); // lifted together with the fill level
+  const hlNum = hlTexts.append('text').attr('class', 'hl-num').attr('text-anchor', 'middle');
+  const hlLabel = hlTexts.append('text').attr('class', 'hl-label').attr('text-anchor', 'middle');
+  const readoutCounter = createCounter(hlNum.node(), (n) => getI18n().compact(n));
 
   // ---- globe state ----
   const projection = geoOrthographic().clipAngle(90);
@@ -195,27 +197,56 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   }
 
   // ---- highlight (level fill inside the country) ----
-  let hlOn = false;
+  let hlOn = false, hlGeom = null;
+
+  /** Greedy word wrap by character count (SVG text does not wrap). */
+  function wrap(text, maxChars, maxLines) {
+    const lines = [];
+    let line = '';
+    for (const word of text.split(/\s+/)) {
+      if (line && (line + ' ' + word).length > maxChars) { lines.push(line); line = word; } else line = line ? `${line} ${word}` : word;
+    }
+    if (line) lines.push(line);
+    if (lines.length > maxLines) { lines.length = maxLines; lines[maxLines - 1] = lines[maxLines - 1].replace(/.{0,2}$/, '…'); }
+    return lines;
+  }
+
   function setHighlight(hl) {
     const a3 = store.get().country;
     if (!hl || !a3) {
-      if (hlOn) { hlOn = false; hlFill.style('--level', 0); readout.classList.remove('is-visible'); }
+      if (hlOn) { hlOn = false; hlFill.style('--level', 0); hlTexts.style('--lift', '0px').classed('is-on', false); }
       return;
     }
-    if (!hlOn) { // fresh start: count from 0 and let the fill rise
+    const i18n = getI18n();
+    const { duration, ease } = readMotion('popup'); // fill and count-up share this duration/easing, so they finish together
+    if (!hlOn) { // fresh start: everything rises from the bottom of the country
       const entry = entries.find((e) => e.a3 === a3);
       const [[x0, y0], [x1, y1]] = pathGen.bounds(mainGeometry(entry.f));
+      hlGeom = { x0, y0, x1, y1, w: x1 - x0, h: y1 - y0, cx: (x0 + x1) / 2 };
       clipShape.attr('d', pathGen(entry.f));
-      hlFill.attr('x', x0).attr('y', y0).attr('width', x1 - x0).attr('height', y1 - y0).style('--level', 0);
+      hlFill.attr('x', x0).attr('y', y0).attr('width', hlGeom.w).attr('height', hlGeom.h).style('--level', 0);
+      hlTexts.style('--lift', '0px').classed('is-on', false);
       readoutCounter.set(0);
-      readout.style.transform = `translate(${(x0 + x1) / 2}px, ${(y0 + y1) / 2}px) translate(-50%, -50%)`;
     }
+    const { w, h, cx, y1 } = hlGeom;
+    // Number: large and bold, baseline on the fill's top edge (the group is lifted by level x height). It must fit the
+    // country's width and the room above the fill (shares reach about 50 %, so 40 % of the height is safe).
+    const numText = i18n.compact(hl.count);
+    const size = Math.max(26, Math.min(150, (0.8 * w) / (0.6 * numText.length), 0.4 * h));
+    hlNum.attr('x', cx).attr('y', y1).style('font-size', `${size}px`);
+    // Context + label in white, just below the edge, inside the fill.
+    const fs = Math.max(11, Math.min(17, w * 0.045));
+    const maxChars = Math.max(8, Math.floor((0.8 * w) / (0.54 * fs)));
+    const lines = [...wrap(hl.context, maxChars, 2), ...wrap(hl.label, maxChars, 3)];
+    hlLabel.attr('x', cx).attr('y', y1).style('font-size', `${fs}px`).selectAll('tspan').remove();
+    lines.forEach((line, i) => hlLabel.append('tspan').attr('x', cx).attr('dy', i === 0 ? fs * 1.9 : fs * 1.3).text(line));
+
     hlOn = true;
-    readoutContext.textContent = hl.context;
-    readoutLabel.textContent = hl.label;
-    readout.classList.add('is-visible');
-    requestAnimationFrame(() => hlFill.style('--level', hl.share));
-    readoutCounter.to(hl.count);
+    requestAnimationFrame(() => {
+      hlFill.style('--level', hl.share);
+      hlTexts.style('--lift', `${hl.share * h}px`).classed('is-on', true);
+      readoutCounter.to(hl.count, { duration, ease });
+    });
   }
 
   let shown = null; // country currently flown to
