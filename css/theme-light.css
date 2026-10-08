@@ -1,0 +1,30 @@
+/* Light theme: warm paper, pastel rainbow. Default. */
+:root, :root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f6f3ec;
+  --surface: rgba(255, 253, 248, 0.86);
+  --surface-solid: #fffdf8;
+  --ink: #2c2b35;
+  --ink-soft: #6d6b78;
+  --line: rgba(44, 43, 53, 0.14);
+  --line-strong: rgba(44, 43, 53, 0.32);
+  --accent: #8a76d6;
+  --accent-soft: rgba(138, 118, 214, 0.16);
+  --shadow-soft: 0 8px 28px rgba(70, 58, 100, 0.1), 0 1px 3px rgba(70, 58, 100, 0.06);
+
+  --land-stroke: #f6f3ec;
+  --nodata: #a09ea8;
+  --dim-opacity: 0.18;
+  /* Pastel rainbow, low -> high weekly time */
+  --rb-0: #b7d4f1;
+  --rb-1: #b3e2dc;
+  --rb-2: #c5e8b6;
+  --rb-3: #f1edaa;
+  --rb-4: #f8d2a6;
+  --rb-5: #f4b4b4;
+  --rb-6: #e3aadc;
+
+  --bar: linear-gradient(90deg, #b7d4f1, #c5e8b6, #f1edaa, #f4b4b4, #e3aadc);
+  --grain-opacity: 0.07;
+  --grain-blend: multiply;
+}

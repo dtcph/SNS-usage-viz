@@ -1,0 +1,85 @@
+{
+  "statisticId": 715449,
+  "source": "GWI; We Are Social; DataReportal; Meltwater",
+  "period": "Q2 2025",
+  "published": "October 2025",
+  "unit": "percent of respondents (multiple answers possible)",
+  "ageGroup": "16 to 64 years",
+  "reasons": [
+    {
+      "id": "friendsFamily",
+      "label": "Keeping in touch with friends and family",
+      "pct": 50.2
+    },
+    {
+      "id": "spareTime",
+      "label": "Filling spare time",
+      "pct": 39.7
+    },
+    {
+      "id": "news",
+      "label": "Reading news stories",
+      "pct": 35.4
+    },
+    {
+      "id": "findContent",
+      "label": "Finding content (e.g. articles, videos)",
+      "pct": 30.3
+    },
+    {
+      "id": "talkedAbout",
+      "label": "Seeing what's being talked about",
+      "pct": 28.9
+    },
+    {
+      "id": "products",
+      "label": "Finding products to purchase",
+      "pct": 27.3
+    },
+    {
+      "id": "inspiration",
+      "label": "Finding inspiration for things to do and buy",
+      "pct": 27.1
+    },
+    {
+      "id": "sports",
+      "label": "Watching or following sports",
+      "pct": 23.5
+    },
+    {
+      "id": "liveStreams",
+      "label": "Watching live streams",
+      "pct": 23.4
+    },
+    {
+      "id": "newContacts",
+      "label": "Making new contacts",
+      "pct": 22.8
+    },
+    {
+      "id": "brands",
+      "label": "Seeing content for your favorite brands",
+      "pct": 22.7
+    },
+    {
+      "id": "opinions",
+      "label": "Sharing and discussing opinions with others",
+      "pct": 22.5
+    },
+    {
+      "id": "work",
+      "label": "Work-related networking and research",
+      "pct": 21.5
+    },
+    {
+      "id": "celebrities",
+      "label": "Following celebrities or influencers",
+      "pct": 20.4
+    },
+    {
+      "id": "fomo",
+      "label": "Avoiding missing out on things (FOMO)",
+      "pct": 20.2
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Out of the Pull</title>
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500&display=swap">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/theme-light.css">
+  <link rel="stylesheet" href="css/theme-dark.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/map.css">
+  <link rel="stylesheet" href="css/panels.css">
+  <link rel="stylesheet" href="css/controls.css">
+</head>
+<body>
+  <svg id="map" class="map" role="img" data-i18n-attr="aria-label:map.ariaLabel"></svg>
+
+  <header class="masthead">
+    <h1 data-i18n="app.title">Out of the Pull</h1>
+    <p data-i18n="app.subtitle">Doomscrolling, country by country</p>
+  </header>
+  <button id="back" class="back-btn" type="button" tabindex="-1">
+    <span aria-hidden="true">←</span> <span data-i18n="back">Back to the map</span>
+  </button>
+  <button id="info-btn" class="info-btn" type="button" aria-expanded="false" aria-controls="info-panel" data-i18n-attr="aria-label:info.button;title:info.button">i</button>
+  <section id="info-panel" class="info-panel" hidden aria-labelledby="info-title">
+    <h2 id="info-title" data-i18n="info.title">About the numbers</h2>
+    <ul id="info-list"></ul>
+  </section>
+
+  <section id="headline" class="headline" aria-live="polite">
+    <p class="headline-name" id="headline-name"></p>
+    <p class="headline-line" id="headline-line"></p>
+    <p class="headline-avg" id="headline-avg"></p>
+  </section>
+  <section id="timeline" class="timeline" role="img" data-i18n-attr="aria-label:timeline.ariaLabel"></section>
+  <div id="panels"></div>
+
+  <div id="legend" class="legend" aria-hidden="true"></div>
+
+  <nav id="controls" class="controls">
+    <div class="chip-row" id="chip-row" role="group" data-i18n-attr="aria-label:age.label"></div>
+    <div class="control-row">
+      <button id="theme-switch" class="switch" type="button" role="switch" aria-checked="false">
+        <span class="switch-track"><span class="switch-thumb"></span></span>
+        <span data-i18n="controls.theme">Dark mode</span>
+      </button>
+      <span class="control-divider" aria-hidden="true"></span>
+      <div class="segmented" id="lang-switch" role="group" data-i18n-attr="aria-label:controls.language">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-lang="ko" aria-pressed="false">한국어</button>
+      </div>
+    </div>
+  </nav>
+
+  <footer id="footnote" class="footnote"></footer>
+  <div id="tooltip" class="tooltip" role="tooltip"></div>
+  <div id="status" class="status" hidden></div>
+  <div class="paper-grain" aria-hidden="true"></div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

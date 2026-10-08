@@ -1,0 +1,283 @@
+{
+  "statisticId": 270229,
+  "source": "GWI; DataReportal; We Are Social; Meltwater",
+  "period": "Q4 2025",
+  "published": "April 2026",
+  "unit": "minutes per week (converted from h.mm)",
+  "note": "n.a.",
+  "global": {
+    "weeklyMin": 425
+  },
+  "countries": [
+    {
+      "name": "Philippines",
+      "hm": "13.11",
+      "weeklyMin": 791
+    },
+    {
+      "name": "Kenya",
+      "hm": "12.33",
+      "weeklyMin": 753
+    },
+    {
+      "name": "Ghana",
+      "hm": "12.01",
+      "weeklyMin": 721
+    },
+    {
+      "name": "Brazil",
+      "hm": "11.54",
+      "weeklyMin": 714
+    },
+    {
+      "name": "Nigeria",
+      "hm": "11.22",
+      "weeklyMin": 682
+    },
+    {
+      "name": "Argentina",
+      "hm": "11.17",
+      "weeklyMin": 677
+    },
+    {
+      "name": "Mexico",
+      "hm": "11.12",
+      "weeklyMin": 672
+    },
+    {
+      "name": "South Africa",
+      "hm": "11.10",
+      "weeklyMin": 670
+    },
+    {
+      "name": "Colombia",
+      "hm": "11.00",
+      "weeklyMin": 660
+    },
+    {
+      "name": "Chile",
+      "hm": "10.56",
+      "weeklyMin": 656
+    },
+    {
+      "name": "Turkey",
+      "hm": "9.59",
+      "weeklyMin": 599
+    },
+    {
+      "name": "Egypt",
+      "hm": "9.45",
+      "weeklyMin": 585
+    },
+    {
+      "name": "Serbia",
+      "hm": "9.41",
+      "weeklyMin": 581
+    },
+    {
+      "name": "Malaysia",
+      "hm": "9.39",
+      "weeklyMin": 579
+    },
+    {
+      "name": "Ireland",
+      "hm": "9.36",
+      "weeklyMin": 576
+    },
+    {
+      "name": "New Zealand",
+      "hm": "9.31",
+      "weeklyMin": 571
+    },
+    {
+      "name": "Thailand",
+      "hm": "9.28",
+      "weeklyMin": 568
+    },
+    {
+      "name": "Indonesia",
+      "hm": "8.58",
+      "weeklyMin": 538
+    },
+    {
+      "name": "United States",
+      "hm": "8.50",
+      "weeklyMin": 530
+    },
+    {
+      "name": "Australia",
+      "hm": "8.48",
+      "weeklyMin": 528
+    },
+    {
+      "name": "Sweden",
+      "hm": "8.45",
+      "weeklyMin": 525
+    },
+    {
+      "name": "Saudi Arabia",
+      "hm": "8.17",
+      "weeklyMin": 497
+    },
+    {
+      "name": "Italy",
+      "hm": "8.15",
+      "weeklyMin": 495
+    },
+    {
+      "name": "United Kingdom",
+      "hm": "8.14",
+      "weeklyMin": 494
+    },
+    {
+      "name": "Greece",
+      "hm": "8.14",
+      "weeklyMin": 494
+    },
+    {
+      "name": "Bulgaria",
+      "hm": "8.13",
+      "weeklyMin": 493
+    },
+    {
+      "name": "Morocco",
+      "hm": "8.05",
+      "weeklyMin": 485
+    },
+    {
+      "name": "United Arab Emirates",
+      "hm": "7.58",
+      "weeklyMin": 478
+    },
+    {
+      "name": "Norway",
+      "hm": "7.56",
+      "weeklyMin": 476
+    },
+    {
+      "name": "Romania",
+      "hm": "7.52",
+      "weeklyMin": 472
+    },
+    {
+      "name": "Canada",
+      "hm": "7.38",
+      "weeklyMin": 458
+    },
+    {
+      "name": "Spain",
+      "hm": "7.34",
+      "weeklyMin": 454
+    },
+    {
+      "name": "Hungary",
+      "hm": "7.18",
+      "weeklyMin": 438
+    },
+    {
+      "name": "Singapore",
+      "hm": "7.13",
+      "weeklyMin": 433
+    },
+    {
+      "name": "Vietnam",
+      "hm": "6.56",
+      "weeklyMin": 416
+    },
+    {
+      "name": "Netherlands",
+      "hm": "6.54",
+      "weeklyMin": 414
+    },
+    {
+      "name": "India",
+      "hm": "6.53",
+      "weeklyMin": 413
+    },
+    {
+      "name": "Israel",
+      "hm": "6.39",
+      "weeklyMin": 399
+    },
+    {
+      "name": "Denmark",
+      "hm": "6.29",
+      "weeklyMin": 389
+    },
+    {
+      "name": "Russia",
+      "hm": "6.28",
+      "weeklyMin": 388
+    },
+    {
+      "name": "Croatia",
+      "hm": "6.25",
+      "weeklyMin": 385
+    },
+    {
+      "name": "Poland",
+      "hm": "6.15",
+      "weeklyMin": 375
+    },
+    {
+      "name": "Belgium",
+      "hm": "5.46",
+      "weeklyMin": 346
+    },
+    {
+      "name": "Portugal",
+      "hm": "5.30",
+      "weeklyMin": 330
+    },
+    {
+      "name": "Austria",
+      "hm": "5.17",
+      "weeklyMin": 317
+    },
+    {
+      "name": "Germany",
+      "hm": "5.17",
+      "weeklyMin": 317
+    },
+    {
+      "name": "Switzerland",
+      "hm": "5.15",
+      "weeklyMin": 315
+    },
+    {
+      "name": "Taiwan",
+      "hm": "5.13",
+      "weeklyMin": 313
+    },
+    {
+      "name": "France",
+      "hm": "4.58",
+      "weeklyMin": 298
+    },
+    {
+      "name": "Czechia",
+      "hm": "4.34",
+      "weeklyMin": 274
+    },
+    {
+      "name": "Hong Kong",
+      "hm": "4.08",
+      "weeklyMin": 248
+    },
+    {
+      "name": "South Korea",
+      "hm": "3.36",
+      "weeklyMin": 216
+    },
+    {
+      "name": "China",
+      "hm": "3.25",
+      "weeklyMin": 205
+    },
+    {
+      "name": "Japan",
+      "hm": "3.03",
+      "weeklyMin": 183
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+/* One place for motion. JS reads --zoom-duration / --zoom-easing so d3 transitions match CSS.
+   Change --anim-duration / --anim-easing to retune everything, or the specific variables to retune one thing. */
+:root {
+  --anim-duration: 0.5s;
+  --anim-easing: ease-in-out;
+
+  --zoom-duration: var(--anim-duration);
+  --zoom-easing: var(--anim-easing);
+  --popup-duration: var(--anim-duration);
+  --popup-easing: var(--anim-easing);
+  --fade-duration: var(--anim-duration);
+  --fade-easing: var(--anim-easing);
+  --draw-duration: calc(var(--anim-duration) * 2.4); /* timeline line drawing */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --anim-duration: 0.01s; }
+}
+
+/* Elements that belong to one state fade with the shared variables. */
+.masthead, .legend, .back-btn, .headline, .timeline, .footnote {
+  transition: opacity var(--fade-duration) var(--fade-easing);
+}
+.back-btn, .headline, .timeline { opacity: 0; pointer-events: none; }
+.is-zoomed .back-btn { opacity: 1; pointer-events: auto; }
+.is-zoomed .headline, .is-zoomed .timeline { opacity: 1; }
+.is-zoomed .masthead, .is-zoomed .legend { opacity: 0; pointer-events: none; }

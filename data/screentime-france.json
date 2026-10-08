@@ -1,0 +1,45 @@
+{
+  "statisticId": 1630850,
+  "source": "Les Échos; Ipsos",
+  "period": "2011 ; 2016 ; 2022",
+  "published": "March 2022",
+  "unit": "minutes per week (converted from h.mm)",
+  "region": "France",
+  "groups": [
+    {
+      "id": "1-6",
+      "label": "1-6 years",
+      "minAge": 1,
+      "maxAge": 6
+    },
+    {
+      "id": "7-12",
+      "label": "7-12 years old",
+      "minAge": 7,
+      "maxAge": 12
+    },
+    {
+      "id": "13-19",
+      "label": "13-19 years old",
+      "minAge": 13,
+      "maxAge": 19
+    }
+  ],
+  "weeklyMin": {
+    "2011": {
+      "1-6": 749,
+      "7-12": 1198,
+      "13-19": 1823
+    },
+    "2016": {
+      "1-6": 855,
+      "7-12": 1227,
+      "13-19": 1980
+    },
+    "2022": {
+      "1-6": 861,
+      "7-12": 1481,
+      "13-19": 2168
+    }
+  }
+}

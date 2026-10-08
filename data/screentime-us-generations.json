@@ -1,0 +1,62 @@
+{
+  "statisticId": 1716080,
+  "source": "Reviews.org",
+  "period": "2026",
+  "published": "July 2026",
+  "unit": "minutes per day (converted from h.mm)",
+  "region": "United States",
+  "ageGroup": "18 years and older",
+  "devices": [
+    "smartphone",
+    "desktop",
+    "laptop",
+    "tablet",
+    "connectedTv"
+  ],
+  "generations": [
+    {
+      "id": "genZ",
+      "label": "Gen Z",
+      "minutes": {
+        "smartphone": 279,
+        "desktop": 202,
+        "laptop": 181,
+        "tablet": 137,
+        "connectedTv": 184
+      }
+    },
+    {
+      "id": "millennials",
+      "label": "Millenials",
+      "minutes": {
+        "smartphone": 267,
+        "desktop": 176,
+        "laptop": 182,
+        "tablet": 130,
+        "connectedTv": 204
+      }
+    },
+    {
+      "id": "boomers",
+      "label": "Baby boomers",
+      "minutes": {
+        "smartphone": 217,
+        "desktop": 160,
+        "laptop": 158,
+        "tablet": 105,
+        "connectedTv": 209
+      }
+    },
+    {
+      "id": "genX",
+      "label": "Gen X",
+      "minutes": {
+        "smartphone": 173,
+        "desktop": 187,
+        "laptop": 212,
+        "tablet": 98,
+        "connectedTv": 260
+      }
+    }
+  ]
+}
