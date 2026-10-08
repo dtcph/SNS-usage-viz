@@ -1,4 +1,4 @@
-/* Dark theme: calm blue-grey (no pure black), pastel colours a little more saturated. */
+/* Dark theme: calm blue-grey (no pure black), heatmap a little more saturated. */
 :root[data-theme="dark"] {
   color-scheme: dark;
   --bg: #1b1d27;
@@ -15,16 +15,18 @@
   --land-stroke: #1b1d27;
   --nodata: #363947;
   --dim-opacity: 0.2;
-  --rb-0: #5f93cc;
-  --rb-1: #4fadaa;
-  --rb-2: #7cbd70;
-  --rb-3: #cdbf63;
-  --rb-4: #dc9d5a;
-  --rb-5: #d57474;
-  --rb-6: #b975c4;
+  --rb-0: #4f86c9;
+  --rb-1: #6f80d6;
+  --rb-2: #9378d4;
+  --rb-3: #b66fc4;
+  --rb-4: #d2689f;
+  --rb-5: #da586b;
+  --rb-6: #d14444;
+  --globe-hi: #2c3042;
+  --globe-lo: #20222e;
 
-  --bar: linear-gradient(90deg, #5f93cc, #7cbd70, #cdbf63, #d57474, #b975c4);
-  --hl-fill: rgba(150, 125, 235, 0.85);
+  --bar: linear-gradient(90deg, #4f86c9, #9378d4, #d2689f, #d14444);
+  --hl-fill: rgba(244, 242, 252, 0.8);
   --hl-ink: #ffffff;
   --grain-opacity: 0.05;
   --grain-blend: screen;

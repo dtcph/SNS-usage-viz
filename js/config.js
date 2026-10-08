@@ -20,7 +20,7 @@ export const DATA_FILES = {
   countryMap: 'data/country-map.json',
   populationSnapshot: 'data/population-snapshot.json',
 };
-/** World geometry. Swap to a 50m file for more detail (small states such as Singapore/Hong Kong only exist there). */
+/** World geometry (drawn on a 3D globe). Swap to a 50m file for more detail (small states such as Singapore/Hong Kong only exist there). */
 export const MAP_TOPOLOGY_URL = 'data/countries-110m.json';
 /** Antarctica (ISO numeric) is not drawn. */
 export const MAP_HIDDEN_IDS = ['010'];
@@ -114,8 +114,12 @@ export const SCREENTIME_CATEGORY_DISTRIBUTION = {
 export const COUNT_UP_DURATION_MS = 1100;
 /** Max. usage reasons shown in the popup (sorted by size). */
 export const USAGE_REASONS_VISIBLE = 8;
-/** Number of colour classes of the map choropleth (css/theme-*.css define --rb-0 ... --rb-6). */
+/** Number of colour classes of the heatmap (css/theme-*.css define --rb-0 ... --rb-6, blue -> pink -> red). */
 export const MAP_COLOR_STEPS = 7;
+/** Globe: initial view as [longitude, latitude] of the point facing the viewer, and the user zoom range (1 = whole globe fits). */
+export const GLOBE_INITIAL_CENTER = [10, 20];
+export const GLOBE_ZOOM_MIN = 0.8;
+export const GLOBE_ZOOM_MAX = 6;
 /** Zoom fit: share of the neutral middle third the country may fill (0-1), and a cap on the zoom factor. */
 export const ZOOM_FILL = 0.92;
 export const ZOOM_MAX_SCALE = 40;

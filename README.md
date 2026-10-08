@@ -1,6 +1,6 @@
 # Out of the Pull – a doomscrolling data visualisation
 
-Interactive world map of people "affected" by doomscrolling. Vanilla HTML/CSS/JS (ES modules), no build step at runtime.
+Interactive 3D globe of people "affected" by doomscrolling. Vanilla HTML/CSS/JS (ES modules), no build step at runtime.
 Desktop only. Part of the master's thesis *"Raus aus dem Sog"*.
 
 ## Run
@@ -13,8 +13,8 @@ Open the printed address (ES modules need http, not `file://`).
 
 ## Interaction
 
-1. Hover a country: name + population (age-filtered where data exists). Countries without data are dark grey, not clickable.
-2. Click a country with data: zoom. ESC, a click outside the country, or the back button returns.
+1. Drag to rotate the globe, scroll to zoom. Hover a country: name + population (age-filtered where data exists). Countries without data are dark grey, not clickable.
+2. Click a country with data: the globe turns and zooms to it. ESC, a click outside the country, or the back button returns.
 3. Zoomed: pointer in the left third opens **Health issues**, right third **Reasons for scrolling**, middle stays calm. The control bar has priority over the zones.
 3b. The popups are column charts (count above, group below). Hovering a column fills the chosen country from the bottom up to that share (height-based) and counts up the percentage inside it.
 4. Control bar: age chips (multi-select, "All" resets, at least one stays on), dark mode, EN / 한국어. "i" explains the assumptions.
@@ -32,7 +32,7 @@ data/                   *.json (converted XLS), country-map.json, population-sna
 i18n/                   en.json, ko.json
 data-src/               the original Statista XLSX files
 tools/                  one-off scripts (not part of the runtime)
-vendor/d3-lite.js       d3-geo/selection/zoom/transition/scale/shape/interpolate + topojson-client, bundled once
+vendor/d3-lite.js       d3-geo/selection/scale/shape/interpolate + topojson-client, bundled once
 ```
 
 New panel: add `js/ui/panels/<id>.js` (export `zone`, `create(card)` returning `{ render({ i18n, vm, fromZero }) }`), one entry in `PANELS` (config.js), and its strings in `i18n/*.json`.

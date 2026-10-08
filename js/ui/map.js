@@ -1,11 +1,16 @@
-// SVG world map: choropleth, hover tooltip, click-to-zoom. Hover styling is CSS only; the pointer handler is rAF-throttled.
-import { geoArea, geoEqualEarth, geoPath, interpolateArray, scaleQuantize, select, zoom, zoomIdentity, zoomTransform, feature } from '../../vendor/d3-lite.js';
-import { MAP_COLOR_STEPS, MAP_HIDDEN_IDS, ZOOM_FILL, ZOOM_MAX_SCALE, ZOOM_MIN_PART_AREA_RATIO } from '../config.js';
+// 3D globe (orthographic projection, SVG): heatmap choropleth, hover tooltip, drag to rotate, wheel to zoom, click-to-fly.
+// Hover styling is CSS only; pointer handling is rAF-throttled; the globe is redrawn at most once per frame.
+import { feature, geoArea, geoCentroid, geoGraticule10, geoOrthographic, geoPath, interpolateArray, scaleQuantize, select } from '../../vendor/d3-lite.js';
+import {
+  GLOBE_INITIAL_CENTER, GLOBE_ZOOM_MAX, GLOBE_ZOOM_MIN, MAP_COLOR_STEPS, MAP_HIDDEN_IDS, ZOOM_FILL, ZOOM_MAX_SCALE, ZOOM_MIN_PART_AREA_RATIO,
+} from '../config.js';
 import { filteredPopulation } from '../model/calc.js';
-import { readMotion, readPx } from './motion.js';
 import { createCounter } from './counter.js';
+import { readMotion, readPx } from './motion.js';
 
 const PAD_X = 24;
+const DRAG_THRESHOLD_PX = 4;
+const RAD_TO_DEG = 180 / Math.PI;
 
 /**
  * @param {object} o
@@ -30,6 +35,7 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
     const weeklyMin = a3 ? model.weeklyByA3.get(a3) : undefined;
     return { f, num, a3, a2: country?.a2 ?? null, weeklyMin, hasData: weeklyMin != null, name: f.properties?.name ?? '' };
   });
+
   // Startup diagnostics: anything that cannot be linked is listed once in the console.
   const onMap = new Set(entries.map((e) => e.a3));
   const noGeometry = [...model.weeklyByA3.keys()].filter((a3) => !onMap.has(a3));
@@ -41,81 +47,108 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   const extent = [Math.min(...values), Math.max(...values)];
   const colorStep = scaleQuantize().domain(extent).range(Array.from({ length: MAP_COLOR_STEPS }, (_, i) => i));
 
-  // DOM
+  // ---- DOM ----
+  const defs = svg.append('defs');
+  const grad = defs.append('radialGradient').attr('id', 'globe-grad').attr('cx', 0.38).attr('cy', 0.3).attr('r', 0.9);
+  grad.append('stop').attr('offset', 0).attr('class', 'globe-hi');
+  grad.append('stop').attr('offset', 1).attr('class', 'globe-lo');
+
   const gRoot = svg.append('g').attr('class', 'world');
   const sphere = gRoot.append('path').attr('class', 'sphere');
+  const graticule = gRoot.append('path').attr('class', 'graticule');
   const paths = gRoot.selectAll('path.country').data(entries).join('path')
     .attr('class', (e) => `country ${e.hasData ? `has-data rb${colorStep(e.weeklyMin)}` : 'nodata'}`)
     .attr('data-a3', (e) => e.a3);
+  const nodeByA3 = new Map();
+  paths.each(function (e) { if (e.a3) nodeByA3.set(e.a3, this); });
+
   // Highlight layer: a level-fill clipped to the chosen country, driven by chart hovers in the popups.
-    const hlLayer = gRoot.append('g').attr('class', 'hl-layer');
-  const clipPath = hlLayer.append('clipPath').attr('id', 'hl-clip');
-  const clipShape = clipPath.append('path');
+  const hlLayer = gRoot.append('g').attr('class', 'hl-layer');
+  const clipShape = hlLayer.append('clipPath').attr('id', 'hl-clip').append('path');
   const hlFill = hlLayer.append('g').attr('clip-path', 'url(#hl-clip)').append('rect').attr('class', 'hl-fill');
   const readout = document.getElementById('land-readout');
   const readoutNum = readout.querySelector('.readout-num');
   const readoutContext = readout.querySelector('.readout-context');
   const readoutLabel = readout.querySelector('.readout-label');
   const readoutCounter = createCounter(readoutNum, (n) => getI18n().percent(n / 100));
-  const nodeByA3 = new Map();
-  paths.each(function (e) { if (e.a3) nodeByA3.set(e.a3, this); });
 
-  let width = 0, height = 0, projection = null, pathGen = null;
+  // ---- globe state ----
+  const projection = geoOrthographic().clipAngle(90);
+  const pathGen = geoPath(projection);
+  const graticuleLines = geoGraticule10();
+  let width = 0, height = 0, cx = 0, cy = 0, radius = 1;
+  let userZoom = 1;
+  /** view = what is drawn: rotation (deg), scale (px) and screen position of the globe centre. */
+  let view = { lam: -GLOBE_INITIAL_CENTER[0], phi: -GLOBE_INITIAL_CENTER[1], scale: 1, tx: 0, ty: 0 };
 
-  // ---- zoom (programmatic only: wheel/drag are disabled) ----
-  const zoomBehavior = zoom().scaleExtent([1, 400]).filter(() => false)
-    .interpolate(interpolateArray) // straight "crash" path instead of d3's curved fly-over
-    .on('zoom', (e) => gRoot.attr('transform', e.transform));
-  svg.call(zoomBehavior);
+  function drawNow() {
+    projection.rotate([view.lam, view.phi]).scale(view.scale).translate([view.tx, view.ty]);
+    sphere.attr('d', pathGen({ type: 'Sphere' }));
+    graticule.attr('d', pathGen(graticuleLines));
+    paths.attr('d', (e) => pathGen(e.f));
+  }
+  let drawRaf = 0;
+  const requestDraw = () => { if (!drawRaf) drawRaf = requestAnimationFrame(() => { drawRaf = 0; drawNow(); }); };
 
   function layout() {
     width = svgEl.clientWidth; height = svgEl.clientHeight;
     svg.attr('viewBox', `0 0 ${width} ${height}`);
-    projection = geoEqualEarth().fitExtent([[PAD_X, readPx('--map-pad-top')], [width - PAD_X, height - readPx('--map-pad-bottom')]], { type: 'Sphere' });
-    pathGen = geoPath(projection);
-    sphere.attr('d', pathGen({ type: 'Sphere' }));
-    paths.attr('d', (e) => pathGen(e.f));
+    const top = readPx('--map-pad-top'), bottom = readPx('--map-pad-bottom');
+    cx = width / 2;
+    cy = top + (height - top - bottom) / 2;
+    radius = Math.max(50, Math.min((height - top - bottom) / 2, (width - 2 * PAD_X) / 2));
   }
 
-  /** Bounds (screen px at identity zoom) of the main landmass: overseas parts below ZOOM_MIN_PART_AREA_RATIO are ignored. */
-  function mainBounds(f) {
+  const worldView = () => ({ lam: view.lam, phi: view.phi, scale: radius * userZoom, tx: cx, ty: cy });
+
+  /** The part of a country that counts for zooming: overseas pieces below ZOOM_MIN_PART_AREA_RATIO are ignored. */
+  function mainGeometry(f) {
     const g = f.geometry;
-    if (g.type !== 'MultiPolygon') return pathGen.bounds(f);
-    const parts = g.coordinates.map((coordinates) => ({ type: 'Polygon', coordinates }));
-    const areas = parts.map((p) => geoArea(p));
+    if (g.type !== 'MultiPolygon') return g;
+    const areas = g.coordinates.map((coordinates) => geoArea({ type: 'Polygon', coordinates }));
     const max = Math.max(...areas);
-    const kept = parts.filter((_, i) => areas[i] >= max * ZOOM_MIN_PART_AREA_RATIO);
-    const bs = kept.map((p) => pathGen.bounds(p));
-    return [[Math.min(...bs.map((b) => b[0][0])), Math.min(...bs.map((b) => b[0][1]))], [Math.max(...bs.map((b) => b[1][0])), Math.max(...bs.map((b) => b[1][1]))]];
+    return { type: 'MultiPolygon', coordinates: g.coordinates.filter((_, i) => areas[i] >= max * ZOOM_MIN_PART_AREA_RATIO) };
   }
 
-  /** Transform that centres the country in the neutral middle third of the screen. */
-  function targetTransform(a3) {
-    const entry = entries.find((e) => e.a3 === a3);
-    const [[x0, y0], [x1, y1]] = mainBounds(entry.f);
+  /** View that turns the country towards the viewer and fits it into the neutral middle third. */
+  function countryView(a3) {
+    const geometry = mainGeometry(entries.find((e) => e.a3 === a3).f);
+    const [lon, lat] = geoCentroid(geometry);
+    const probe = geoOrthographic().rotate([-lon, -lat]).scale(radius).translate([0, 0]); // centroid sits at the origin
+    const [[x0, y0], [x1, y1]] = geoPath(probe).bounds(geometry);
     const third = width / 3, inset = (third * (1 - ZOOM_FILL)) / 2;
     const rx0 = third + inset, rx1 = 2 * third - inset;
     const ry0 = readPx('--zoom-pad-top'), ry1 = height - readPx('--zoom-pad-bottom');
     const k = Math.min(ZOOM_MAX_SCALE, (rx1 - rx0) / Math.max(1, x1 - x0), (ry1 - ry0) / Math.max(1, y1 - y0));
-    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
-    return zoomIdentity.translate((rx0 + rx1) / 2 - k * cx, (ry0 + ry1) / 2 - k * cy).scale(k);
+    return {
+      lam: -lon, phi: -lat, scale: radius * k,
+      tx: (rx0 + rx1) / 2 - k * (x0 + x1) / 2, ty: (ry0 + ry1) / 2 - k * (y0 + y1) / 2,
+    };
   }
 
-  function goTo(transform, animate) {
+  // ---- flight between views (same duration/easing variables as the CSS) ----
+  let flightRaf = 0;
+  function flyTo(target, animate) {
+    cancelAnimationFrame(flightRaf);
     const { duration, ease } = readMotion('zoom');
-    if (!animate || duration <= 20) svg.call(zoomBehavior.transform, transform);
-    else svg.interrupt().transition().duration(duration).ease(ease).call(zoomBehavior.transform, transform);
+    if (!animate || duration <= 20) { view = target; drawNow(); return; }
+    const from = view;
+    let lam = target.lam; // take the short way round
+    while (lam - from.lam > 180) lam -= 360;
+    while (lam - from.lam < -180) lam += 360;
+    const lerp = interpolateArray([from.lam, from.phi, Math.log(from.scale), from.tx, from.ty], [lam, target.phi, Math.log(target.scale), target.tx, target.ty]);
+    const t0 = performance.now();
+    const step = (now) => {
+      const p = Math.min(1, (now - t0) / duration), v = lerp(ease(p));
+      view = { lam: v[0], phi: v[1], scale: Math.exp(v[2]), tx: v[3], ty: v[4] };
+      drawNow();
+      if (p < 1) flightRaf = requestAnimationFrame(step); else view = target;
+    };
+    flightRaf = requestAnimationFrame(step);
   }
 
-  let hlBounds = null; // main landmass of the chosen country, projected px
+  // ---- highlight (level fill inside the country) ----
   let hlOn = false;
-  function prepareHighlight(a3) {
-    const entry = entries.find((e) => e.a3 === a3);
-    hlBounds = mainBounds(entry.f);
-    const [[x0, y0], [x1, y1]] = hlBounds;
-    clipShape.attr('d', pathGen(entry.f));
-    hlFill.attr('x', x0).attr('y', y0).attr('width', x1 - x0).attr('height', y1 - y0);
-  }
   function setHighlight(hl) {
     const a3 = store.get().country;
     if (!hl || !a3) {
@@ -123,11 +156,12 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
       return;
     }
     if (!hlOn) { // fresh start: count from 0 and let the fill rise
-      prepareHighlight(a3);
-      hlFill.style('--level', 0);
+      const entry = entries.find((e) => e.a3 === a3);
+      const [[x0, y0], [x1, y1]] = pathGen.bounds(mainGeometry(entry.f));
+      clipShape.attr('d', pathGen(entry.f));
+      hlFill.attr('x', x0).attr('y', y0).attr('width', x1 - x0).attr('height', y1 - y0).style('--level', 0);
       readoutCounter.set(0);
-      const [[x0, y0], [x1, y1]] = hlBounds, t = zoomTransform(svgEl);
-      readout.style.transform = `translate(${t.applyX((x0 + x1) / 2)}px, ${t.applyY((y0 + y1) / 2)}px) translate(-50%, -50%)`;
+      readout.style.transform = `translate(${(x0 + x1) / 2}px, ${(y0 + y1) / 2}px) translate(-50%, -50%)`;
     }
     hlOn = true;
     readoutContext.textContent = hl.context;
@@ -137,7 +171,7 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
     readoutCounter.to(hl.share * 100);
   }
 
-  let shown = null; // country currently zoomed on
+  let shown = null; // country currently flown to
   function sync(animate = true) {
     const a3 = store.get().country;
     svg.classed('has-selection', !!a3);
@@ -146,22 +180,22 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
       const node = nodeByA3.get(a3);
       if (node && node.parentNode.lastChild !== node) node.parentNode.appendChild(node); // draw the chosen country on top
       hlLayer.node().parentNode.appendChild(hlLayer.node()); // ...and the level fill above it
-      goTo(targetTransform(a3), animate && shown !== a3);
+      flyTo(countryView(a3), animate && shown !== a3);
     } else {
-      goTo(zoomIdentity, animate);
+      flyTo(worldView(), animate);
     }
     shown = a3;
   }
 
-  // ---- pointer ----
-  let lastEvent = null, raf = 0;
+  // ---- pointer: drag rotates, wheel zooms (world state only) ----
   const entryOf = (target) => target.closest?.('.country')?.__data__ ?? null;
+  let drag = null, suppressClick = false, lastEvent = null, raf = 0;
 
   function flushPointer() {
     raf = 0;
     const e = lastEvent;
     if (!e) return;
-    const entry = store.get().country ? null : entryOf(e.target);
+    const entry = store.get().country || drag?.moved ? null : entryOf(e.target);
     if (!entry) { tooltip.hide(); return; }
     const i18n = getI18n();
     const pop = store.get().population?.byA3[entry.a3];
@@ -173,10 +207,49 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
     if (!entry.hasData) lines.push(i18n.t('tooltip.noData'));
     tooltip.show(i18n.countryName(entry.a2, entry.name), lines, e.clientX, e.clientY);
   }
-  svgEl.addEventListener('pointermove', (e) => { lastEvent = e; if (!raf) raf = requestAnimationFrame(flushPointer); });
+
+  svgEl.addEventListener('pointerdown', (e) => {
+    if (store.get().country || e.button !== 0) return;
+    cancelAnimationFrame(flightRaf);
+    drag = { x: e.clientX, y: e.clientY, moved: false, id: e.pointerId };
+  });
+  svgEl.addEventListener('pointermove', (e) => {
+    lastEvent = e;
+    if (drag && e.pointerId === drag.id) {
+      const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      if (!drag.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD_PX) return;
+      if (!drag.moved) { drag.moved = true; svgEl.setPointerCapture(e.pointerId); svg.classed('is-dragging', true); tooltip.hide(); }
+      const k = RAD_TO_DEG / view.scale; // 1 px at the globe centre = the angle it covers, so the surface follows the cursor
+      view = { ...view, lam: view.lam + dx * k, phi: Math.max(-90, Math.min(90, view.phi - dy * k)) };
+      drag.x = e.clientX; drag.y = e.clientY;
+      requestDraw();
+      return;
+    }
+    if (!raf) raf = requestAnimationFrame(flushPointer);
+  });
+  const endDrag = (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    suppressClick = drag.moved;
+    if (drag.moved && svgEl.hasPointerCapture(e.pointerId)) svgEl.releasePointerCapture(e.pointerId);
+    drag = null;
+    svg.classed('is-dragging', false);
+  };
+  svgEl.addEventListener('pointerup', endDrag);
+  svgEl.addEventListener('pointercancel', endDrag);
   svgEl.addEventListener('pointerleave', () => { lastEvent = null; tooltip.hide(); });
 
+  svgEl.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    if (store.get().country) return;
+    tooltip.hide();
+    userZoom = Math.max(GLOBE_ZOOM_MIN, Math.min(GLOBE_ZOOM_MAX, userZoom * Math.exp(-e.deltaY * 0.0015)));
+    cancelAnimationFrame(flightRaf);
+    view = { ...view, scale: radius * userZoom };
+    requestDraw();
+  }, { passive: false });
+
   svgEl.addEventListener('click', (e) => {
+    if (suppressClick) { suppressClick = false; return; } // the click that ends a drag
     const entry = entryOf(e.target);
     const { country } = store.get();
     if (country) { if (!entry || entry.a3 !== country) store.set({ country: null }); return; } // click outside the chosen country: back
@@ -187,12 +260,19 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
     if (s.country !== prev.country) { setHighlight(null); sync(true); }
     if (s.highlight !== prev.highlight) setHighlight(s.highlight);
   });
+
   layout();
+  view = worldView();
+  drawNow();
   sync(false);
 
   return {
-    /** Re-fit to the viewport (zoomed state is re-centred without animation). */
-    resize() { layout(); if (store.get().country) goTo(targetTransform(store.get().country), false); },
+    /** Re-fit to the viewport (the current view is re-centred without animation). */
+    resize() {
+      layout();
+      const a3 = store.get().country;
+      flyTo(a3 ? countryView(a3) : worldView(), false);
+    },
     /** Legend range in minutes per week. */
     extent,
     colorStep,

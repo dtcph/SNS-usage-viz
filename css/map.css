@@ -1,6 +1,11 @@
 /* Map, tooltip, legend */
-.map { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; display: block; }
-.map .sphere { fill: none; stroke: var(--line); stroke-width: 1; vector-effect: non-scaling-stroke; transition: opacity var(--fade-duration) var(--fade-easing); }
+.map { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; display: block; cursor: grab; touch-action: none; user-select: none; }
+.map.is-dragging, .map.is-dragging .country { cursor: grabbing; }
+.map.has-selection { cursor: default; }
+.globe-hi { stop-color: var(--globe-hi); }
+.globe-lo { stop-color: var(--globe-lo); }
+.map .sphere { fill: url(#globe-grad); stroke: var(--line-strong); stroke-width: 1; vector-effect: non-scaling-stroke; transition: opacity var(--fade-duration) var(--fade-easing); }
+.map .graticule { fill: none; stroke: var(--line); stroke-width: 0.5; opacity: 0.7; pointer-events: none; transition: opacity var(--fade-duration) var(--fade-easing); }
 
 .country {
   stroke: var(--land-stroke); stroke-width: 0.6; vector-effect: non-scaling-stroke; stroke-linejoin: round;
@@ -17,12 +22,12 @@
 .country.has-data { cursor: pointer; }
 
 /* Hover is pure CSS: no JS touches the paths while the pointer moves. */
-.map:not(.has-selection) .country:hover { stroke: var(--ink); stroke-width: 1.2; }
+.map:not(.has-selection):not(.is-dragging) .country:hover { stroke: var(--ink); stroke-width: 1.2; }
 
 /* Selection: everything else steps back, the chosen country stays. */
 .map.has-selection .country { opacity: var(--dim-opacity); cursor: default; }
 .map.has-selection .country.is-selected { opacity: 1; stroke: var(--ink); stroke-width: 1.2; }
-.map.has-selection .sphere { opacity: 0; }
+.map.has-selection .sphere, .map.has-selection .graticule { opacity: 0; }
 
 .tooltip {
   position: fixed; left: 0; top: 0; z-index: 30; pointer-events: none; opacity: 0;

@@ -24,7 +24,6 @@ export function createChart(el, { onHover }) {
         const col = document.createElement('div');
         col.className = 'col'; col.tabIndex = 0; col.title = item.label; col.setAttribute('aria-label', item.label);
         const track = document.createElement('div'); track.className = 'col-track';
-        track.style.setProperty('--bar-color', `var(--rb-${(i * 2 + 1) % 7})`);
         const bar = document.createElement('i');
         const val = document.createElement('span'); val.className = 'col-val num';
         track.append(bar, val);
@@ -38,8 +37,9 @@ export function createChart(el, { onHover }) {
       });
       return cols;
     },
-    /** Bar height as 0-1; set from 0 first on opening so the column grows. */
+    /** Bar height as 0-1 (also picks its heatmap colour); set from 0 first on opening so the column grows. */
     setHeight(col, ratio, { fromZero }) {
+      col.track.style.setProperty('--bar-color', `var(--rb-${Math.round(ratio * 6)})`);
       if (fromZero) col.track.style.setProperty('--h', 0);
       requestAnimationFrame(() => requestAnimationFrame(() => col.track.style.setProperty('--h', ratio)));
     },

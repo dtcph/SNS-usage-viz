@@ -1,9 +1,9 @@
-/* Light theme: warm paper, pastel rainbow. Default. */
+/* Light theme: bright off-white, heatmap colours. Default. */
 :root, :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #f6f3ec;
-  --surface: rgba(255, 253, 248, 0.86);
-  --surface-solid: #fffdf8;
+  --bg: #fcfbf8;
+  --surface: rgba(255, 255, 255, 0.88);
+  --surface-solid: #ffffff;
   --ink: #2c2b35;
   --ink-soft: #6d6b78;
   --line: rgba(44, 43, 53, 0.14);
@@ -12,21 +12,23 @@
   --accent-soft: rgba(138, 118, 214, 0.16);
   --shadow-soft: 0 8px 28px rgba(70, 58, 100, 0.1), 0 1px 3px rgba(70, 58, 100, 0.06);
 
-  --land-stroke: #f6f3ec;
+  --land-stroke: #fcfbf8;
   --nodata: #a09ea8;
   --dim-opacity: 0.18;
-  /* Pastel rainbow, low -> high weekly time */
-  --rb-0: #b7d4f1;
-  --rb-1: #b3e2dc;
-  --rb-2: #c5e8b6;
-  --rb-3: #f1edaa;
-  --rb-4: #f8d2a6;
-  --rb-5: #f4b4b4;
-  --rb-6: #e3aadc;
+  /* Heatmap, low -> high weekly time: blue -> violet -> pink -> red */
+  --rb-0: #8dbbea;
+  --rb-1: #a7b4ee;
+  --rb-2: #c3ade9;
+  --rb-3: #dea7dc;
+  --rb-4: #ee9dbf;
+  --rb-5: #f2848f;
+  --rb-6: #e45d5f;
+  --globe-hi: #ffffff;
+  --globe-lo: #ecebf1;
 
-  --bar: linear-gradient(90deg, #b7d4f1, #c5e8b6, #f1edaa, #f4b4b4, #e3aadc);
-  --hl-fill: rgba(122, 100, 205, 0.88);
+  --bar: linear-gradient(90deg, #8dbbea, #c3ade9, #ee9dbf, #e45d5f);
+  --hl-fill: rgba(44, 46, 102, 0.82);
   --hl-ink: #ffffff;
-  --grain-opacity: 0.07;
+  --grain-opacity: 0.045;
   --grain-blend: multiply;
 }
