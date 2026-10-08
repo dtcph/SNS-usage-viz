@@ -37,17 +37,25 @@
 .panel-big .num { font-size: var(--text-num); font-weight: 300; }
 .panel-big span:last-child { color: var(--ink-soft); font-size: var(--text-s); }
 
-.rows { list-style: none; padding: 0; margin: var(--space-4) 0 0; display: grid; gap: var(--space-3); }
-.row-head { display: flex; justify-content: space-between; gap: var(--space-3); align-items: baseline; }
-.row-head > span:first-child { line-height: 1.3; }
-.row-head .num { font-weight: 400; white-space: nowrap; }
-.row-sub { color: var(--ink-soft); font-size: var(--text-s); }
-.row-bar { height: 4px; margin-top: 6px; border-radius: var(--radius-pill); background: var(--line); overflow: hidden; }
-.row-bar i {
-  display: block; height: 100%; width: 100%; transform-origin: left; transform: scaleX(var(--w, 0)); border-radius: inherit;
-  background: var(--bar-color, var(--accent));
-  transition: transform var(--popup-duration) var(--popup-easing);
+/* Column chart (popups): count above the bar, group label below. */
+.chart { --chart-h: 210px; display: flex; gap: 6px; margin-top: var(--space-4); align-items: stretch; }
+.col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; cursor: default; outline-offset: 2px; transition: opacity var(--fade-duration) var(--fade-easing); }
+.chart:hover .col:not(:hover) { opacity: 0.55; }
+.col-track {
+  position: relative; height: var(--chart-h); margin-top: var(--space-5); border-bottom: 1px solid var(--line-strong);
 }
+.col-track i {
+  position: absolute; left: 12%; right: 12%; bottom: 0; height: calc(var(--h, 0) * 100%);
+  border-radius: 6px 6px 0 0; background: var(--bar-color, var(--accent));
+  transition: height var(--popup-duration) var(--popup-easing);
+}
+.col-val {
+  position: absolute; left: -20%; right: -20%; bottom: calc(var(--h, 0) * 100% + 4px); text-align: center;
+  font-size: var(--text-s); font-weight: 400; white-space: nowrap;
+  transition: bottom var(--popup-duration) var(--popup-easing);
+}
+.col-label { margin: var(--space-2) -6px 0; text-align: center; font-size: 10px; line-height: 1.25; color: var(--ink-soft); }
+.col:hover .col-label { color: var(--ink); }
 .panel-empty { margin-top: var(--space-4); color: var(--ink-soft); line-height: 1.6; }
 .panel-empty strong { display: block; color: var(--ink); font-weight: 400; margin-bottom: var(--space-1); }
 
@@ -67,3 +75,20 @@
 .timeline-dot { fill: var(--accent); opacity: 0; transition: opacity var(--fade-duration) var(--fade-easing) var(--draw-duration); }
 .is-zoomed .timeline-line { stroke-dashoffset: 0; transition: stroke-dashoffset var(--draw-duration) var(--anim-easing); }
 .is-zoomed .timeline-dot { opacity: 1; }
+
+/* Level fill inside the chosen country while a chart column is hovered. */
+.hl-layer { pointer-events: none; }
+.hl-fill {
+  fill: var(--hl-fill); transform-box: fill-box; transform-origin: bottom;
+  transform: scaleY(var(--level, 0)); transition: transform var(--popup-duration) var(--popup-easing);
+}
+.land-readout {
+  position: fixed; left: 0; top: 0; z-index: 6; pointer-events: none; text-align: center; color: var(--ink);
+  display: grid; justify-items: center; opacity: 0; max-width: 220px; padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-m); background: var(--surface-solid); border: 1px solid var(--line); box-shadow: var(--shadow-soft);
+  transition: opacity var(--fade-duration) var(--fade-easing);
+}
+.land-readout.is-visible { opacity: 1; }
+.readout-num { font-size: 2.6rem; font-weight: 300; line-height: 1.1; }
+.readout-context { font-size: var(--text-s); color: var(--ink-soft); }
+.readout-label { font-size: var(--text-s); margin-top: 2px; }

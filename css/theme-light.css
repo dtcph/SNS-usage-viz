@@ -25,6 +25,8 @@
   --rb-6: #e3aadc;
 
   --bar: linear-gradient(90deg, #b7d4f1, #c5e8b6, #f1edaa, #f4b4b4, #e3aadc);
+  --hl-fill: rgba(122, 100, 205, 0.88);
+  --hl-ink: #ffffff;
   --grain-opacity: 0.07;
   --grain-blend: multiply;
 }

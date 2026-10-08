@@ -1,23 +1,51 @@
 {
-  "app": { "title": "소용돌이에서 벗어나기", "subtitle": "나라별 둠스크롤링" },
-  "map": { "ariaLabel": "소셜 미디어 주간 이용 시간 세계 지도", "loading": "불러오는 중 …", "error": "지도를 불러오지 못했습니다. 연결을 확인하고 다시 불러오세요." },
-  "tooltip": { "population": "인구", "noData": "이용 데이터 없음" },
-  "legend": { "title": "소셜 미디어 주간 이용 시간" },
+  "app": {
+    "title": "소용돌이에서 벗어나기",
+    "subtitle": "나라별 둠스크롤링"
+  },
+  "map": {
+    "ariaLabel": "소셜 미디어 주간 이용 시간 세계 지도",
+    "loading": "불러오는 중 …",
+    "error": "지도를 불러오지 못했습니다. 연결을 확인하고 다시 불러오세요."
+  },
+  "tooltip": {
+    "population": "인구",
+    "noData": "이용 데이터 없음"
+  },
+  "legend": {
+    "title": "소셜 미디어 주간 이용 시간"
+  },
   "back": "지도로 돌아가기",
   "headline": {
     "affected": "영향을 받는 사람들",
     "line": "영향을 받는 사람들 {count}이 이곳에서 매일 {duration} 이상을 피드 속에서 보냅니다.",
     "avg": "하루 평균 {daily} · 주 {weekly}"
   },
-  "time": { "hm": "{h}시간 {m}분", "h": "{h}시간", "m": "{m}분" },
-  "age": { "label": "연령대", "all": "전체", "range": "{from}–{to}세" },
-  "gen": { "alpha": "알파 세대", "genZ": "Z세대", "millennials": "밀레니얼", "genX": "X세대", "boomers": "베이비붐 세대" },
-  "controls": { "theme": "다크 모드", "language": "언어" },
+  "time": {
+    "hm": "{h}시간 {m}분",
+    "h": "{h}시간",
+    "m": "{m}분"
+  },
+  "age": {
+    "label": "연령대",
+    "all": "전체",
+    "range": "{from}–{to}세"
+  },
+  "gen": {
+    "alpha": "알파 세대",
+    "genZ": "Z세대",
+    "millennials": "밀레니얼",
+    "genX": "X세대",
+    "boomers": "베이비붐 세대"
+  },
+  "controls": {
+    "theme": "다크 모드",
+    "language": "언어"
+  },
   "health": {
     "title": "건강 문제",
     "basis": "기준: EU 청소년 10–19세, 추정 적용",
     "teens": "선택한 범위의 청소년",
-    "shareOfTeens": "그중 {pct}",
     "empty": "선택한 범위에 10–19세 청소년이 없습니다.",
     "emptyHint": "알파 세대 또는 Z세대를 선택하면 볼 수 있습니다.",
     "issue": {
@@ -26,6 +54,14 @@
       "concentrate": "집중하기 어려움",
       "sleep": "잠들기 어려움",
       "substances": "약물·물질 사용"
+    },
+    "ofTeens": "청소년 중",
+    "short": {
+      "tiredEyes": "눈 피로",
+      "veryTired": "극심한 피로",
+      "concentrate": "집중력",
+      "sleep": "수면",
+      "substances": "약물"
     }
   },
   "usage": {
@@ -47,9 +83,31 @@
       "work": "업무와 네트워킹",
       "celebrities": "셀럽·인플루언서 팔로우",
       "fomo": "뒤처지지 않기 (FOMO)"
+    },
+    "ofAffected": "영향을 받는 사람들 중",
+    "short": {
+      "friendsFamily": "지인·가족",
+      "spareTime": "여가",
+      "news": "뉴스",
+      "findContent": "콘텐츠",
+      "talkedAbout": "화제",
+      "products": "쇼핑",
+      "inspiration": "영감",
+      "sports": "스포츠",
+      "liveStreams": "라이브",
+      "newContacts": "새 인연",
+      "brands": "브랜드",
+      "opinions": "의견",
+      "work": "업무",
+      "celebrities": "셀럽",
+      "fomo": "FOMO"
     }
   },
-  "timeline": { "title": "전 세계 하루 소셜 미디어 이용 시간", "unit": "분/일", "ariaLabel": "꺾은선 그래프: 2012년부터 2025년까지 하루 평균 소셜 미디어 이용 시간(분)" },
+  "timeline": {
+    "title": "전 세계 하루 소셜 미디어 이용 시간",
+    "unit": "분/일",
+    "ariaLabel": "꺾은선 그래프: 2012년부터 2025년까지 하루 평균 소셜 미디어 이용 시간(분)"
+  },
   "info": {
     "button": "숫자에 대하여",
     "title": "숫자에 대하여",
@@ -63,5 +121,10 @@
       "모든 수치는 측정값이 아닌 추정치입니다."
     ]
   },
-  "footer": { "popLoading": "인구: 불러오는 중 …", "popLive": "인구: 실시간", "popSnapshot": "인구: {date} 기준 스냅샷", "popNone": "인구: 사용할 수 없음" }
+  "footer": {
+    "popLoading": "인구: 불러오는 중 …",
+    "popLive": "인구: 실시간",
+    "popSnapshot": "인구: {date} 기준 스냅샷",
+    "popNone": "인구: 사용할 수 없음"
+  }
 }

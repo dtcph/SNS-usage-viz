@@ -1,5 +1,5 @@
 // Popup host. Panels are listed in config.PANELS and live in js/ui/panels/<id>.js
-// (export `zone` and `create(card) -> { render({ i18n, vm, fromZero }) }`).
+// (export `zone` and `create(card, { store }) -> { render({ i18n, vm, fromZero }) }`).
 // Adding a panel = one module + one config entry.
 import { PANELS } from '../config.js';
 
@@ -15,7 +15,7 @@ export async function createPanels({ container, store }) {
     card.className = 'panel-card';
     shell.append(card);
     container.append(shell);
-    panels.push({ def, shell, view: mod.create(card), open: false });
+    panels.push({ def, shell, view: mod.create(card, { store }), open: false });
   }
 
   let latest = null; // { i18n, vm }

@@ -1,8 +1,9 @@
 // SVG world map: choropleth, hover tooltip, click-to-zoom. Hover styling is CSS only; the pointer handler is rAF-throttled.
-import { geoArea, geoEqualEarth, geoPath, interpolateArray, scaleQuantize, select, zoom, zoomIdentity, feature } from '../../vendor/d3-lite.js';
+import { geoArea, geoEqualEarth, geoPath, interpolateArray, scaleQuantize, select, zoom, zoomIdentity, zoomTransform, feature } from '../../vendor/d3-lite.js';
 import { MAP_COLOR_STEPS, MAP_HIDDEN_IDS, ZOOM_FILL, ZOOM_MAX_SCALE, ZOOM_MIN_PART_AREA_RATIO } from '../config.js';
 import { filteredPopulation } from '../model/calc.js';
 import { readMotion, readPx } from './motion.js';
+import { createCounter } from './counter.js';
 
 const PAD_X = 24;
 
@@ -46,6 +47,16 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   const paths = gRoot.selectAll('path.country').data(entries).join('path')
     .attr('class', (e) => `country ${e.hasData ? `has-data rb${colorStep(e.weeklyMin)}` : 'nodata'}`)
     .attr('data-a3', (e) => e.a3);
+  // Highlight layer: a level-fill clipped to the chosen country, driven by chart hovers in the popups.
+    const hlLayer = gRoot.append('g').attr('class', 'hl-layer');
+  const clipPath = hlLayer.append('clipPath').attr('id', 'hl-clip');
+  const clipShape = clipPath.append('path');
+  const hlFill = hlLayer.append('g').attr('clip-path', 'url(#hl-clip)').append('rect').attr('class', 'hl-fill');
+  const readout = document.getElementById('land-readout');
+  const readoutNum = readout.querySelector('.readout-num');
+  const readoutContext = readout.querySelector('.readout-context');
+  const readoutLabel = readout.querySelector('.readout-label');
+  const readoutCounter = createCounter(readoutNum, (n) => getI18n().percent(n / 100));
   const nodeByA3 = new Map();
   paths.each(function (e) { if (e.a3) nodeByA3.set(e.a3, this); });
 
@@ -96,6 +107,36 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
     else svg.interrupt().transition().duration(duration).ease(ease).call(zoomBehavior.transform, transform);
   }
 
+  let hlBounds = null; // main landmass of the chosen country, projected px
+  let hlOn = false;
+  function prepareHighlight(a3) {
+    const entry = entries.find((e) => e.a3 === a3);
+    hlBounds = mainBounds(entry.f);
+    const [[x0, y0], [x1, y1]] = hlBounds;
+    clipShape.attr('d', pathGen(entry.f));
+    hlFill.attr('x', x0).attr('y', y0).attr('width', x1 - x0).attr('height', y1 - y0);
+  }
+  function setHighlight(hl) {
+    const a3 = store.get().country;
+    if (!hl || !a3) {
+      if (hlOn) { hlOn = false; hlFill.style('--level', 0); readout.classList.remove('is-visible'); }
+      return;
+    }
+    if (!hlOn) { // fresh start: count from 0 and let the fill rise
+      prepareHighlight(a3);
+      hlFill.style('--level', 0);
+      readoutCounter.set(0);
+      const [[x0, y0], [x1, y1]] = hlBounds, t = zoomTransform(svgEl);
+      readout.style.transform = `translate(${t.applyX((x0 + x1) / 2)}px, ${t.applyY((y0 + y1) / 2)}px) translate(-50%, -50%)`;
+    }
+    hlOn = true;
+    readoutContext.textContent = hl.context;
+    readoutLabel.textContent = hl.label;
+    readout.classList.add('is-visible');
+    requestAnimationFrame(() => hlFill.style('--level', hl.share));
+    readoutCounter.to(hl.share * 100);
+  }
+
   let shown = null; // country currently zoomed on
   function sync(animate = true) {
     const a3 = store.get().country;
@@ -104,6 +145,7 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
     if (a3) {
       const node = nodeByA3.get(a3);
       if (node && node.parentNode.lastChild !== node) node.parentNode.appendChild(node); // draw the chosen country on top
+      hlLayer.node().parentNode.appendChild(hlLayer.node()); // ...and the level fill above it
       goTo(targetTransform(a3), animate && shown !== a3);
     } else {
       goTo(zoomIdentity, animate);
@@ -141,7 +183,10 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
     if (entry?.hasData) { tooltip.hide(); store.set({ country: entry.a3, zone: 'middle' }); }
   });
 
-  store.subscribe((s, prev) => { if (s.country !== prev.country) sync(true); });
+  store.subscribe((s, prev) => {
+    if (s.country !== prev.country) { setHighlight(null); sync(true); }
+    if (s.highlight !== prev.highlight) setHighlight(s.highlight);
+  });
   layout();
   sync(false);
 

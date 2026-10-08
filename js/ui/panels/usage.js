@@ -1,29 +1,32 @@
-// Popup "Reasons for scrolling" (right zone): survey percentages x affected people.
+// Popup "Reasons for scrolling" (right zone): survey percentages x affected people, as a column chart.
 import { USAGE_REASONS_VISIBLE } from '../../config.js';
-import { createRows } from './rows.js';
+import { createChart } from './chart.js';
 
 export const zone = 'right';
 
-export function create(card) {
-  card.innerHTML = '<h2 class="panel-title"></h2><p class="panel-note"></p><ul class="rows"></ul>';
-  const rowsView = createRows(card.querySelector('.rows'));
-  let lang = null;
+export function create(card, { store }) {
+  card.innerHTML = '<h2 class="panel-title"></h2><p class="panel-note"></p><div class="chart-host"></div>';
+  const $ = (s) => card.querySelector(s);
+  let lang = null, items = [], i18nNow = null;
+
+  const chart = createChart($('.chart-host'), {
+    onHover(i) {
+      const item = i == null ? null : items[i];
+      store.set({ highlight: item ? { share: item.pct / 100, context: i18nNow.t('usage.ofAffected'), label: item.label } : null });
+    },
+  });
 
   return {
     render({ i18n, vm, fromZero }) {
-      if (lang !== i18n.lang) { lang = i18n.lang; rowsView.invalidate(); }
-      card.querySelector('.panel-title').textContent = i18n.t('usage.title');
-      card.querySelector('.panel-note').textContent = i18n.t('usage.note');
+      i18nNow = i18n;
+      if (lang !== i18n.lang) { lang = i18n.lang; chart.sync([], null); }
+      $('.panel-title').textContent = i18n.t('usage.title');
+      $('.panel-note').textContent = i18n.t('usage.note');
       if (!vm) return;
-      const top = vm.reasons.slice(0, USAGE_REASONS_VISIBLE);
-      const rows = rowsView.sync(top.map((r) => ({ id: r.id, label: i18n.t(`usage.reason.${r.id}`) })), (n) => i18n.compact(n));
-      const max = Math.max(...top.map((r) => r.pct));
-      top.forEach((r, k) => {
-        rows[k].counter.to(r.count, { from: fromZero ? 0 : undefined });
-        rows[k].sub.textContent = i18n.percent(r.pct / 100);
-        rows[k].fill.style.setProperty('--w', fromZero ? 0 : r.pct / max);
-        requestAnimationFrame(() => requestAnimationFrame(() => rows[k].fill.style.setProperty('--w', r.pct / max)));
-      });
+      items = vm.reasons.slice(0, USAGE_REASONS_VISIBLE).map((r) => ({ ...r, label: i18n.t(`usage.reason.${r.id}`), short: i18n.t(`usage.short.${r.id}`) }));
+      const cols = chart.sync(items, (n) => i18n.compact(n));
+      const max = Math.max(...items.map((r) => r.count));
+      items.forEach((item, k) => { cols[k].counter.to(item.count, { from: fromZero ? 0 : undefined }); chart.setHeight(cols[k], item.count / max, { fromZero }); });
     },
   };
 }

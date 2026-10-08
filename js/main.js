@@ -90,6 +90,7 @@ async function main() {
     if (s.lang !== prev.lang) { legend.render(i18n); timeline.render(i18n); renderFooter(); }
     if (s.population !== prev.population) renderFooter();
     if (s.country !== prev.country) headline.reset();
+    if (s.highlight && (s.zone !== prev.zone || s.country !== prev.country || s.ageGroups !== prev.ageGroups)) store.set({ highlight: null });
     if (s.country !== prev.country || s.ageGroups !== prev.ageGroups || s.lang !== prev.lang || s.population !== prev.population || s.zone !== prev.zone) renderCountry();
   });
 

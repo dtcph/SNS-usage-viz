@@ -16,6 +16,7 @@ Open the printed address (ES modules need http, not `file://`).
 1. Hover a country: name + population (age-filtered where data exists). Countries without data are dark grey, not clickable.
 2. Click a country with data: zoom. ESC, a click outside the country, or the back button returns.
 3. Zoomed: pointer in the left third opens **Health issues**, right third **Reasons for scrolling**, middle stays calm. The control bar has priority over the zones.
+3b. The popups are column charts (count above, group below). Hovering a column fills the chosen country from the bottom up to that share (height-based) and counts up the percentage inside it.
 4. Control bar: age chips (multi-select, "All" resets, at least one stays on), dark mode, EN / 한국어. "i" explains the assumptions.
 
 ## Structure
