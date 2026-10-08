@@ -23,10 +23,10 @@
   "back": "지도로 돌아가기",
   "headline": {
     "affected": "영향을 받는 사람들",
-    "line": "영향을 받는 사람들 {count}이 이곳에서 매일 {duration} 이상을 피드 속에서 보냅니다.",
+    "line": "영향을 받는 사람들 {count}명이 이곳에서 매일 {duration} 이상을 피드 속에서 보냅니다.",
     "perWeek": "주간",
     "perDay": "하루",
-    "basis": "표시된 {population} 중 {users}이 소셜 미디어를 이용합니다. ‘영향을 받는 사람들’은 하루 {duration} 이상 피드에서 시간을 보내는 사람들입니다."
+    "basis": "표시된 {population}명 중 {users}명이 소셜 미디어를 이용합니다. ‘영향을 받는 사람들’은 하루 {duration} 이상 피드에서 시간을 보내는 사람들입니다."
   },
   "time": {
     "hm": "{h}시간 {m}분",

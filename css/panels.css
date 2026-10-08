@@ -46,7 +46,7 @@
 .col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; cursor: default; outline-offset: 2px; transition: opacity var(--fade-duration) var(--fade-easing); }
 .chart:hover .col:not(:hover) { opacity: 0.55; }
 .col-track {
-  position: relative; height: var(--chart-h); margin-top: var(--space-5); border-bottom: 1px solid var(--line-strong);
+  position: relative; height: var(--chart-h); margin-top: 34px; border-bottom: 1px solid var(--line-strong);
 }
 .col-track i {
   position: absolute; left: 12%; right: 12%; bottom: 0; height: calc(var(--h, 0) * 100%);
@@ -54,8 +54,8 @@
   transition: height var(--popup-duration) var(--popup-easing);
 }
 .col-val {
-  position: absolute; left: -20%; right: -20%; bottom: calc(var(--h, 0) * 100% + 4px); text-align: center;
-  font-size: var(--text-s); font-weight: 400; white-space: nowrap;
+  position: absolute; left: -6%; right: -6%; bottom: calc(var(--h, 0) * 100% + 4px); text-align: center;
+  font-size: var(--text-s); font-weight: 400; line-height: 1.15; white-space: normal; word-break: keep-all; /* long Korean counts wrap at the space only */
   transition: bottom var(--popup-duration) var(--popup-easing);
 }
 .col-label { margin: var(--space-2) -6px 0; text-align: center; font-size: 10px; line-height: 1.25; color: var(--ink-soft); }
@@ -103,12 +103,13 @@ body:not(.is-zoomed) .timeline-line { stroke-dashoffset: 0; transition: stroke-d
   fill: var(--hl-fill); transform-box: fill-box; transform-origin: bottom;
   transform: scaleY(var(--level, 0)); transition: transform var(--popup-duration) var(--popup-easing);
 }
-/* Level readout inside the country: the number stands on the fill's top edge in the fill colour, the label sits inside the fill. */
+/* Level readout inside the country: the number (masked by the outline) stands on the fill's top edge in the fill colour, the white label sits on a chip below it. */
 .hl-texts {
   transform: translateY(calc(var(--lift, 0px) * -1)); opacity: 0;
   transition: transform var(--popup-duration) var(--popup-easing), opacity var(--popup-duration) var(--popup-easing);
 }
 .hl-texts.is-on { opacity: 1; }
-.hl-num { fill: var(--hl-fill); font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; transition: font-size var(--popup-duration) var(--popup-easing); }
+.hl-num { fill: var(--hl-fill); font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.hl-chip { fill: var(--hl-fill); }
 .hl-label { fill: var(--hl-ink); font-weight: 400; }
 .hl-label tspan:first-child { font-weight: 500; }

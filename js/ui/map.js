@@ -13,6 +13,7 @@ const DRAG_THRESHOLD_PX = 4;
 const RAD_TO_DEG = 180 / Math.PI;
 const MIN_SPIN_DEG_PER_S = 3;
 const VELOCITY_WINDOW_MS = 110;
+const HL_NUM_CHARS = 5; // widest count the readout has to fit, e.g. "12.3M"
 
 /**
  * @param {object} o
@@ -81,13 +82,15 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   // Highlight layer: a level-fill clipped to the chosen country, driven by chart hovers in the popups.
   const hlLayer = gRoot.append('g').attr('class', 'hl-layer');
   const clipShape = hlLayer.append('clipPath').attr('id', 'hl-clip').append('path');
-  // Everything inside this group is masked by the country outline: the level fill, the big number sitting on its top edge
-  // (same colour as the fill) and the white label below the edge.
+  // The big number is masked by the country outline (like the fill); the label chip is not, so it is always readable.
   const hlMasked = hlLayer.append('g').attr('clip-path', 'url(#hl-clip)');
   const hlFill = hlMasked.append('rect').attr('class', 'hl-fill');
   const hlTexts = hlMasked.append('g').attr('class', 'hl-texts'); // lifted together with the fill level
   const hlNum = hlTexts.append('text').attr('class', 'hl-num').attr('text-anchor', 'middle');
-  const hlLabel = hlTexts.append('text').attr('class', 'hl-label').attr('text-anchor', 'middle');
+  const hlLabelGroup = hlLayer.append('g').attr('class', 'hl-texts');
+  const hlChip = hlLabelGroup.append('rect').attr('class', 'hl-chip').attr('rx', 9);
+  const hlLabel = hlLabelGroup.append('text').attr('class', 'hl-label').attr('text-anchor', 'middle');
+  const hlLifted = [hlTexts, hlLabelGroup];
   const readoutCounter = createCounter(hlNum.node(), (n) => getI18n().compact(n));
 
   // ---- globe state ----
@@ -214,7 +217,7 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   function setHighlight(hl) {
     const a3 = store.get().country;
     if (!hl || !a3) {
-      if (hlOn) { hlOn = false; hlFill.style('--level', 0); hlTexts.style('--lift', '0px').classed('is-on', false); }
+      if (hlOn) { hlOn = false; hlFill.style('--level', 0); hlLifted.forEach((g) => g.style('--lift', '0px').classed('is-on', false)); }
       return;
     }
     const i18n = getI18n();
@@ -225,26 +228,29 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
       hlGeom = { x0, y0, x1, y1, w: x1 - x0, h: y1 - y0, cx: (x0 + x1) / 2 };
       clipShape.attr('d', pathGen(entry.f));
       hlFill.attr('x', x0).attr('y', y0).attr('width', hlGeom.w).attr('height', hlGeom.h).style('--level', 0);
-      hlTexts.style('--lift', '0px').classed('is-on', false);
+      hlLifted.forEach((g) => g.style('--lift', '0px').classed('is-on', false));
       readoutCounter.set(0);
+      // Number size depends on the country only, never on the value, so it stays the same while hovering. It is sized for
+      // a worst-case width (HL_NUM_CHARS characters) at about half the country width, since tall countries clip at the sides.
+      const { w, h } = hlGeom;
+      hlGeom.numSize = Math.max(20, Math.min(120, (0.5 * w) / (0.62 * HL_NUM_CHARS), 0.25 * h));
+      hlGeom.labelSize = Math.max(11, Math.min(16, w * 0.045));
     }
-    const { w, h, cx, y1 } = hlGeom;
-    // Number: large and bold, baseline on the fill's top edge (the group is lifted by level x height). It must fit the
-    // country's width and the room above the fill (shares reach about 50 %, so 40 % of the height is safe).
-    const numText = i18n.compact(hl.count);
-    const size = Math.max(26, Math.min(150, (0.8 * w) / (0.6 * numText.length), 0.4 * h));
-    hlNum.attr('x', cx).attr('y', y1).style('font-size', `${size}px`);
-    // Context + label in white, just below the edge, inside the fill.
-    const fs = Math.max(11, Math.min(17, w * 0.045));
-    const maxChars = Math.max(8, Math.floor((0.8 * w) / (0.54 * fs)));
+    const { w, h, cx, y1, numSize, labelSize: fs } = hlGeom;
+    hlNum.attr('x', cx).attr('y', y1).style('font-size', `${numSize}px`);
+
+    // Context + label: white on a chip in the fill colour, just below the edge; wider than the country is fine.
+    const maxChars = Math.max(14, Math.min(26, Math.floor((0.9 * w) / (0.54 * fs))));
     const lines = [...wrap(hl.context, maxChars, 2), ...wrap(hl.label, maxChars, 3)];
     hlLabel.attr('x', cx).attr('y', y1).style('font-size', `${fs}px`).selectAll('tspan').remove();
-    lines.forEach((line, i) => hlLabel.append('tspan').attr('x', cx).attr('dy', i === 0 ? fs * 1.9 : fs * 1.3).text(line));
+    lines.forEach((line, i) => hlLabel.append('tspan').attr('x', cx).attr('dy', i === 0 ? fs * 2.1 : fs * 1.3).text(line));
+    const bb = hlLabel.node().getBBox();
+    hlChip.attr('x', bb.x - 10).attr('y', bb.y - 6).attr('width', bb.width + 20).attr('height', bb.height + 12);
 
     hlOn = true;
     requestAnimationFrame(() => {
       hlFill.style('--level', hl.share);
-      hlTexts.style('--lift', `${hl.share * h}px`).classed('is-on', true);
+      hlLifted.forEach((g) => g.style('--lift', `${hl.share * h}px`).classed('is-on', true));
       readoutCounter.to(hl.count, { duration, ease });
     });
   }

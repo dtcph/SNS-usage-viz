@@ -18,7 +18,19 @@ const lookup = (dict, key) => key.split('.').reduce((o, k) => (o == null ? o : o
 export function createI18n(lang, dict) {
   const locale = LOCALES[lang] ?? lang;
   const nf = new Intl.NumberFormat(locale);
-  const compact = new Intl.NumberFormat(locale, { notation: 'compact', maximumFractionDigits: 1 });
+  const compactIntl = new Intl.NumberFormat(locale, { notation: 'compact', maximumFractionDigits: 1 });
+  // Korean counts in myriads: 1,231,000 -> "123만 1천" (major unit plus the next unit's digit), not "123.1만".
+  const KO_UNITS = [[1e12, '조', 1e11, '천억'], [1e8, '억', 1e7, '천만'], [1e4, '만', 1e3, '천']];
+  const compact = lang === 'ko'
+    ? { format(n) {
+      for (const [big, name, small, smallName] of KO_UNITS) {
+        if (n < big) continue;
+        const rest = Math.floor((n % big) / small);
+        return `${nf.format(Math.floor(n / big))}${name}${rest ? ` ${rest}${smallName}` : ''}`;
+      }
+      return nf.format(Math.round(n));
+    } }
+    : compactIntl;
   const percent = new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 });
   let regionNames = null;
   try { regionNames = new Intl.DisplayNames([locale], { type: 'region' }); } catch { /* falls back to topology names */ }
