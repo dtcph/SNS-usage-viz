@@ -1,5 +1,5 @@
 // Popup "Health issues" (left zone): column chart for adolescents 10-19 inside the current age selection.
-import { createCounter } from '../counter.js';
+import { createPushNumber } from '../push-number.js';
 import { createChart } from './chart.js';
 
 export const zone = 'left';
@@ -25,7 +25,7 @@ export function create(card, { store }) {
   return {
     render({ i18n, vm, fromZero }) {
       i18nNow = i18n;
-      if (lang !== i18n.lang) { lang = i18n.lang; teens = createCounter($('.panel-big .num'), (n) => i18n.compact(n)); chart.sync([], null); }
+      if (lang !== i18n.lang) { lang = i18n.lang; teens = createPushNumber($('.panel-big .num'), (n) => i18n.compact(n)); chart.sync([], null); }
       $('.panel-title').textContent = i18n.t('health.title');
       $('.panel-note').textContent = i18n.t('health.basis');
       const h = vm?.health;
@@ -37,12 +37,12 @@ export function create(card, { store }) {
         return;
       }
       $('.teens-label').textContent = i18n.t('health.teens');
-      const from = fromZero ? 0 : undefined;
-      teens.to(h.teens, { from });
+      const put = (counter, v) => (fromZero ? counter.set(v) : counter.to(v)); // a freshly opened panel shows its values at once
+      put(teens, h.teens);
       items = h.issues.map((i) => ({ ...i, label: i18n.t(`health.issue.${i.id}`), short: i18n.t(`health.short.${i.id}`) }));
       const cols = chart.sync(items, (n) => i18n.compact(n));
       const max = Math.max(...items.map((i) => i.count));
-      items.forEach((item, k) => { cols[k].counter.to(item.count, { from }); chart.setHeight(cols[k], item.count / max, { fromZero }); });
+      items.forEach((item, k) => { put(cols[k].counter, item.count); chart.setHeight(cols[k], item.count / max, { fromZero }); });
     },
   };
 }

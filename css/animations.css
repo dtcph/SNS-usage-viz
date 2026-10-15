@@ -47,3 +47,24 @@
   border: 1px solid var(--line-strong); animation: breathe 1.6s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) { .skeleton-globe { animation: none; } }
+
+/* Dynamic numbers (js/ui/push-number.js): a changed character is pushed out by one line and the new one pushed in. Only transform and
+   opacity animate. --pn-dir is +1 when the value rises (old goes down, new comes from above) and -1 when it falls. */
+.pn { position: relative; display: inline-block; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pn-slot { position: relative; display: inline-block; text-align: center; }
+.pn-ch {
+  display: inline-block; white-space: pre; /* spaces ("129 min") keep their width inside a slot */
+  transition: transform var(--popup-duration) var(--popup-easing), opacity var(--popup-duration) var(--popup-easing);
+}
+.pn-out { position: absolute; left: 0; right: 0; top: 0; }
+.pn-gone { position: absolute; top: 0; }
+.pn-ch.is-enter { transform: translateY(calc(var(--pn-dir, 1) * -1lh)); opacity: 0; }
+.pn-ch.is-leave { transform: translateY(calc(var(--pn-dir, 1) * 1lh)); opacity: 0; }
+/* SVG readout: <text> has no line box, so one line is 1em. */
+.pn-svg { display: inline; position: static; }
+.pn-svg .pn-ch.is-enter { transform: translateY(calc(var(--pn-dir, 1) * -1em)); }
+.pn-svg .pn-ch.is-leave { transform: translateY(calc(var(--pn-dir, 1) * 1em)); }
+
+/* Static, JSON-sourced numbers just fade in. */
+@keyframes pn-fade-in { from { opacity: 0; } }
+.pn-fade { animation: pn-fade-in var(--fade-duration) var(--fade-easing); }

@@ -2,10 +2,10 @@
 // Hover styling is CSS only; pointer handling is rAF-throttled; the globe is redrawn at most once per frame.
 import { feature, geoArea, geoCentroid, geoGraticule10, geoOrthographic, geoPath, interpolateArray, scaleQuantize, select } from '../../vendor/d3-lite.js';
 import {
-  GLOBE_DRAG_SMOOTHING_MS, GLOBE_INERTIA_DECAY_MS, GLOBE_INITIAL_CENTER, GLOBE_MAX_SPIN_DEG_PER_S, GLOBE_ZOOM_MAX, GLOBE_ZOOM_MIN, MAP_COLOR_STEPS, MAP_HIDDEN_IDS, ZOOM_FILL, ZOOM_MAX_SCALE, ZOOM_MIN_PART_AREA_RATIO,
+  GLOBE_AUTOROTATE_DEG_PER_S, GLOBE_AUTOROTATE_RAMP_MS, GLOBE_DRAG_SMOOTHING_MS, GLOBE_IDLE_DELAY_MS, GLOBE_INERTIA_DECAY_MS, GLOBE_INITIAL_CENTER, GLOBE_MAX_SPIN_DEG_PER_S, GLOBE_ZOOM_MAX, GLOBE_ZOOM_MIN, MAP_COLOR_STEPS, MAP_HIDDEN_IDS, ZOOM_FILL, ZOOM_MAX_SCALE, ZOOM_MIN_PART_AREA_RATIO,
 } from '../config.js';
 import { dailyMinutes, describeCountry, extentFor } from '../model/calc.js';
-import { createCounter } from './counter.js';
+import { createPushNumber } from './push-number.js';
 import { readMotion, readPx } from './motion.js';
 
 const PAD_X = 24;
@@ -90,11 +90,12 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   // (thin countries such as Chile would hide most of the number otherwise). Both are lifted together with the fill level.
   const hlFill = hlLayer.append('g').attr('clip-path', 'url(#hl-clip)').append('rect').attr('class', 'hl-fill');
   const hlLabelGroup = hlLayer.append('g').attr('class', 'hl-texts');
-  // The number stands centred on the fill edge; the label sits outside the country's bounding box, on the side opposite to the open popup.
-  const hlNum = hlLabelGroup.append('text').attr('class', 'hl-num').attr('text-anchor', 'middle');
+  // The number stands on the fill edge (a <g> of character slots, see push-number.js; its right edge is fixed while the highlight is open);
+  // the label sits outside the country's bounding box, on the side opposite to the open popup.
+  const hlNum = hlLabelGroup.append('g').attr('class', 'hl-num');
   const hlLabel = hlLabelGroup.append('text').attr('class', 'hl-label');
   const hlLifted = [hlLabelGroup];
-  const readoutCounter = createCounter(hlNum.node(), (n) => getI18n().compact(n));
+  const readoutCounter = createPushNumber(hlNum.node(), (n) => getI18n().compact(n));
 
   // ---- globe state ----
   const projection = geoOrthographic().clipAngle(90);
@@ -224,7 +225,6 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
       return;
     }
     const i18n = getI18n();
-    const { duration, ease } = readMotion('popup'); // fill and count-up share this duration/easing, so they finish together
     if (!hlOn) { // fresh start: everything rises from the bottom of the country
       const entry = entries.find((e) => e.a3 === a3);
       const [[x0, y0], [x1, y1]] = pathGen.bounds(mainGeometry(entry.f));
@@ -232,7 +232,6 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
       clipShape.attr('d', pathGen(entry.f));
       hlFill.attr('x', x0).attr('y', y0).attr('width', hlGeom.w).attr('height', hlGeom.h).style('--level', 0);
       hlLifted.forEach((g) => g.style('--lift', '0px').classed('is-on', false));
-      readoutCounter.set(0);
       // Number size depends on the country only, never on the value, so it stays the same while hovering. Large for
       // contrast: up to 70 % of the country width for a worst-case count (HL_NUM_CHARS characters) and 30 % of its height.
       const { w, h } = hlGeom;
@@ -240,23 +239,29 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
       hlGeom.labelSize = Math.max(12, Math.min(16, w * 0.045));
     }
     const { w, h, cx, y1, numSize, labelSize: fs } = hlGeom;
-    hlNum.attr('x', cx).attr('y', y1).style('font-size', `${numSize}px`);
+    hlNum.style('font-size', `${numSize}px`);
+    if (!hlOn) { // fresh start: show the value, then centre the number on the country; later values push in place (right edge fixed)
+      readoutCounter.set(hl.count);
+      hlGeom.numRight = cx + hlNum.node().getBBox().width / 2;
+    }
+    hlNum.attr('transform', `translate(${hlGeom.numRight},${y1})`);
 
     // Context + label: plain text in the page ink with a thin halo in the page colour (no box), at the height of the number,
     // next to the bounding box. The left popup opens it on the right of the country, the right popup on the left.
     const onRight = store.get().zone !== 'right';
     const labelX = onRight ? hlGeom.x1 + fs * 1.2 : hlGeom.x0 - fs * 1.2;
-    const lines = [...wrap(hl.context, 18, 1), ...wrap(hl.label, 18, 2)];
+    const lines = [...wrap(hl.context, 18, 2), ...wrap(hl.label, 18, 2)];
     const lh = fs * 1.3, capHeight = 0.72 * numSize;
     hlLabel.attr('text-anchor', onRight ? 'start' : 'end').attr('x', labelX).attr('y', y1).style('font-size', `${fs}px`).selectAll('tspan').remove();
     lines.forEach((line, i) => hlLabel.append('tspan').attr('x', labelX)
       .attr('dy', i === 0 ? -capHeight / 2 - ((lines.length - 1) * lh) / 2 + fs * 0.32 : lh).text(line));
 
+    const hlOnBefore = hlOn;
     hlOn = true;
     requestAnimationFrame(() => {
       hlFill.style('--level', hl.share);
       hlLifted.forEach((g) => g.style('--lift', `${hl.share * h}px`).classed('is-on', true));
-      readoutCounter.to(hl.count, { duration, ease });
+      if (hlOnBefore) readoutCounter.to(hl.count);
     });
   }
 
@@ -303,14 +308,41 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
     tooltip.show(i18n.countryName(entry.a2, entry.name), lines, e.clientX, e.clientY);
   }
 
+  // ---- idle rotation: starts with the page, stops on any interaction, ramps up again after a pause ----
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  let lastActivity = performance.now() - GLOBE_IDLE_DELAY_MS, idleMs = GLOBE_AUTOROTATE_RAMP_MS, idleLast = 0, tipLast = 0; // starts at full speed on load, no wait
+  function touch() { lastActivity = performance.now(); idleMs = 0; }
+  function idleTick(now) {
+    const dt = Math.min(64, now - (idleLast || now));
+    idleLast = now;
+    // Only while the world view is free: no country chosen, no drag, no inertia/zoom easing (main loop) running.
+    const free = !store.get().country && !drag && !loopRaf && !reducedMotion.matches && now - lastActivity >= GLOBE_IDLE_DELAY_MS;
+    idleMs = free ? Math.min(GLOBE_AUTOROTATE_RAMP_MS, idleMs + dt) : 0;
+    const p = idleMs / GLOBE_AUTOROTATE_RAMP_MS;
+    const speed = GLOBE_AUTOROTATE_DEG_PER_S * p * p * (3 - 2 * p); // smoothstep ramp
+    if (speed > 0) {
+      const d = (speed * dt) / 1000;
+      view = { ...view, lam: view.lam + d };
+      target.lam = view.lam;
+      drawNow();
+      if (lastEvent && now - tipLast > 120) { // the surface moves under a resting cursor: keep the tooltip on the country below it
+        tipLast = now;
+        lastEvent = { clientX: lastEvent.clientX, clientY: lastEvent.clientY, target: document.elementFromPoint(lastEvent.clientX, lastEvent.clientY) };
+        flushPointer();
+      }
+    }
+    requestAnimationFrame(idleTick);
+  }
+
   svgEl.addEventListener('pointerdown', (e) => {
+    touch();
     if (store.get().country || e.button !== 0) return;
     cancelAnimationFrame(flightRaf);
     syncTarget(); // grabbing the globe stops any spin
     drag = { x: e.clientX, y: e.clientY, moved: false, id: e.pointerId, samples: [] };
   });
   svgEl.addEventListener('pointermove', (e) => {
-    lastEvent = e;
+    lastEvent = e; // hovering is not an interaction for the idle rotation; grabbing the globe is
     if (drag && e.pointerId === drag.id) {
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
       if (!drag.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD_PX) return;
@@ -343,6 +375,7 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
       startLoop();
     }
     drag = null;
+    touch(); // the wait before the globe turns again counts from the release
     svg.classed('is-dragging', false);
   };
   svgEl.addEventListener('pointerup', endDrag);
@@ -350,6 +383,7 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   svgEl.addEventListener('pointerleave', () => { lastEvent = null; tooltip.hide(); onHoverTime(null); });
 
   svgEl.addEventListener('wheel', (e) => {
+    touch();
     e.preventDefault();
     if (store.get().country) return;
     tooltip.hide();
@@ -369,6 +403,7 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   });
 
   store.subscribe((s, prev) => {
+    if (s.country !== prev.country) touch(); // after leaving a country the globe waits before it starts turning again
     if (s.country !== prev.country) { setHighlight(null); sync(true); }
     if (s.highlight !== prev.highlight) setHighlight(s.highlight);
     if (s.year !== prev.year) colorize();
@@ -379,6 +414,7 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   view = worldView();
   drawNow();
   sync(false);
+  requestAnimationFrame(idleTick);
 
   return {
     /** Re-fit to the viewport (the current view is re-centred without animation). */

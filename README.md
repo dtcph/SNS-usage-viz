@@ -28,7 +28,7 @@ js/config.js            every constant and placeholder (TODO_DATA marks stand-in
 js/state.js             tiny store (get / set / subscribe)
 js/data/                loader.js, population.js (live + snapshot), worldometer-parse.js, country-names.js
 js/model/               calc.js (pure, no DOM), generations.js
-js/ui/                  map, tooltip, panels (+ panels/<id>.js), controls, timeline, counter, i18n, ...
+js/ui/                  map, tooltip, panels (+ panels/<id>.js), controls, timeline, push-number, i18n, ...
 data/                   *.json (converted XLS), country-map.json, population-snapshot.json, countries-110m.json
 i18n/                   en.json, ko.json
 data-src/               the original Statista XLSX files
@@ -66,7 +66,7 @@ Statista stores durations as `h.mm` (8.50 = 8 h 50 min). The converter restores 
 | `GENERATION_POPULATION_SHARES(_BY_COUNTRY)`, `GENERATION_USER_PROPENSITY` | Age structure and user likelihood |
 | `DEVICE_WEIGHTS`, `DATA6_SWAP_GENX_BOOMERS`, `GENERATION_SCREENTIME_PROXY` | Generation weighting from data 6 |
 | `TEEN_SHARE(_BY_COUNTRY)`, `SCREENTIME_CATEGORY_DISTRIBUTION` | Teen projection for the health popup |
-| `COUNT_UP_DURATION_MS`, `USAGE_REASONS_VISIBLE`, `ZOOM_*` | Display |
+| `USAGE_REASONS_VISIBLE`, `ZOOM_*` | Display |
 
 Motion lives in `css/animations.css` (`--anim-duration`, `--anim-easing` and per-purpose variables). The zoom reads the same variables, and `prefers-reduced-motion` shortens them to ~0.
 

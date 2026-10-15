@@ -4,7 +4,7 @@
 // dot follow the slider smoothly.
 import { curveMonotoneX, line, scaleLinear } from '../../vendor/d3-lite.js';
 import { TIMELINE_STEP_MS, TIMELINE_STEPS_PER_YEAR } from '../config.js';
-import { createCounter } from './counter.js';
+import { createPushNumber } from './push-number.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const W = 300, H = 92, M = { top: 12, right: 10, bottom: 22, left: 10 };
@@ -65,7 +65,8 @@ export function createTimeline({ el, series, store, getI18n, totalFor }) {
   svg.append(clip, axis, base, played, guide, dot, labelFirst, labelLast, hit);
   $('.tl-chart-wrap').append(svg);
 
-  const total = createCounter($('.tl-total-num'), (n) => getI18n().compact(n));
+  const total = createPushNumber($('.tl-total-num'), (n) => getI18n().compact(n));
+  const yearNum = createPushNumber($('.tl-year'), (n) => String(n));
 
   // ---- state ----
   const timeOf = () => store.get().year ?? last.year; // fractional year, e.g. 2018.25
@@ -122,7 +123,7 @@ export function createTimeline({ el, series, store, getI18n, totalFor }) {
     }
     playBtn.innerHTML = playing ? ICON.pause : ICON.play;
     playBtn.setAttribute('aria-label', i18n.t(playing ? 'timeline.pause' : 'timeline.play'));
-    $('.tl-year').textContent = String(Math.round(t));
+    yearNum.to(Math.round(t));
     const px = x(t);
     clipRect.setAttribute('width', px);
     guide.setAttribute('x1', px); guide.setAttribute('x2', px);
@@ -130,7 +131,7 @@ export function createTimeline({ el, series, store, getI18n, totalFor }) {
     const population = store.get().population;
     if (population) {
       const { total: affected, countries } = totalFor(t);
-      total.to(affected, { duration: 400, ease: (u) => u });
+      total.to(affected);
       $('.tl-note').textContent = i18n.t('timeline.coverage', { count: countries });
     }
   }

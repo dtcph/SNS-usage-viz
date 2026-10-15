@@ -1,9 +1,7 @@
 // Colour legend of the overview: average daily minutes on social media + "no data" swatch.
-// Its ends follow the year shown on the timeline (min and max of that year) and count over smoothly; a marker on the bar
+// Its ends follow the year shown on the timeline (min and max of that year) and push over to the new numbers; a marker on the bar
 // follows the hovered country, so its value can be read against the scale.
-import { createCounter } from './counter.js';
-
-const LEGEND_COUNT_MS = 650;
+import { createPushNumber } from './push-number.js';
 
 /** @param {{extentFor:(year:number|null)=>number[]}} o  [min, max] of the shown year */
 export function createLegend(el, { extentFor }) {
@@ -40,12 +38,12 @@ export function createLegend(el, { extentFor }) {
       noDataEl.textContent = i18n.t('tooltip.noData');
       if (lang !== i18n.lang) { // new formatter: set directly, no count-over
         lang = i18n.lang;
-        minCounter = createCounter(minEl, (n) => i18n.minutes(n));
-        maxCounter = createCounter(maxEl, (n) => i18n.minutes(n));
+        minCounter = createPushNumber(minEl, (n) => i18n.minutes(n));
+        maxCounter = createPushNumber(maxEl, (n) => i18n.minutes(n));
         minCounter.set(target[0]); maxCounter.set(target[1]);
       } else {
-        minCounter.to(target[0], { duration: LEGEND_COUNT_MS, ease: (t) => t }); // linear: the slider already eases
-        maxCounter.to(target[1], { duration: LEGEND_COUNT_MS, ease: (t) => t });
+        minCounter.to(target[0]);
+        maxCounter.to(target[1]);
       }
       extent = target;
     },

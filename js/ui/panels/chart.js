@@ -1,6 +1,6 @@
 // Shared column chart for the popups (plain HTML/CSS, animated through the CSS variables).
 // Each column: animated count on top, bar, short group label below. Hovering a column reports its index.
-import { createCounter } from '../counter.js';
+import { createPushNumber } from '../push-number.js';
 
 /** @param {HTMLElement} el  @param {{onHover:(index:number|null)=>void}} o */
 export function createChart(el, { onHover }) {
@@ -33,7 +33,7 @@ export function createChart(el, { onHover }) {
         col.addEventListener('focus', () => onHover(i));
         col.addEventListener('blur', () => onHover(null));
         el.append(col);
-        return { id: item.id, counter: createCounter(val, format), track };
+        return { id: item.id, counter: createPushNumber(val, format), track };
       });
       return cols;
     },

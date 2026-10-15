@@ -1,7 +1,7 @@
 // Detail view, below the country: the name and a row of stat modules. Every module has the same shape,
-// NUMBER (big, counts up) | label (small). Add or reorder modules in STATS; nothing else needs to change.
+// NUMBER (big, fades in when a country opens) | label (small). Add or reorder modules in STATS; nothing else needs to change.
 import { DOOMSCROLL_THRESHOLD_MIN_PER_DAY } from '../config.js';
-import { createCounter } from './counter.js';
+import { setFaded } from './push-number.js';
 
 /**
  * id: element class suffix. value: number from describeCountry(). format: (i18n) => (n) => text.
@@ -25,31 +25,29 @@ function createStat(def) {
   const label = document.createElement('span');
   label.className = 'stat-label';
   el.append(num, label);
-  return { def, el, num, label, counter: null };
+  return { def, el, num, label, fmt: null };
 }
 
 export function createHeadline({ nameEl, statsEl }) {
   const stats = STATS.map(createStat);
   statsEl.replaceChildren(...stats.map((s) => s.el));
-  let key = '', shownFor = null;
+  let key = '';
 
   function build(i18n) {
     for (const s of stats) {
-      s.counter = createCounter(s.num, s.def.format(i18n));
+      s.fmt = s.def.format(i18n);
       s.label.textContent = i18n.t(s.def.label, s.def.params?.(i18n));
     }
   }
 
   return {
-    /** @param {object|null} vm  describeCountry() result; @param {string} id country key (animation restarts from 0 on a new country) */
+    /** @param {object|null} vm  describeCountry() result; @param {string} id country key */
     render({ i18n, vm, id, name }) {
-      if (i18n.lang !== key || !stats[0].counter) { key = i18n.lang; build(i18n); shownFor = null; }
+      if (i18n.lang !== key || !stats[0].fmt) { key = i18n.lang; build(i18n); }
       nameEl.textContent = name ?? '';
-      if (!vm) { for (const s of stats) s.counter.set(0); return; }
-      const from = shownFor === id ? undefined : 0;
-      for (const s of stats) s.counter.to(s.def.value(vm), { from });
-      shownFor = id;
+      if (!vm) { for (const s of stats) setFaded(s.num, ''); return; }
+      for (const s of stats) setFaded(s.num, s.fmt(s.def.value(vm)));
     },
-    reset() { shownFor = null; },
+    reset() {},
   };
 }

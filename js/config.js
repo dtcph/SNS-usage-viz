@@ -109,8 +109,7 @@ export const SCREENTIME_CATEGORY_DISTRIBUTION = {
 };
 
 // ---- Display ------------------------------------------------------------------------------------------------
-/** Count-up animation of numbers (ms). Everything else is animated through CSS variables (css/animations.css). */
-export const COUNT_UP_DURATION_MS = 1100;
+// Everything is animated through CSS variables (css/animations.css), numbers included (js/ui/push-number.js).
 /** Timeline playback: time per year (ms). The slider moves in quarters: values between two reported years are interpolated linearly. */
 export const TIMELINE_STEP_MS = 900;
 export const TIMELINE_STEPS_PER_YEAR = 4;
@@ -125,6 +124,14 @@ export const GLOBE_ZOOM_MAX = 6;
 /** Dragging eases towards the pointer (time constant, ms); a released fast drag keeps spinning and decays (time constant, ms; 0 = no inertia). */
 export const GLOBE_DRAG_SMOOTHING_MS = 70;
 export const GLOBE_INERTIA_DECAY_MS = 320;
+/**
+ * Idle rotation: the globe turns slowly on its own (west to east). It runs from the moment the page loads, stops at once when the globe
+ * is grabbed (mousedown / drag) or zoomed, and after the release waits GLOBE_IDLE_DELAY_MS, then ramps up over GLOBE_AUTOROTATE_RAMP_MS.
+ * Hovering does not stop it.
+ */
+export const GLOBE_AUTOROTATE_DEG_PER_S = 4;
+export const GLOBE_AUTOROTATE_RAMP_MS = 3500;
+export const GLOBE_IDLE_DELAY_MS = 1500;
 /** Cap for the release speed, degrees per second. */
 export const GLOBE_MAX_SPIN_DEG_PER_S = 260;
 /** Zoom fit: share of the neutral middle third the country may fill (0-1), and a cap on the zoom factor. */

@@ -26,7 +26,7 @@ export function create(card, { store }) {
       items = vm.reasons.slice(0, USAGE_REASONS_VISIBLE).map((r) => ({ ...r, label: i18n.t(`usage.reason.${r.id}`), short: i18n.t(`usage.short.${r.id}`) }));
       const cols = chart.sync(items, (n) => i18n.compact(n));
       const max = Math.max(...items.map((r) => r.count));
-      items.forEach((item, k) => { cols[k].counter.to(item.count, { from: fromZero ? 0 : undefined }); chart.setHeight(cols[k], item.count / max, { fromZero }); });
+      items.forEach((item, k) => { (fromZero ? cols[k].counter.set(item.count) : cols[k].counter.to(item.count)); chart.setHeight(cols[k], item.count / max, { fromZero }); });
     },
   };
 }
