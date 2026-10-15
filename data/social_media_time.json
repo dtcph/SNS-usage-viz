@@ -1,0 +1,1045 @@
+{
+ "meta": {
+  "unit": "minutes",
+  "comparison_base": "average minutes per day",
+  "note": "Weekly values converted to daily by dividing by 7 and rounding. Source files wrote times as hours.minutes (e.g. 5.1 = 5h10).",
+  "years": [
+   "2017",
+   "2018",
+   "2019",
+   "2020",
+   "2021",
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ],
+  "sources": {
+   "social_daily_minutes_by_year": "We Are Social/Hootsuite/DataReportal, GWI, Jan 2017-Jan 2025 reports (daily)",
+   "social_weekly_minutes_q4_2025": "GWI/DataReportal Digital 2026 Mid-Year Update, Statista ID 270229 (weekly, excl. video; also covers the APAC file)",
+   "internet_daily_minutes_q3_2024": "Daily time online, Q3 2024"
+  },
+  "fields": {
+   "social_daily_minutes_latest": "Comparison field: reported 2025 daily value, else weekly Q4 2025 / 7"
+  }
+ },
+ "world": {
+  "social_daily_minutes_by_year": {
+   "2019": 136,
+   "2020": 144,
+   "2021": 145,
+   "2022": 147,
+   "2023": 151,
+   "2024": 143,
+   "2025": 141
+  },
+  "social_weekly_minutes_q4_2025": 425,
+  "social_daily_minutes_q4_2025_derived": 61,
+  "internet_daily_minutes_q3_2024": 398
+ },
+ "countries": [
+  {
+   "country": "Argentina",
+   "iso2": "AR",
+   "social_daily_minutes_by_year": {
+    "2017": 212,
+    "2018": 189,
+    "2019": 198,
+    "2020": 191,
+    "2021": 202,
+    "2022": 206,
+    "2023": 195,
+    "2024": 184,
+    "2025": 185
+   },
+   "social_weekly_minutes_q4_2025": 677,
+   "internet_daily_minutes_q3_2024": 524,
+   "social_daily_minutes_q4_2025_derived": 97,
+   "social_daily_minutes_latest": 185,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Australia",
+   "iso2": "AU",
+   "social_daily_minutes_by_year": {
+    "2017": 99,
+    "2018": 99,
+    "2019": 91,
+    "2020": 104,
+    "2021": 106,
+    "2022": 117,
+    "2023": 124,
+    "2024": 111,
+    "2025": 111
+   },
+   "social_weekly_minutes_q4_2025": 528,
+   "internet_daily_minutes_q3_2024": 365,
+   "social_daily_minutes_q4_2025_derived": 75,
+   "social_daily_minutes_latest": 111,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Austria",
+   "iso2": "AT",
+   "social_daily_minutes_by_year": {
+    "2019": 72,
+    "2020": 80,
+    "2021": 82,
+    "2022": 91,
+    "2023": 94,
+    "2024": 92,
+    "2025": 92
+   },
+   "social_weekly_minutes_q4_2025": 317,
+   "internet_daily_minutes_q3_2024": 328,
+   "social_daily_minutes_q4_2025_derived": 45,
+   "social_daily_minutes_latest": 92,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Belgium",
+   "iso2": "BE",
+   "social_daily_minutes_by_year": {
+    "2018": 94,
+    "2019": 91,
+    "2020": 96,
+    "2021": 105,
+    "2022": 94,
+    "2023": 94,
+    "2024": 95,
+    "2025": 98
+   },
+   "social_weekly_minutes_q4_2025": 346,
+   "internet_daily_minutes_q3_2024": 326,
+   "social_daily_minutes_q4_2025_derived": 49,
+   "social_daily_minutes_latest": 98,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Brazil",
+   "iso2": "BR",
+   "social_daily_minutes_by_year": {
+    "2017": 223,
+    "2018": 219,
+    "2019": 214,
+    "2020": 211,
+    "2021": 222,
+    "2022": 221,
+    "2023": 226,
+    "2024": 217,
+    "2025": 212
+   },
+   "social_weekly_minutes_q4_2025": 714,
+   "internet_daily_minutes_q3_2024": 549,
+   "social_daily_minutes_q4_2025_derived": 102,
+   "social_daily_minutes_latest": 212,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Bulgaria",
+   "iso2": "BG",
+   "social_daily_minutes_by_year": {
+    "2024": 150,
+    "2025": 140
+   },
+   "social_weekly_minutes_q4_2025": 493,
+   "internet_daily_minutes_q3_2024": 456,
+   "social_daily_minutes_q4_2025_derived": 70,
+   "social_daily_minutes_latest": 140,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Canada",
+   "iso2": "CA",
+   "social_daily_minutes_by_year": {
+    "2017": 107,
+    "2018": 108,
+    "2019": 107,
+    "2020": 109,
+    "2021": 106,
+    "2022": 113,
+    "2023": 125,
+    "2024": 113,
+    "2025": 106
+   },
+   "social_weekly_minutes_q4_2025": 458,
+   "internet_daily_minutes_q3_2024": 365,
+   "social_daily_minutes_q4_2025_derived": 65,
+   "social_daily_minutes_latest": 106,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Chile",
+   "iso2": "CL",
+   "social_daily_minutes_by_year": {
+    "2023": 208,
+    "2024": 202,
+    "2025": 219
+   },
+   "social_weekly_minutes_q4_2025": 656,
+   "internet_daily_minutes_q3_2024": 525,
+   "social_daily_minutes_q4_2025_derived": 94,
+   "social_daily_minutes_latest": 219,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "China",
+   "iso2": "CN",
+   "social_daily_minutes_by_year": {
+    "2017": 110,
+    "2018": 120,
+    "2019": 117,
+    "2020": 132,
+    "2021": 124,
+    "2022": 117,
+    "2023": 119,
+    "2024": 116,
+    "2025": 114
+   },
+   "social_weekly_minutes_q4_2025": 205,
+   "internet_daily_minutes_q3_2024": 335,
+   "social_daily_minutes_q4_2025_derived": 29,
+   "social_daily_minutes_latest": 114,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Colombia",
+   "iso2": "CO",
+   "social_daily_minutes_by_year": {
+    "2019": 211,
+    "2020": 225,
+    "2021": 225,
+    "2022": 226,
+    "2023": 212,
+    "2024": 203,
+    "2025": 205
+   },
+   "social_weekly_minutes_q4_2025": 660,
+   "internet_daily_minutes_q3_2024": 524,
+   "social_daily_minutes_q4_2025_derived": 94,
+   "social_daily_minutes_latest": 205,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Croatia",
+   "iso2": "HR",
+   "social_daily_minutes_by_year": {
+    "2024": 122,
+    "2025": 126
+   },
+   "social_weekly_minutes_q4_2025": 385,
+   "internet_daily_minutes_q3_2024": 383,
+   "social_daily_minutes_q4_2025_derived": 55,
+   "social_daily_minutes_latest": 126,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Czechia",
+   "iso2": "CZ",
+   "social_daily_minutes_by_year": {
+    "2023": 113,
+    "2024": 103,
+    "2025": 109
+   },
+   "social_weekly_minutes_q4_2025": 274,
+   "internet_daily_minutes_q3_2024": 373,
+   "social_daily_minutes_q4_2025_derived": 39,
+   "social_daily_minutes_latest": 109,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Denmark",
+   "iso2": "DK",
+   "social_daily_minutes_by_year": {
+    "2019": 91,
+    "2020": 93,
+    "2021": 101,
+    "2022": 119,
+    "2023": 107,
+    "2024": 110,
+    "2025": 110
+   },
+   "social_weekly_minutes_q4_2025": 389,
+   "internet_daily_minutes_q3_2024": 310,
+   "social_daily_minutes_q4_2025_derived": 56,
+   "social_daily_minutes_latest": 110,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Egypt",
+   "iso2": "EG",
+   "social_daily_minutes_by_year": {
+    "2017": 190,
+    "2018": 189,
+    "2019": 184,
+    "2020": 177,
+    "2021": 186,
+    "2022": 193,
+    "2023": 149,
+    "2024": 161,
+    "2025": 169
+   },
+   "social_weekly_minutes_q4_2025": 585,
+   "internet_daily_minutes_q3_2024": 447,
+   "social_daily_minutes_q4_2025_derived": 84,
+   "social_daily_minutes_latest": 169,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "France",
+   "iso2": "FR",
+   "social_daily_minutes_by_year": {
+    "2017": 83,
+    "2018": 82,
+    "2019": 77,
+    "2020": 102,
+    "2021": 101,
+    "2022": 106,
+    "2023": 115,
+    "2024": 108,
+    "2025": 108
+   },
+   "social_weekly_minutes_q4_2025": 298,
+   "internet_daily_minutes_q3_2024": 323,
+   "social_daily_minutes_q4_2025_derived": 43,
+   "social_daily_minutes_latest": 108,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Germany",
+   "iso2": "DE",
+   "social_daily_minutes_by_year": {
+    "2017": 69,
+    "2018": 73,
+    "2019": 64,
+    "2020": 79,
+    "2021": 84,
+    "2022": 89,
+    "2023": 101,
+    "2024": 99,
+    "2025": 101
+   },
+   "social_weekly_minutes_q4_2025": 317,
+   "internet_daily_minutes_q3_2024": 328,
+   "social_daily_minutes_q4_2025_derived": 45,
+   "social_daily_minutes_latest": 101,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Ghana",
+   "iso2": "GH",
+   "social_daily_minutes_by_year": {
+    "2018": 176,
+    "2019": 187,
+    "2020": 181,
+    "2021": 188,
+    "2022": 238,
+    "2023": 208,
+    "2024": 163,
+    "2025": 115
+   },
+   "social_weekly_minutes_q4_2025": 721,
+   "social_daily_minutes_q4_2025_derived": 103,
+   "social_daily_minutes_latest": 115,
+   "social_daily_basis": "reported_2025",
+   "internet_daily_minutes_q3_2024": null
+  },
+  {
+   "country": "Greece",
+   "iso2": "GR",
+   "social_daily_minutes_by_year": {
+    "2022": 110,
+    "2023": 115,
+    "2024": 113,
+    "2025": 104
+   },
+   "social_weekly_minutes_q4_2025": 494,
+   "internet_daily_minutes_q3_2024": 321,
+   "social_daily_minutes_q4_2025_derived": 71,
+   "social_daily_minutes_latest": 104,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Hong Kong",
+   "iso2": "HK",
+   "social_daily_minutes_by_year": {
+    "2017": 101,
+    "2018": 121,
+    "2019": 107,
+    "2020": 117,
+    "2021": 117,
+    "2022": 113,
+    "2023": 112,
+    "2024": 111,
+    "2025": 102
+   },
+   "social_weekly_minutes_q4_2025": 248,
+   "internet_daily_minutes_q3_2024": 330,
+   "social_daily_minutes_q4_2025_derived": 35,
+   "social_daily_minutes_latest": 102,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Hungary",
+   "iso2": "HU",
+   "social_daily_minutes_by_year": {
+    "2024": 107,
+    "2025": 108
+   },
+   "social_weekly_minutes_q4_2025": 438,
+   "internet_daily_minutes_q3_2024": 370,
+   "social_daily_minutes_q4_2025_derived": 63,
+   "social_daily_minutes_latest": 108,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "India",
+   "iso2": "IN",
+   "social_daily_minutes_by_year": {
+    "2017": 156,
+    "2018": 146,
+    "2019": 152,
+    "2020": 144,
+    "2021": 145,
+    "2022": 156,
+    "2023": 170,
+    "2024": 146,
+    "2025": 148
+   },
+   "social_weekly_minutes_q4_2025": 413,
+   "internet_daily_minutes_q3_2024": 409,
+   "social_daily_minutes_q4_2025_derived": 59,
+   "social_daily_minutes_latest": 148,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Indonesia",
+   "iso2": "ID",
+   "social_daily_minutes_by_year": {
+    "2017": 196,
+    "2018": 203,
+    "2019": 206,
+    "2020": 206,
+    "2021": 194,
+    "2022": 197,
+    "2023": 198,
+    "2024": 191,
+    "2025": 188
+   },
+   "social_weekly_minutes_q4_2025": 538,
+   "internet_daily_minutes_q3_2024": 442,
+   "social_daily_minutes_q4_2025_derived": 77,
+   "social_daily_minutes_latest": 188,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Ireland",
+   "iso2": "IE",
+   "social_daily_minutes_by_year": {
+    "2018": 107,
+    "2019": 113,
+    "2020": 109,
+    "2021": 115,
+    "2022": 119,
+    "2023": 116,
+    "2024": 116,
+    "2025": 112
+   },
+   "social_weekly_minutes_q4_2025": 576,
+   "internet_daily_minutes_q3_2024": 361,
+   "social_daily_minutes_q4_2025_derived": 82,
+   "social_daily_minutes_latest": 112,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Israel",
+   "iso2": "IL",
+   "social_daily_minutes_by_year": {
+    "2020": 122,
+    "2021": 114,
+    "2022": 118,
+    "2023": 132,
+    "2024": 139,
+    "2025": 137
+   },
+   "social_weekly_minutes_q4_2025": 399,
+   "internet_daily_minutes_q3_2024": 445,
+   "social_daily_minutes_q4_2025_derived": 57,
+   "social_daily_minutes_latest": 137,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Italy",
+   "iso2": "IT",
+   "social_daily_minutes_by_year": {
+    "2017": 120,
+    "2018": 113,
+    "2019": 111,
+    "2020": 117,
+    "2021": 112,
+    "2022": 107,
+    "2023": 108,
+    "2024": 108,
+    "2025": 108
+   },
+   "social_weekly_minutes_q4_2025": 495,
+   "internet_daily_minutes_q3_2024": 339,
+   "social_daily_minutes_q4_2025_derived": 71,
+   "social_daily_minutes_latest": 108,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Japan",
+   "iso2": "JP",
+   "social_daily_minutes_by_year": {
+    "2017": 40,
+    "2018": 48,
+    "2019": 36,
+    "2020": 45,
+    "2021": 51,
+    "2022": 51,
+    "2023": 51,
+    "2024": 53,
+    "2025": 46
+   },
+   "social_weekly_minutes_q4_2025": 183,
+   "internet_daily_minutes_q3_2024": 249,
+   "social_daily_minutes_q4_2025_derived": 26,
+   "social_daily_minutes_latest": 46,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Kenya",
+   "iso2": "KE",
+   "social_daily_minutes_by_year": {
+    "2018": 174,
+    "2019": 167,
+    "2020": 203,
+    "2021": 222,
+    "2022": 183,
+    "2023": 214,
+    "2024": 223,
+    "2025": 253
+   },
+   "social_weekly_minutes_q4_2025": 753,
+   "social_daily_minutes_q4_2025_derived": 108,
+   "social_daily_minutes_latest": 253,
+   "social_daily_basis": "reported_2025",
+   "internet_daily_minutes_q3_2024": null
+  },
+  {
+   "country": "Malaysia",
+   "iso2": "MY",
+   "social_daily_minutes_by_year": {
+    "2017": 199,
+    "2018": 180,
+    "2019": 178,
+    "2020": 165,
+    "2021": 181,
+    "2022": 182,
+    "2023": 167,
+    "2024": 168,
+    "2025": 166
+   },
+   "social_weekly_minutes_q4_2025": 579,
+   "internet_daily_minutes_q3_2024": 493,
+   "social_daily_minutes_q4_2025_derived": 83,
+   "social_daily_minutes_latest": 166,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Mexico",
+   "iso2": "MX",
+   "social_daily_minutes_by_year": {
+    "2017": 212,
+    "2018": 187,
+    "2019": 192,
+    "2020": 205,
+    "2021": 207,
+    "2022": 200,
+    "2023": 201,
+    "2024": 194,
+    "2025": 192
+   },
+   "social_weekly_minutes_q4_2025": 672,
+   "internet_daily_minutes_q3_2024": 452,
+   "social_daily_minutes_q4_2025_derived": 96,
+   "social_daily_minutes_latest": 192,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Morocco",
+   "iso2": "MA",
+   "social_daily_minutes_by_year": {
+    "2018": 144,
+    "2019": 153,
+    "2020": 145,
+    "2021": 149,
+    "2022": 149,
+    "2023": 173,
+    "2024": 132,
+    "2025": 174
+   },
+   "social_weekly_minutes_q4_2025": 485,
+   "social_daily_minutes_q4_2025_derived": 69,
+   "social_daily_minutes_latest": 174,
+   "social_daily_basis": "reported_2025",
+   "internet_daily_minutes_q3_2024": null
+  },
+  {
+   "country": "Netherlands",
+   "iso2": "NL",
+   "social_daily_minutes_by_year": {
+    "2018": 80,
+    "2019": 76,
+    "2020": 79,
+    "2021": 84,
+    "2022": 81,
+    "2023": 99,
+    "2024": 90,
+    "2025": 95
+   },
+   "social_weekly_minutes_q4_2025": 414,
+   "internet_daily_minutes_q3_2024": 341,
+   "social_daily_minutes_q4_2025_derived": 59,
+   "social_daily_minutes_latest": 95,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "New Zealand",
+   "iso2": "NZ",
+   "social_daily_minutes_by_year": {
+    "2018": 113,
+    "2019": 103,
+    "2020": 105,
+    "2021": 115,
+    "2022": 125,
+    "2023": 135,
+    "2024": 119,
+    "2025": 123
+   },
+   "social_weekly_minutes_q4_2025": 571,
+   "internet_daily_minutes_q3_2024": 392,
+   "social_daily_minutes_q4_2025_derived": 82,
+   "social_daily_minutes_latest": 123,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Nigeria",
+   "iso2": "NG",
+   "social_daily_minutes_by_year": {
+    "2018": 182,
+    "2019": 197,
+    "2020": 210,
+    "2021": 221,
+    "2022": 247,
+    "2023": 276,
+    "2024": 205,
+    "2025": 203
+   },
+   "social_weekly_minutes_q4_2025": 682,
+   "social_daily_minutes_q4_2025_derived": 97,
+   "social_daily_minutes_latest": 203,
+   "social_daily_basis": "reported_2025",
+   "internet_daily_minutes_q3_2024": null
+  },
+  {
+   "country": "Norway",
+   "iso2": "NO",
+   "social_daily_minutes_by_year": {
+    "2023": 116,
+    "2024": 113,
+    "2025": 119
+   },
+   "social_weekly_minutes_q4_2025": 476,
+   "internet_daily_minutes_q3_2024": 337,
+   "social_daily_minutes_q4_2025_derived": 68,
+   "social_daily_minutes_latest": 119,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Philippines",
+   "iso2": "PH",
+   "social_daily_minutes_by_year": {
+    "2017": 257,
+    "2018": 237,
+    "2019": 252,
+    "2020": 233,
+    "2021": 255,
+    "2022": 246,
+    "2023": 223,
+    "2024": 214,
+    "2025": 212
+   },
+   "social_weekly_minutes_q4_2025": 791,
+   "internet_daily_minutes_q3_2024": 532,
+   "social_daily_minutes_q4_2025_derived": 113,
+   "social_daily_minutes_latest": 212,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Poland",
+   "iso2": "PL",
+   "social_daily_minutes_by_year": {
+    "2017": 105,
+    "2018": 102,
+    "2019": 105,
+    "2020": 120,
+    "2021": 119,
+    "2022": 109,
+    "2023": 122,
+    "2024": 114,
+    "2025": 114
+   },
+   "social_weekly_minutes_q4_2025": 375,
+   "internet_daily_minutes_q3_2024": 386,
+   "social_daily_minutes_q4_2025_derived": 54,
+   "social_daily_minutes_latest": 114,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Portugal",
+   "iso2": "PT",
+   "social_daily_minutes_by_year": {
+    "2018": 130,
+    "2019": 129,
+    "2020": 124,
+    "2021": 138,
+    "2022": 148,
+    "2023": 145,
+    "2024": 143,
+    "2025": 138
+   },
+   "social_weekly_minutes_q4_2025": 330,
+   "internet_daily_minutes_q3_2024": 453,
+   "social_daily_minutes_q4_2025_derived": 47,
+   "social_daily_minutes_latest": 138,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Romania",
+   "iso2": "RO",
+   "social_daily_minutes_by_year": {
+    "2020": 133,
+    "2021": 136,
+    "2022": 139,
+    "2023": 152,
+    "2024": 127,
+    "2025": 126
+   },
+   "social_weekly_minutes_q4_2025": 472,
+   "internet_daily_minutes_q3_2024": 372,
+   "social_daily_minutes_q4_2025_derived": 67,
+   "social_daily_minutes_latest": 126,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Russia",
+   "iso2": "RU",
+   "social_daily_minutes_by_year": {
+    "2017": 139,
+    "2018": 139,
+    "2019": 136,
+    "2020": 146,
+    "2021": 148,
+    "2022": 147,
+    "2023": 136,
+    "2024": 141,
+    "2025": 143
+   },
+   "social_weekly_minutes_q4_2025": 388,
+   "internet_daily_minutes_q3_2024": 518,
+   "social_daily_minutes_q4_2025_derived": 55,
+   "social_daily_minutes_latest": 143,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Saudi Arabia",
+   "iso2": "SA",
+   "social_daily_minutes_by_year": {
+    "2017": 175,
+    "2018": 154,
+    "2019": 170,
+    "2020": 182,
+    "2021": 186,
+    "2022": 204,
+    "2023": 181,
+    "2024": 186,
+    "2025": 181
+   },
+   "social_weekly_minutes_q4_2025": 497,
+   "internet_daily_minutes_q3_2024": 421,
+   "social_daily_minutes_q4_2025_derived": 71,
+   "social_daily_minutes_latest": 181,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Serbia",
+   "iso2": "RS",
+   "social_daily_minutes_by_year": {
+    "2025": 148
+   },
+   "social_weekly_minutes_q4_2025": 581,
+   "internet_daily_minutes_q3_2024": 424,
+   "social_daily_minutes_q4_2025_derived": 83,
+   "social_daily_minutes_latest": 148,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Singapore",
+   "iso2": "SG",
+   "social_daily_minutes_by_year": {
+    "2017": 127,
+    "2018": 126,
+    "2019": 128,
+    "2020": 128,
+    "2021": 137,
+    "2022": 151,
+    "2023": 133,
+    "2024": 134,
+    "2025": 122
+   },
+   "social_weekly_minutes_q4_2025": 433,
+   "internet_daily_minutes_q3_2024": 393,
+   "social_daily_minutes_q4_2025_derived": 62,
+   "social_daily_minutes_latest": 122,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "South Africa",
+   "iso2": "ZA",
+   "social_daily_minutes_by_year": {
+    "2017": 174,
+    "2018": 168,
+    "2019": 168,
+    "2020": 190,
+    "2021": 212,
+    "2022": 223,
+    "2023": 224,
+    "2024": 221,
+    "2025": 216
+   },
+   "social_weekly_minutes_q4_2025": 670,
+   "internet_daily_minutes_q3_2024": 577,
+   "social_daily_minutes_q4_2025_derived": 96,
+   "social_daily_minutes_latest": 216,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "South Korea",
+   "iso2": "KR",
+   "social_daily_minutes_by_year": {
+    "2017": 71,
+    "2018": 72,
+    "2019": 69,
+    "2020": 73,
+    "2021": 68,
+    "2022": 73,
+    "2023": 71,
+    "2024": 66,
+    "2025": 74
+   },
+   "social_weekly_minutes_q4_2025": 216,
+   "internet_daily_minutes_q3_2024": 322,
+   "social_daily_minutes_q4_2025_derived": 31,
+   "social_daily_minutes_latest": 74,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Spain",
+   "iso2": "ES",
+   "social_daily_minutes_by_year": {
+    "2017": 101,
+    "2018": 98,
+    "2019": 99,
+    "2020": 111,
+    "2021": 114,
+    "2022": 113,
+    "2023": 115,
+    "2024": 114,
+    "2025": 115
+   },
+   "social_weekly_minutes_q4_2025": 454,
+   "internet_daily_minutes_q3_2024": 340,
+   "social_daily_minutes_q4_2025_derived": 65,
+   "social_daily_minutes_latest": 115,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Sweden",
+   "iso2": "SE",
+   "social_daily_minutes_by_year": {
+    "2018": 116,
+    "2019": 109,
+    "2020": 108,
+    "2021": 108,
+    "2022": 122,
+    "2023": 118,
+    "2024": 117,
+    "2025": 121
+   },
+   "social_weekly_minutes_q4_2025": 525,
+   "internet_daily_minutes_q3_2024": 360,
+   "social_daily_minutes_q4_2025_derived": 75,
+   "social_daily_minutes_latest": 121,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Switzerland",
+   "iso2": "CH",
+   "social_daily_minutes_by_year": {
+    "2019": 76,
+    "2020": 78,
+    "2021": 85,
+    "2022": 93,
+    "2023": 103,
+    "2024": 99,
+    "2025": 106
+   },
+   "social_weekly_minutes_q4_2025": 315,
+   "internet_daily_minutes_q3_2024": 347,
+   "social_daily_minutes_q4_2025_derived": 45,
+   "social_daily_minutes_latest": 106,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Taiwan",
+   "iso2": "TW",
+   "social_daily_minutes_by_year": {
+    "2018": 123,
+    "2019": 112,
+    "2020": 120,
+    "2021": 116,
+    "2022": 124,
+    "2023": 126,
+    "2024": 119,
+    "2025": 117
+   },
+   "social_weekly_minutes_q4_2025": 313,
+   "internet_daily_minutes_q3_2024": 443,
+   "social_daily_minutes_q4_2025_derived": 45,
+   "social_daily_minutes_latest": 117,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Thailand",
+   "iso2": "TH",
+   "social_daily_minutes_by_year": {
+    "2017": 168,
+    "2018": 190,
+    "2019": 191,
+    "2020": 175,
+    "2021": 168,
+    "2022": 179,
+    "2023": 164,
+    "2024": 151,
+    "2025": 152
+   },
+   "social_weekly_minutes_q4_2025": 568,
+   "internet_daily_minutes_q3_2024": 474,
+   "social_daily_minutes_q4_2025_derived": 81,
+   "social_daily_minutes_latest": 152,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Turkey",
+   "iso2": "TR",
+   "social_daily_minutes_by_year": {
+    "2017": 181,
+    "2018": 168,
+    "2019": 166,
+    "2020": 171,
+    "2021": 177,
+    "2022": 179,
+    "2023": 174,
+    "2024": 164,
+    "2025": 163
+   },
+   "social_weekly_minutes_q4_2025": 599,
+   "internet_daily_minutes_q3_2024": 433,
+   "social_daily_minutes_q4_2025_derived": 86,
+   "social_daily_minutes_latest": 163,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "United Arab Emirates",
+   "iso2": "AE",
+   "social_daily_minutes_by_year": {
+    "2017": 204,
+    "2018": 176,
+    "2019": 179,
+    "2020": 177,
+    "2021": 175,
+    "2022": 184,
+    "2023": 170,
+    "2024": 178,
+    "2025": 179
+   },
+   "social_weekly_minutes_q4_2025": 478,
+   "internet_daily_minutes_q3_2024": 479,
+   "social_daily_minutes_q4_2025_derived": 68,
+   "social_daily_minutes_latest": 179,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "United Kingdom",
+   "iso2": "GB",
+   "social_daily_minutes_by_year": {
+    "2017": 108,
+    "2018": 114,
+    "2019": 110,
+    "2020": 102,
+    "2021": 109,
+    "2022": 108,
+    "2023": 116,
+    "2024": 109,
+    "2025": 97
+   },
+   "social_weekly_minutes_q4_2025": 494,
+   "internet_daily_minutes_q3_2024": 336,
+   "social_daily_minutes_q4_2025_derived": 71,
+   "social_daily_minutes_latest": 97,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "United States",
+   "iso2": "US",
+   "social_daily_minutes_by_year": {
+    "2017": 126,
+    "2018": 121,
+    "2019": 124,
+    "2020": 123,
+    "2021": 127,
+    "2022": 134,
+    "2023": 136,
+    "2024": 138,
+    "2025": 129
+   },
+   "social_weekly_minutes_q4_2025": 530,
+   "internet_daily_minutes_q3_2024": 400,
+   "social_daily_minutes_q4_2025_derived": 76,
+   "social_daily_minutes_latest": 129,
+   "social_daily_basis": "reported_2025"
+  },
+  {
+   "country": "Vietnam",
+   "iso2": "VN",
+   "social_daily_minutes_by_year": {
+    "2017": 159,
+    "2018": 157,
+    "2019": 152,
+    "2020": 142,
+    "2021": 141,
+    "2022": 148,
+    "2023": 152,
+    "2024": 145,
+    "2025": 134
+   },
+   "social_weekly_minutes_q4_2025": 416,
+   "internet_daily_minutes_q3_2024": 365,
+   "social_daily_minutes_q4_2025_derived": 59,
+   "social_daily_minutes_latest": 134,
+   "social_daily_basis": "reported_2025"
+  }
+ ]
+}

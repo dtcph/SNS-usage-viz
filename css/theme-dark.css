@@ -1,19 +1,20 @@
-/* Dark theme: calm blue-grey (no pure black), heatmap a little more saturated. */
+/* Dark theme: warm charcoal (no pure black), same accent family, heatmap a little more saturated. */
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #1b1d27;
-  --surface: rgba(38, 41, 54, 0.82);
-  --surface-solid: #262936;
-  --ink: #e6e4ee;
-  --ink-soft: #a2a1b3;
-  --line: rgba(230, 228, 238, 0.14);
-  --line-strong: rgba(230, 228, 238, 0.34);
-  --accent: #a995f2;
-  --accent-soft: rgba(169, 149, 242, 0.2);
-  --shadow-soft: 0 10px 30px rgba(8, 9, 16, 0.38), 0 1px 3px rgba(8, 9, 16, 0.3);
+  --bg: #1a1916;
+  --ambient: rgba(92, 80, 58, 0.22);
+  --surface: rgba(37, 35, 31, 0.8);
+  --surface-solid: #26241f;
+  --ink: #ece8df;
+  --ink-soft: #a29d91;
+  --line: rgba(236, 232, 223, 0.13);
+  --line-strong: rgba(236, 232, 223, 0.32);
+  --accent: #a8b3ee;
+  --accent-soft: rgba(168, 179, 238, 0.16);
+  --shadow-soft: 0 16px 36px -10px rgba(10, 8, 4, 0.55), 0 2px 4px rgba(10, 8, 4, 0.3), inset 0 1px 0 rgba(255, 244, 220, 0.07);
 
-  --land-stroke: #1b1d27;
-  --nodata: #363947;
+  --land-stroke: #1a1916;
+  --nodata: #3a3832;
   --dim-opacity: 0.2;
   --rb-0: #4f86c9;
   --rb-1: #6f80d6;
@@ -22,12 +23,11 @@
   --rb-4: #d2689f;
   --rb-5: #da586b;
   --rb-6: #d14444;
-  --globe-hi: #2c3042;
-  --globe-lo: #20222e;
+  --globe-hi: #2c2a24;
+  --globe-lo: #201f1b;
 
   --bar: linear-gradient(90deg, #4f86c9, #9378d4, #d2689f, #d14444);
-  --hl-fill: #7a68e6;
-  --hl-ink: #ffffff;
+  --hl-fill: #7584dc;
   --grain-opacity: 0.05;
   --grain-blend: screen;
 }

@@ -11,8 +11,7 @@ export const LOCALES = { en: 'en', ko: 'ko-KR' };
 
 // ---- Data locations -----------------------------------------------------------------------------------------
 export const DATA_FILES = {
-  weeklyByCountry: 'data/weekly-time-by-country.json',   // data 1
-  dailySeries: 'data/daily-time-2012-2025.json',          // data 2
+  socialMediaTime: 'data/social_media_time.json',         // average daily minutes on social media, per country and year
   usageReasons: 'data/usage-reasons.json',                // data 3
   franceScreenTime: 'data/screentime-france.json',        // data 4
   healthIssues: 'data/health-issues.json',                // data 5
@@ -38,7 +37,7 @@ export const POPULATION_FETCH_TIMEOUT_MS = 6000;
 
 // ---- Social-media users & affected people -------------------------------------------------------------------
 /**
- * Share of the population that uses social media. 62.3 % = global penetration quoted in the description of data 2 (Feb 2025).
+ * Share of the population that uses social media. 62.3 % = global penetration quoted by DataReportal (Feb 2025).
  * Applied to every country; override single countries in INTERNET_PENETRATION_BY_COUNTRY.
  */
 export const SOCIAL_MEDIA_USER_SHARE = 0.623;
@@ -48,7 +47,7 @@ export const INTERNET_PENETRATION_BY_COUNTRY = {};
 /**
  * "Affected" = social-media users who spend at least this many minutes per day in social media.
  * Individual daily time is assumed exponentially distributed around the group's mean (see calc.js), so the share of
- * affected people is exp(-threshold / mean). The mean is the country's daily time (data 1) scaled by generation.
+ * affected people is exp(-threshold / mean). The mean is the country's average daily time (social_media_time.json) scaled by generation.
  */
 export const DOOMSCROLL_THRESHOLD_MIN_PER_DAY = 120;
 
@@ -95,7 +94,7 @@ export const TEEN_SHARE_BY_COUNTRY = {};
 /**
  * How teens spread over the weekend-screen-time categories of data 5.
  *  - Mean daily weekend hours = FRANCE_TEEN_DAILY_HOURS (data 4, 13-19, latest year)
- *      x (country weekly social-media time / France's) ^ COUNTRY_ELASTICITY  x  WEEKEND_FACTOR
+ *      x (country daily social-media time / France's) ^ COUNTRY_ELASTICITY  x  WEEKEND_FACTOR
  *    Data 4 is only a scaling aid here; it is not drawn anywhere.
  *  - Spread: lognormal with the given coefficient of variation, cut at the category bounds from data 5.
  *  - `fixedShares`: set to { c0: .., ..., c6: .. } (sums to 1) to bypass the model completely.
@@ -112,8 +111,9 @@ export const SCREENTIME_CATEGORY_DISTRIBUTION = {
 // ---- Display ------------------------------------------------------------------------------------------------
 /** Count-up animation of numbers (ms). Everything else is animated through CSS variables (css/animations.css). */
 export const COUNT_UP_DURATION_MS = 1100;
-/** Timeline playback: time per year step (ms). */
+/** Timeline playback: time per year (ms). The slider moves in quarters: values between two reported years are interpolated linearly. */
 export const TIMELINE_STEP_MS = 900;
+export const TIMELINE_STEPS_PER_YEAR = 4;
 /** Max. usage reasons shown in the popup (sorted by size). */
 export const USAGE_REASONS_VISIBLE = 8;
 /** Number of colour classes of the heatmap (css/theme-*.css define --rb-0 ... --rb-6, blue -> pink -> red). */

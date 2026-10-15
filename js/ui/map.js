@@ -4,7 +4,7 @@ import { feature, geoArea, geoCentroid, geoGraticule10, geoOrthographic, geoPath
 import {
   GLOBE_DRAG_SMOOTHING_MS, GLOBE_INERTIA_DECAY_MS, GLOBE_INITIAL_CENTER, GLOBE_MAX_SPIN_DEG_PER_S, GLOBE_ZOOM_MAX, GLOBE_ZOOM_MIN, MAP_COLOR_STEPS, MAP_HIDDEN_IDS, ZOOM_FILL, ZOOM_MAX_SCALE, ZOOM_MIN_PART_AREA_RATIO,
 } from '../config.js';
-import { describeCountry, yearFactor } from '../model/calc.js';
+import { dailyMinutes, describeCountry, extentFor } from '../model/calc.js';
 import { createCounter } from './counter.js';
 import { readMotion, readPx } from './motion.js';
 
@@ -24,32 +24,31 @@ const HL_NUM_CHARS = 5; // widest count the readout has to fit, e.g. "12.3M"
  * @param {object} o.store
  * @param {() => object} o.getI18n
  * @param {object} o.tooltip
- * @param {(minutes:number|null)=>void} [o.onHoverTime]  weekly minutes of the hovered country (for the legend marker)
+ * @param {(minutes:number|null)=>void} [o.onHoverTime]  daily minutes of the hovered country (for the legend marker)
  */
 export function createMap({ svg: svgEl, topology, index, model, store, getI18n, tooltip, onHoverTime = () => {} }) {
   const svg = select(svgEl);
   const features = feature(topology, topology.objects.countries).features
     .filter((f) => !MAP_HIDDEN_IDS.includes(String(f.id ?? '').padStart(3, '0')));
 
-  // Per feature: ISO country (if any) and data-1 value.
+  // Per feature: ISO country (if any) and its daily minutes in the shown year (`minutes`, set by colorize()). `hasAny` = the data covers it in some year.
   const entries = features.map((f) => {
     const num = f.id == null ? null : String(f.id).padStart(3, '0');
     const country = num ? index.byNum.get(num) ?? null : null;
     const a3 = country?.a3 ?? null;
-    const weeklyMin = a3 ? model.weeklyByA3.get(a3) : undefined;
-    return { f, num, a3, a2: country?.a2 ?? null, weeklyMin, hasData: weeklyMin != null, name: f.properties?.name ?? '', step: null };
+    const hasAny = a3 != null && model.dailyByA3.has(a3);
+    return { f, num, a3, a2: country?.a2 ?? null, hasAny, minutes: null, hasData: false, name: f.properties?.name ?? '', step: null };
   });
 
   // Startup diagnostics: anything that cannot be linked is listed once in the console.
   const onMap = new Set(entries.map((e) => e.a3));
-  const noGeometry = [...model.weeklyByA3.keys()].filter((a3) => !onMap.has(a3));
-  if (noGeometry.length) console.warn('[country-map] data-1 countries without geometry in the topology (not drawn):', noGeometry.map((a3) => index.byA3.get(a3)?.name ?? a3));
+  const noGeometry = [...model.dailyByA3.keys()].filter((a3) => !onMap.has(a3));
+  if (noGeometry.length) console.warn('[country-map] usage-data countries without geometry in the topology (not drawn):', noGeometry.map((a3) => index.byA3.get(a3)?.name ?? a3));
   const noId = entries.filter((e) => !e.a3).map((e) => e.name);
   if (noId.length) console.info('[country-map] topology features without ISO match (shown as "no data"):', noId);
 
-  const values = entries.filter((e) => e.hasData).map((e) => e.weeklyMin);
-  const extent = [Math.min(...values), Math.max(...values)];
-  const colorStep = scaleQuantize().domain(extent).range(Array.from({ length: MAP_COLOR_STEPS }, (_, i) => i));
+  // The colour scale follows the shown year: its min and max are the legend's ends (see colorize()).
+  const colorStep = scaleQuantize().domain(extentFor(model)).range(Array.from({ length: MAP_COLOR_STEPS }, (_, i) => i));
 
   // ---- DOM ----
   const defs = svg.append('defs');
@@ -61,18 +60,23 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   const sphere = gRoot.append('path').attr('class', 'sphere');
   const graticule = gRoot.append('path').attr('class', 'graticule');
   const paths = gRoot.selectAll('path.country').data(entries).join('path')
-    .attr('class', (e) => `country ${e.hasData ? 'has-data' : 'nodata'}`)
+    .attr('class', 'country nodata')
     .attr('data-a3', (e) => e.a3);
 
-  /** Heatmap class per country for the year on the timeline (fixed colour scale, so change over time is visible). */
+  /** Heatmap class per country for the year on the timeline, on that year's own min-max scale. A country with no value that year is drawn as "no data" (never estimated). */
   function colorize() {
-    const factor = yearFactor(model, store.get().year);
+    const { year } = store.get();
+    colorStep.domain(extentFor(model, year));
     paths.each(function (e) {
-      if (!e.hasData) return;
-      const step = colorStep(e.weeklyMin * factor);
+      if (!e.hasAny) return;
+      e.minutes = dailyMinutes(model, e.a3, year);
+      e.hasData = e.minutes != null;
+      const step = e.hasData ? colorStep(e.minutes) : null;
       if (step === e.step) return;
       if (e.step != null) this.classList.remove(`rb${e.step}`);
-      this.classList.add(`rb${step}`);
+      if (step != null) this.classList.add(`rb${step}`);
+      this.classList.toggle('has-data', e.hasData);
+      this.classList.toggle('nodata', !e.hasData);
       e.step = step;
     });
   }
@@ -82,13 +86,13 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   // Highlight layer: a level-fill clipped to the chosen country, driven by chart hovers in the popups.
   const hlLayer = gRoot.append('g').attr('class', 'hl-layer');
   const clipShape = hlLayer.append('clipPath').attr('id', 'hl-clip').append('path');
-  // Only the fill is masked by the country outline. The number and the label chip are not, so they stay fully readable
+  // Only the fill is masked by the country outline. The number and the label are not, so they stay fully readable
   // (thin countries such as Chile would hide most of the number otherwise). Both are lifted together with the fill level.
   const hlFill = hlLayer.append('g').attr('clip-path', 'url(#hl-clip)').append('rect').attr('class', 'hl-fill');
   const hlLabelGroup = hlLayer.append('g').attr('class', 'hl-texts');
+  // The number stands centred on the fill edge; the label sits outside the country's bounding box, on the side opposite to the open popup.
   const hlNum = hlLabelGroup.append('text').attr('class', 'hl-num').attr('text-anchor', 'middle');
-  const hlChip = hlLabelGroup.append('rect').attr('class', 'hl-chip').attr('rx', 9);
-  const hlLabel = hlLabelGroup.append('text').attr('class', 'hl-label').attr('text-anchor', 'middle');
+  const hlLabel = hlLabelGroup.append('text').attr('class', 'hl-label');
   const hlLifted = [hlLabelGroup];
   const readoutCounter = createCounter(hlNum.node(), (n) => getI18n().compact(n));
 
@@ -144,9 +148,9 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
     width = svgEl.clientWidth; height = svgEl.clientHeight;
     svg.attr('viewBox', `0 0 ${width} ${height}`);
     const top = readPx('--map-pad-top'), bottom = readPx('--map-pad-bottom');
-    cx = width / 2;
+    cx = (width * 2) / 3; // rule of thirds: the globe is centred on the right third line, the left third holds info and controls
     cy = top + (height - top - bottom) / 2;
-    radius = Math.max(50, Math.min((height - top - bottom) / 2, (width - 2 * PAD_X) / 2));
+    radius = Math.max(50, Math.min((height - top - bottom) / 2, width / 3 - PAD_X));
   }
 
   const worldView = () => ({ lam: view.lam, phi: view.phi, scale: radius * userZoom, tx: cx, ty: cy });
@@ -238,13 +242,15 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
     const { w, h, cx, y1, numSize, labelSize: fs } = hlGeom;
     hlNum.attr('x', cx).attr('y', y1).style('font-size', `${numSize}px`);
 
-    // Context + label: white on a chip in the fill colour, just below the edge; wider than the country is fine.
-    const maxChars = Math.max(24, Math.min(32, Math.floor((0.9 * w) / (0.54 * fs)))); // not clipped, so thin countries may get a wider chip
-    const lines = [...wrap(hl.context, maxChars, 1), ...wrap(hl.label, maxChars, 2)];
-    hlLabel.attr('x', cx).attr('y', y1).style('font-size', `${fs}px`).selectAll('tspan').remove();
-    lines.forEach((line, i) => hlLabel.append('tspan').attr('x', cx).attr('dy', i === 0 ? fs * 2.1 : fs * 1.3).text(line));
-    const bb = hlLabel.node().getBBox();
-    hlChip.attr('x', bb.x - 10).attr('y', bb.y - 6).attr('width', bb.width + 20).attr('height', bb.height + 12);
+    // Context + label: plain text in the page ink with a thin halo in the page colour (no box), at the height of the number,
+    // next to the bounding box. The left popup opens it on the right of the country, the right popup on the left.
+    const onRight = store.get().zone !== 'right';
+    const labelX = onRight ? hlGeom.x1 + fs * 1.2 : hlGeom.x0 - fs * 1.2;
+    const lines = [...wrap(hl.context, 18, 1), ...wrap(hl.label, 18, 2)];
+    const lh = fs * 1.3, capHeight = 0.72 * numSize;
+    hlLabel.attr('text-anchor', onRight ? 'start' : 'end').attr('x', labelX).attr('y', y1).style('font-size', `${fs}px`).selectAll('tspan').remove();
+    lines.forEach((line, i) => hlLabel.append('tspan').attr('x', labelX)
+      .attr('dy', i === 0 ? -capHeight / 2 - ((lines.length - 1) * lh) / 2 + fs * 0.32 : lh).text(line));
 
     hlOn = true;
     requestAnimationFrame(() => {
@@ -287,13 +293,11 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
     const vm = entry.hasData && pop != null ? describeCountry(model, entry.a3, pop, ageGroups, year) : null;
     if (pop != null) lines.push(`${i18n.t('tooltip.population')}: ${i18n.compact(vm ? vm.population : pop)}`); // age filter only applies where data exists
     if (entry.hasData) {
-      const weekly = entry.weeklyMin * yearFactor(model, year);
-      const est = year != null && year !== model.latestYear ? ` · ${i18n.t('tooltip.estimate', { year })}` : '';
-      lines.push(`${i18n.t('tooltip.weekly')}: ${i18n.hoursMinutes(weekly)}${est}`);
+      lines.push(`${i18n.t('tooltip.daily')}: ${i18n.minutes(entry.minutes)}`);
       if (vm) lines.push(`${i18n.t('tooltip.affected')}: ${i18n.compact(vm.affected)}`);
-      onHoverTime(weekly);
+      onHoverTime(entry.minutes);
     } else {
-      lines.push(i18n.t('tooltip.noData'));
+      lines.push(entry.hasAny ? i18n.t('tooltip.noDataYear', { year: Math.round(year ?? model.latestYear) }) : i18n.t('tooltip.noData'));
       onHoverTime(null);
     }
     tooltip.show(i18n.countryName(entry.a2, entry.name), lines, e.clientX, e.clientY);
@@ -383,8 +387,6 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
       const a3 = store.get().country;
       flyTo(a3 ? countryView(a3) : worldView(), false);
     },
-    /** Legend range in minutes per week. */
-    extent,
     colorStep,
   };
 }

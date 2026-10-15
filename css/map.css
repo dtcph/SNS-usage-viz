@@ -1,5 +1,5 @@
 /* Map, tooltip, legend */
-.map { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; display: block; cursor: grab; touch-action: none; user-select: none; }
+.map { position: fixed; inset: 0; width: 100%; height: 100%; z-index: var(--z-map); display: block; cursor: grab; touch-action: none; user-select: none; }
 .map.is-dragging, .map.is-dragging .country { cursor: grabbing; }
 .map.has-selection { cursor: default; }
 .globe-hi { stop-color: var(--globe-hi); }
@@ -30,19 +30,18 @@
 .map.has-selection .sphere, .map.has-selection .graticule { opacity: 0; }
 
 .tooltip {
-  position: fixed; left: 0; top: 0; z-index: 30; pointer-events: none; opacity: 0;
+  position: fixed; left: 0; top: 0; z-index: var(--z-tooltip); pointer-events: none; opacity: 0;
   padding: var(--space-2) var(--space-3); border-radius: var(--radius-m);
   background: var(--surface-solid); border: 1px solid var(--line); box-shadow: var(--shadow-soft);
   font-size: var(--text-m); line-height: 1.4; white-space: nowrap;
   transition: opacity var(--fade-duration) var(--fade-easing);
 }
 .tooltip.is-visible { opacity: 1; }
-.tooltip strong { display: block; font-weight: 400; }
+.tooltip strong { display: block; font-weight: 600; letter-spacing: -0.01em; }
 .tooltip span { display: block; color: var(--ink-soft); font-size: var(--text-s); }
 
 .legend {
-  position: fixed; z-index: 5; left: var(--page-margin); bottom: calc(var(--space-4) + 28px); width: 190px;
-  font-size: var(--text-s); color: var(--ink-soft);
+  font-size: var(--text-s); color: var(--ink-soft); padding: 0 var(--space-1);
 }
 .legend-bar { position: relative; display: flex; height: 8px; border-radius: var(--radius-pill); margin: 30px 0 var(--space-1); }
 .legend-bar i:first-child { border-radius: var(--radius-pill) 0 0 var(--radius-pill); }
@@ -55,11 +54,18 @@
 .legend-bar i:nth-child(5) { background: var(--rb-4); }
 .legend-bar i:nth-child(6) { background: var(--rb-5); }
 .legend-bar i:nth-child(7) { background: var(--rb-6); }
-.legend-ends { display: flex; justify-content: space-between; }
+.legend-ends { display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
 .legend-nodata { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-2); }
 .legend-nodata i { width: 10px; height: 10px; border-radius: 3px; background: var(--nodata); }
 
 /* Marker that follows the hovered country along the legend bar. */
-.legend-marker { position: absolute; top: -4px; width: 2px; height: 16px; margin-left: -1px; background: var(--ink); border-radius: 1px; opacity: 0; pointer-events: none; transition: opacity var(--fade-duration) var(--fade-easing); }
+.legend-marker { position: absolute; top: -4px; width: 2px; height: 16px; margin-left: -1px; background: var(--ink); border-radius: 1px; opacity: 0; pointer-events: none; transition: opacity var(--fade-duration) var(--fade-easing), left var(--ui-duration) var(--ui-easing); }
 .legend-marker.is-visible { opacity: 1; }
-.legend-marker-label { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: var(--text-s); color: var(--ink); background: var(--surface-solid); border: 1px solid var(--line); border-radius: var(--radius-s); padding: 0 6px; box-shadow: var(--shadow-soft); }
+.legend-marker-label { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: var(--text-s); color: var(--ink); background: var(--surface-solid); border: 1px solid var(--line); border-radius: 5px; padding: 0 6px; box-shadow: var(--shadow-soft); }
+
+/* Left third (rule of thirds, the globe sits on the right third line): timeline, legend and controls, stacked at the bottom. */
+.dock {
+  position: fixed; z-index: var(--z-chrome); left: var(--page-margin); bottom: var(--page-margin);
+  width: var(--sidebar-width); display: grid; gap: var(--space-5); pointer-events: none;
+}
+.dock > * { pointer-events: auto; }

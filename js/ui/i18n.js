@@ -19,14 +19,15 @@ export function createI18n(lang, dict) {
   const locale = LOCALES[lang] ?? lang;
   const nf = new Intl.NumberFormat(locale);
   const compactIntl = new Intl.NumberFormat(locale, { notation: 'compact', maximumFractionDigits: 1 });
-  // Korean counts in myriads: 1,231,000 -> "123만 1천" (major unit plus the next unit's digit), not "123.1만".
-  const KO_UNITS = [[1e12, '조', 1e11, '천억'], [1e8, '억', 1e7, '천만'], [1e4, '만', 1e3, '천']];
+  // Big counts are estimates, so they stay short. English: "17.9M". Korean counts in myriads and keeps only the major unit:
+  // 17,906,000 -> "1,791만", 211,800,000 -> "2.1억" (not "1,790만 6천").
+  const nf1 = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
   const compact = lang === 'ko'
     ? { format(n) {
-      for (const [big, name, small, smallName] of KO_UNITS) {
+      for (const [big, name] of [[1e12, '조'], [1e8, '억'], [1e4, '만']]) {
         if (n < big) continue;
-        const rest = Math.floor((n % big) / small);
-        return `${nf.format(Math.floor(n / big))}${name}${rest ? ` ${rest}${smallName}` : ''}`;
+        const v = n / big;
+        return `${v < 10 ? nf1.format(v) : nf.format(Math.round(v))}${name}`;
       }
       return nf.format(Math.round(n));
     } }
@@ -55,11 +56,8 @@ export function createI18n(lang, dict) {
         return n && n !== a2 ? n : fallback ?? '';
       } catch { return fallback ?? ''; }
     },
-    /** 125 -> "2 h 5 min" / "2시간 5분" */
-    hoursMinutes(min) {
-      const h = Math.floor(Math.round(min) / 60), m = Math.round(min) % 60;
-      return h && m ? t('time.hm', { h, m }) : h ? t('time.h', { h }) : t('time.m', { m });
-    },
+    /** 125 -> "125 min" / "125분" (all durations are shown in minutes) */
+    minutes: (min) => t('time.m', { m: nf.format(Math.round(min)) }),
     /** Applies data-i18n="key" (text) and data-i18n-attr="attr:key;attr2:key2" to the document. */
     apply(root = document) {
       document.documentElement.lang = lang;

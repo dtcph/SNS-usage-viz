@@ -1,115 +1,384 @@
 /* Headline, popups (fly in from the sides), timeline */
 .headline {
-  position: fixed; z-index: 5; left: 50%; bottom: 122px; transform: translateX(-50%);
-  width: min(calc(33vw - var(--space-5)), 460px); text-align: center;
+  position: fixed;
+  z-index: var(--z-chrome);
+  left: 50%;
+  bottom: 72px;
+  transform: translateX(-50%);
+  width: min(90vw, 900px);
+  text-align: center;
 }
-.headline-name { font-size: var(--text-xl); font-weight: 300; }
-.headline-line { margin-top: var(--space-3); font-size: var(--text-l); line-height: 1.55; }
-.headline-basis { margin-top: var(--space-2); font-size: var(--text-s); line-height: 1.5; color: var(--ink-soft); }
-.stats { display: flex; justify-content: center; gap: var(--space-6); margin-top: var(--space-3); }
-.stat { display: grid; justify-items: center; }
-.stat-val { font-size: var(--text-xl); font-weight: 300; line-height: 1.15; white-space: nowrap; }
-.stat-label { font-size: var(--text-s); color: var(--ink-soft); }
-.num { font-variant-numeric: tabular-nums; font-weight: 500; }
+.headline-name {
+  font-size: var(--text-3xl);
+  text-wrap: balance;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+/* Stat modules side by side, each NUMBER (big) | label (small); a thin rule separates them. */
+.headline-stats {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  row-gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+.stat {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-4);
+  text-align: left;
+}
+.stat + .stat {
+  border-left: 1px solid var(--line-strong);
+}
+.stat-num {
+  font-size: var(--text-3xl);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+.stat-label {
+  font-size: var(--text-s);
+  line-height: 1.3;
+  color: var(--ink-soft);
+  max-width: 12ch;
+  text-wrap: balance;
+}
+  font-size: var(--text-2xl);
+} /* Korean counts ("3,214만 7천") are longer, so they take one step down to keep the row in one line */
+.stat.is-accent .stat-num {
+  color: var(--accent);
+}
+.num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
 
 /* The shell is a fixed column that never catches the mouse; only the card does. */
 .panel {
-  position: fixed; z-index: 10; top: var(--panel-top); bottom: var(--panel-bottom);
-  width: var(--panel-width); display: flex; align-items: center; pointer-events: none;
+  position: fixed;
+  z-index: var(--z-panel);
+  top: var(--panel-top);
+  bottom: var(--panel-bottom);
+  width: var(--panel-width);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
 }
-.panel[data-zone="left"] { left: var(--page-margin); }
-.panel[data-zone="right"] { right: var(--page-margin); justify-content: flex-end; }
+.panel[data-zone="left"] {
+  left: var(--page-margin);
+}
+.panel[data-zone="right"] {
+  right: var(--page-margin);
+  justify-content: flex-end;
+}
 
 .panel-card {
-  width: 100%; max-height: 100%; overflow: hidden auto; pointer-events: auto; visibility: hidden;
-  padding: var(--space-5); border-radius: var(--radius-l);
-  background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-soft);
+  width: 100%;
+  max-height: 100%;
+  overflow: hidden auto;
+  pointer-events: auto;
+  visibility: hidden;
+  padding: var(--space-5);
+  border-radius: var(--radius-l);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
   backdrop-filter: blur(10px);
   opacity: 0;
-  transition: transform var(--popup-duration) var(--popup-easing), opacity var(--popup-duration) var(--popup-easing), visibility 0s linear var(--popup-duration);
+  transition:
+    transform var(--popup-duration) var(--popup-easing),
+    opacity var(--popup-duration) var(--popup-easing),
+    visibility 0s linear var(--popup-duration);
 }
-.panel[data-zone="left"] .panel-card { transform: translateX(calc(-100% - var(--page-margin) * 2)); }
-.panel[data-zone="right"] .panel-card { transform: translateX(calc(100% + var(--page-margin) * 2)); }
+.panel[data-zone="left"] .panel-card {
+  transform: translateX(calc(-100% - var(--page-margin) * 2));
+}
+.panel[data-zone="right"] .panel-card {
+  transform: translateX(calc(100% + var(--page-margin) * 2));
+}
 .panel.is-open .panel-card {
-  transform: none; opacity: 1; visibility: visible;
-  transition: transform var(--popup-duration) var(--popup-easing), opacity var(--popup-duration) var(--popup-easing), visibility 0s;
+  transform: none;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    transform var(--popup-duration) var(--popup-easing),
+    opacity var(--popup-duration) var(--popup-easing),
+    visibility 0s;
 }
 
-.panel-title { font-size: var(--text-l); font-weight: 400; }
-.panel-note { margin-top: var(--space-1); font-size: var(--text-s); color: var(--ink-soft); }
-.panel-big { margin-top: var(--space-4); display: flex; align-items: baseline; gap: var(--space-2); }
-.panel-big .num { font-size: var(--text-num); font-weight: 300; }
-.panel-big span:last-child { color: var(--ink-soft); font-size: var(--text-s); }
+.panel-title {
+  font-size: var(--text-l);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.panel-note {
+  margin-top: var(--space-1);
+  font-size: var(--text-s);
+  color: var(--ink-soft);
+}
+.panel-big {
+  margin-top: var(--space-4);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+.panel-big .num {
+  font-size: var(--text-num);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.panel-big span:last-child {
+  color: var(--ink-soft);
+  font-size: var(--text-s);
+}
 
 /* Column chart (popups): count above the bar, group label below. */
-.chart { --chart-h: 210px; display: flex; gap: 6px; margin-top: var(--space-4); align-items: stretch; }
-.col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; cursor: default; outline-offset: 2px; transition: opacity var(--fade-duration) var(--fade-easing); }
-.chart:hover .col:not(:hover) { opacity: 0.55; }
+.chart {
+  --chart-h: 210px;
+  display: flex;
+  gap: 6px;
+  margin-top: var(--space-4);
+  align-items: stretch;
+}
+.col {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  cursor: default;
+  outline-offset: 2px;
+  transition: opacity var(--ui-duration) var(--ui-easing);
+}
+.chart:hover .col:not(:hover) {
+  opacity: 0.55;
+}
 .col-track {
-  position: relative; height: var(--chart-h); margin-top: 34px; border-bottom: 1px solid var(--line-strong);
+  position: relative;
+  height: var(--chart-h);
+  margin-top: 34px;
+  /* border-bottom: 1px solid var(--line-strong); */
 }
 .col-track i {
-  position: absolute; left: 12%; right: 12%; bottom: 0; height: calc(var(--h, 0) * 100%);
-  border-radius: 6px 6px 0 0; background: var(--bar-color, var(--accent));
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: 0;
+  height: calc(var(--h, 0) * 100%);
+  border-radius: 4px 4px 0 0;
+  background: var(--bar-color, var(--accent));
   transition: height var(--popup-duration) var(--popup-easing);
 }
 .col-val {
-  position: absolute; left: -6%; right: -6%; bottom: calc(var(--h, 0) * 100% + 4px); text-align: center;
-  font-size: var(--text-s); font-weight: 400; line-height: 1.15; white-space: normal; word-break: keep-all; /* long Korean counts wrap at the space only */
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--h, 0) * 100% + 4px);
+  text-align: center;
+  text-wrap: balance;
+  font-size: var(--text-s);
+  font-weight: 500;
+  line-height: 1.15;
+  white-space: normal;
+  word-break: keep-all; /* long Korean counts wrap at the space only */
   transition: bottom var(--popup-duration) var(--popup-easing);
 }
-.col-label { margin: var(--space-2) -6px 0; text-align: center; font-size: 10px; line-height: 1.25; color: var(--ink-soft); }
-.col:hover .col-label { color: var(--ink); }
-.panel-empty { margin-top: var(--space-4); color: var(--ink-soft); line-height: 1.6; }
-.panel-empty strong { display: block; color: var(--ink); font-weight: 400; margin-bottom: var(--space-1); }
+.col-label {
+  margin: var(--space-2) -6px 0;
+  text-align: center;
+  font-size: var(--text-xs);
+  line-height: 1.25;
+  color: var(--ink-soft);
+  transition: color var(--ui-duration) var(--ui-easing);
+}
+.col:hover .col-label {
+  color: var(--ink);
+}
+:lang(ko) .col-label {
+  font-size: var(--text-s);
+} /* short Korean labels have room for the larger size */
+.panel-empty {
+  margin-top: var(--space-4);
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+.panel-empty strong {
+  display: block;
+  color: var(--ink);
+  font-weight: 600;
+  margin-bottom: var(--space-1);
+}
 
-/* Timeline: overview only, top right under the info button. */
+/* Timeline: overview only, bottom left above the legend (see .dock in map.css). */
 .timeline {
-  position: fixed; z-index: 5; top: calc(var(--page-margin) + 48px); right: var(--page-margin);
-  width: min(300px, 24vw); min-width: 240px; padding: var(--space-4); border-radius: var(--radius-l);
-  background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-soft); backdrop-filter: blur(10px);
+  padding: var(--space-4);
+  border-radius: var(--radius-l);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px);
 }
-.tl-head { display: flex; align-items: center; gap: var(--space-3); }
+.tl-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
 .tl-play {
-  flex: none; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line-strong); display: grid; place-items: center;
-  color: var(--ink); transition: background-color var(--fade-duration) var(--fade-easing);
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+  transition:
+    background-color var(--ui-duration) var(--ui-easing),
+    scale var(--ui-duration) var(--ui-easing);
 }
-.tl-play:hover { background: var(--accent-soft); }
-.tl-play svg { width: 12px; height: 12px; fill: currentColor; }
-.tl-year { font-size: var(--text-xl); font-weight: 300; line-height: 1; }
-.tl-title { font-size: var(--text-s); color: var(--ink-soft); line-height: 1.25; }
-.tl-chart-wrap { margin-top: var(--space-3); }
-.tl-chart { display: block; width: 100%; height: auto; overflow: visible; }
-.timeline-label { font-size: 10px; fill: var(--ink-soft); font-family: var(--font); }
-.timeline-axis { stroke: var(--line); stroke-width: 1; }
+.tl-play:hover {
+  background: var(--accent-soft);
+}
+.tl-play:active {
+  scale: 0.94;
+}
+.tl-play svg {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+}
+.tl-year {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.tl-title {
+  font-size: var(--text-s);
+  color: var(--ink-soft);
+  line-height: 1.25;
+}
+.tl-chart-wrap {
+  margin-top: var(--space-3);
+}
+.tl-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.timeline-label {
+  font-size: var(--text-xs);
+  fill: var(--ink-soft);
+  font-family: var(--font);
+}
+.timeline-axis {
+  stroke: var(--line);
+  stroke-width: 1;
+}
 .timeline-line {
-  fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
-  stroke-dasharray: 1; stroke-dashoffset: 1; /* paths have pathLength="1" */
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1; /* paths have pathLength="1" */
 }
-.timeline-base { stroke: var(--line-strong); }
-.timeline-played { stroke: var(--accent); }
-.timeline-guide { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 2 3; opacity: 0.6; }
-.timeline-dot { fill: var(--accent); stroke: var(--surface-solid); stroke-width: 2; }
-.timeline-hit { fill: transparent; cursor: ew-resize; }
-body:not(.is-zoomed) .timeline-line { stroke-dashoffset: 0; transition: stroke-dashoffset var(--draw-duration) var(--anim-easing); }
-.tl-total { margin-top: var(--space-2); display: flex; align-items: baseline; gap: var(--space-2); }
-.tl-total-num { font-size: var(--text-xl); font-weight: 300; }
-.tl-total-label { font-size: var(--text-s); color: var(--ink-soft); }
-.tl-note { margin-top: var(--space-2); font-size: 10.5px; line-height: 1.4; color: var(--ink-soft); opacity: 0.85; }
+.timeline-base {
+  stroke: var(--line-strong);
+}
+.timeline-played {
+  stroke: var(--accent);
+}
+.timeline-guide {
+  stroke: var(--accent);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+  opacity: 0.6;
+}
+.timeline-dot {
+  fill: var(--accent);
+  stroke: var(--surface-solid);
+  stroke-width: 2;
+}
+.timeline-hit {
+  fill: transparent;
+  cursor: ew-resize;
+}
+body:not(.is-zoomed) .timeline-line {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset var(--draw-duration) var(--anim-easing);
+}
+.tl-total {
+  margin-top: var(--space-2);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+/* The number never wraps and keeps room for the widest compact form (e.g. "1.55B", Korean "15억 4천만"). */
+.tl-total-num {
+  flex: none;
+  min-width: 4.6ch;
+  white-space: nowrap;
+  font-size: var(--text-xl);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.tl-total-label {
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: var(--text-s);
+  line-height: 1.3;
+  color: var(--ink-soft);
+}
+.tl-note {
+  margin-top: var(--space-2);
+  font-size: var(--text-s);
+  line-height: 1.4;
+  color: var(--ink-soft);
+  opacity: 0.85;
+}
 
 /* Level fill inside the chosen country while a chart column is hovered. */
-.hl-layer { pointer-events: none; }
+.hl-layer {
+  pointer-events: none;
+}
 .hl-fill {
-  fill: var(--hl-fill); transform-box: fill-box; transform-origin: bottom;
-  transform: scaleY(var(--level, 0)); transition: transform var(--popup-duration) var(--popup-easing);
+  fill: var(--hl-fill);
+  transform-box: fill-box;
+  transform-origin: bottom;
+  transform: scaleY(var(--level, 0));
+  transition: transform var(--popup-duration) var(--popup-easing);
 }
-/* Level readout inside the country: the number stands on the fill's top edge in the fill colour, the white label sits on a chip below it (only the fill is masked). */
+/* Level readout: the number stands on the fill's top edge in the fill colour, the label sits to its right at the same height as plain ink text with a thin halo (only the fill is masked). */
 .hl-texts {
-  transform: translateY(calc(var(--lift, 0px) * -1)); opacity: 0;
-  transition: transform var(--popup-duration) var(--popup-easing), opacity var(--popup-duration) var(--popup-easing);
+  transform: translateY(calc(var(--lift, 0px) * -1));
+  opacity: 0;
+  transition:
+    transform var(--popup-duration) var(--popup-easing),
+    opacity var(--popup-duration) var(--popup-easing);
 }
-.hl-texts.is-on { opacity: 1; }
-.hl-num { fill: var(--hl-fill); font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
-.hl-chip { fill: var(--hl-fill); }
-.hl-label { fill: var(--hl-ink); font-weight: 400; }
-.hl-label tspan:first-child { font-weight: 500; }
+.hl-texts.is-on {
+  opacity: 1;
+}
+.hl-num {
+  fill: var(--hl-fill);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.hl-label {
+  fill: var(--ink);
+  stroke: var(--bg);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  paint-order: stroke;
+  font-weight: 400;
+}
+.hl-label tspan:first-child {
+  font-weight: 500;
+}

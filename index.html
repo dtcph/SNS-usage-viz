@@ -4,10 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Out of the Pull</title>
-  <link rel="icon" href="data:,">
+  <meta name="description" content="An interactive globe of people affected by doomscrolling, country by country, from 2012 to 2025.">
+  <meta name="theme-color" content="#f7f5f0">
+  <meta property="og:title" content="Out of the Pull">
+  <meta property="og:description" content="Doomscrolling, country by country: an interactive data visualisation.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%233f4a8f'/%3E%3Cpath d='M16 6.5a9.5 9.5 0 1 0 9.5 9.5' fill='none' stroke='%23f7f5f0' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/theme-light.css">
   <link rel="stylesheet" href="css/theme-dark.css">
@@ -17,55 +22,57 @@
   <link rel="stylesheet" href="css/controls.css">
 </head>
 <body>
-  <svg id="map" class="map" role="img" data-i18n-attr="aria-label:map.ariaLabel"></svg>
+  <a class="skip-link" href="#controls" data-i18n="skip">Skip to controls</a>
+  <main id="main">
+    <svg id="map" class="map" role="img" data-i18n-attr="aria-label:map.ariaLabel"></svg>
+  </main>
 
-  <header class="masthead">
-    <h1 data-i18n="app.title">Out of the Pull</h1>
-    <p data-i18n="app.subtitle">Doomscrolling, country by country</p>
-    <p class="definition" id="definition"></p>
-  </header>
   <button id="back" class="back-btn" type="button" tabindex="-1">
     <span aria-hidden="true">←</span> <span data-i18n="back">Back to the map</span>
   </button>
   <button id="info-btn" class="info-btn" type="button" aria-expanded="false" aria-controls="info-panel" data-i18n-attr="aria-label:info.button;title:info.button">i</button>
   <section id="info-panel" class="info-panel" hidden aria-labelledby="info-title">
-    <h2 id="info-title" data-i18n="info.title">About the numbers</h2>
+    <header class="info-head">
+      <h1 id="info-title" data-i18n="app.title">Out of the Pull</h1>
+      <p data-i18n="app.subtitle">Doomscrolling, country by country</p>
+      <p class="definition" id="definition"></p>
+    </header>
     <ul id="info-list"></ul>
   </section>
 
   <section id="headline" class="headline" aria-live="polite">
     <p class="headline-name" id="headline-name"></p>
-    <div class="stats">
-      <div class="stat"><span class="stat-val num" id="stat-week"></span><span class="stat-label" id="stat-week-label"></span></div>
-      <div class="stat"><span class="stat-val num" id="stat-day"></span><span class="stat-label" id="stat-day-label"></span></div>
-    </div>
-    <p class="headline-line" id="headline-line"></p>
-    <p class="headline-basis" id="headline-basis"></p>
+    <div class="headline-stats" id="headline-stats"></div>
   </section>
-  <section id="timeline" class="timeline" role="img" data-i18n-attr="aria-label:timeline.ariaLabel"></section>
   <div id="panels"></div>
 
-
-  <div id="legend" class="legend" aria-hidden="true"></div>
-
-  <nav id="controls" class="controls">
-    <div class="chip-row" id="chip-row" role="group" data-i18n-attr="aria-label:age.label"></div>
-    <div class="control-row">
-      <button id="theme-switch" class="switch" type="button" role="switch" aria-checked="false">
-        <span class="switch-track"><span class="switch-thumb"></span></span>
-        <span data-i18n="controls.theme">Dark mode</span>
-      </button>
-      <span class="control-divider" aria-hidden="true"></span>
-      <div class="segmented" id="lang-switch" role="group" data-i18n-attr="aria-label:controls.language">
-        <button type="button" data-lang="en" aria-pressed="true">EN</button>
-        <button type="button" data-lang="ko" aria-pressed="false">한국어</button>
+  <div class="dock">
+    <section id="timeline" class="timeline" role="img" data-i18n-attr="aria-label:timeline.ariaLabel"></section>
+    <div id="legend" class="legend" aria-hidden="true"></div>
+    <nav id="controls" class="controls" tabindex="-1">
+      <!-- Age-group filter, switched off for now (see js/ui/controls.js, css/controls.css):
+      <div class="chip-row" id="chip-row" role="group" data-i18n-attr="aria-label:age.label"></div>
+      -->
+      <div class="control-row">
+        <button id="theme-switch" class="switch" type="button" role="switch" aria-checked="false">
+          <span class="switch-track"><span class="switch-thumb"></span></span>
+          <span data-i18n="controls.theme">Dark mode</span>
+        </button>
+        <span class="control-divider" aria-hidden="true"></span>
+        <div class="segmented" id="lang-switch" role="group" data-i18n-attr="aria-label:controls.language">
+          <button type="button" data-lang="en" aria-pressed="true">EN</button>
+          <button type="button" data-lang="ko" aria-pressed="false">한국어</button>
+        </div>
       </div>
-    </div>
-  </nav>
+    </nav>
+  </div>
 
-  <footer id="footnote" class="footnote"></footer>
+
   <div id="tooltip" class="tooltip" role="tooltip"></div>
-  <div id="status" class="status" hidden></div>
+  <div id="status" class="status is-loading" role="status">
+    <span class="skeleton-globe" aria-hidden="true"></span>
+    <span data-i18n="map.loading">Loading …</span>
+  </div>
   <div class="paper-grain" aria-hidden="true"></div>
 
   <script type="module" src="js/main.js"></script>

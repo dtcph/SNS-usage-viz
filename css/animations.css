@@ -11,17 +11,39 @@
   --fade-duration: var(--anim-duration);
   --fade-easing: var(--anim-easing);
   --draw-duration: calc(var(--anim-duration) * 2.4); /* timeline line drawing */
+
+  /* Small interactions (hover, press, focus): quicker than the scene changes, with a soft spring-like settle. */
+  --ui-duration: 0.2s;
+  --ui-easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --enter-duration: calc(var(--anim-duration) * 1.6);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root { --anim-duration: 0.01s; }
+  :root { --anim-duration: 0.01s; --ui-duration: 0.01s; }
 }
 
 /* Elements that belong to one state fade with the shared variables. */
-.masthead, .legend, .back-btn, .headline, .timeline, .footnote {
+.legend, .back-btn, .headline, .timeline {
   transition: opacity var(--fade-duration) var(--fade-easing);
 }
 .back-btn, .headline { opacity: 0; pointer-events: none; }
 .is-zoomed .back-btn { opacity: 1; pointer-events: auto; }
 .is-zoomed .headline { opacity: 1; }
-.is-zoomed .masthead, .is-zoomed .legend, .is-zoomed .timeline { opacity: 0; pointer-events: none; }
+.is-zoomed .legend, .is-zoomed .timeline, .is-info-open .legend, .is-info-open .timeline { opacity: 0; pointer-events: none; } /* the info card takes their place */
+
+/* Staggered entry on load: fade and rise, never the whole page at once. `backwards` so the state classes above keep control afterwards. */
+@keyframes enter { from { opacity: 0; translate: 0 12px; } }
+.info-btn { animation: enter var(--enter-duration) var(--ui-easing) backwards; }
+.controls { animation: enter var(--enter-duration) var(--ui-easing) 0.1s backwards; }
+.timeline { animation: enter var(--enter-duration) var(--ui-easing) 0.2s backwards; }
+.legend { animation: enter var(--enter-duration) var(--ui-easing) 0.3s backwards; }
+.info-panel { animation: enter var(--popup-duration) var(--ui-easing); }
+
+/* Loading: a globe-shaped skeleton while the data arrives. */
+@keyframes breathe { 50% { opacity: 0.45; } }
+.skeleton-globe {
+  width: 120px; height: 120px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--globe-hi), var(--globe-lo));
+  border: 1px solid var(--line-strong); animation: breathe 1.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) { .skeleton-globe { animation: none; } }

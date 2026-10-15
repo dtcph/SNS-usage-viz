@@ -46,26 +46,7 @@ function hmToMinutes(v, label) {
 const src = (meta, statId) => ({ statisticId: statId, source: meta.Source, period: meta['Survey period'], published: meta['Publication date'] });
 const write = (name, obj) => { fs.writeFileSync(path.join(outDir, name), JSON.stringify(obj, null, 2) + '\n'); console.log('wrote', name); };
 
-// ---- 1. Weekly time per territory, Q4 2025 (h.mm) -------------------------
-{
-  const { data, meta } = readSheets(270229);
-  const rows = data.slice(2).map(([name, v]) => ({ name, hm: Number(v).toFixed(2), weeklyMin: hmToMinutes(v, `data1 ${name}`) }));
-  const globalRow = rows.find((r) => /global average/i.test(r.name));
-  write('weekly-time-by-country.json', {
-    ...src(meta, 270229), unit: 'minutes per week (converted from h.mm)', note: meta.Note,
-    global: globalRow ? { weeklyMin: globalRow.weeklyMin } : null,
-    countries: rows.filter((r) => r !== globalRow),
-  });
-}
-
-// ---- 2. Daily time on social networking 2012-2025 (minutes) ---------------
-{
-  const { data, meta } = readSheets(433871);
-  write('daily-time-2012-2025.json', {
-    ...src(meta, 433871), unit: 'minutes per day',
-    series: data.slice(2).map(([y, v]) => ({ year: Number(y), minutes: Number(v) })),
-  });
-}
+// Average daily minutes per country and year now come from data/social_media_time.json (maintained by hand), not from the Statista XLSX files.
 
 // ---- 3. Reasons for using social media, Q2 2025 (%) -----------------------
 const REASON_IDS = {

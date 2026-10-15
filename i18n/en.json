@@ -5,32 +5,29 @@
     "definition": "Affected: social-media users who spend at least {duration} a day in feeds."
   },
   "map": {
-    "ariaLabel": "World map of weekly time spent on social media",
+    "ariaLabel": "World map of average daily time spent on social media",
     "loading": "Loading …",
     "error": "The map could not be loaded. Please check the connection and reload."
   },
   "tooltip": {
     "population": "Population",
     "noData": "No usage data",
-    "weekly": "Per week",
     "affected": "Affected",
-    "estimate": "est. {year}"
+    "daily": "Per day",
+    "noDataYear": "No data for {year}"
   },
   "legend": {
-    "title": "Weekly time on social media",
-    "titleYear": "Weekly time · est. {year}"
+    "title": "Average daily time on social media",
+    "titleYear": "Average daily time · {year}"
   },
   "back": "Back to the map",
+  "skip": "Skip to controls",
   "headline": {
-    "affected": "Affected",
-    "line": "{count} affected spend more than {duration} in the feed here, every day.",
-    "perWeek": "per week",
-    "perDay": "per day",
-    "basis": "Of the {population} people shown, {users} use social media. “Affected” are those who spend {duration} or more a day in feeds."
+    "users": "social media users",
+    "average": "average use per day",
+    "affected": "over {duration} a day"
   },
   "time": {
-    "hm": "{h} h {m} min",
-    "h": "{h} h",
     "m": "{m} min"
   },
   "age": {
@@ -111,32 +108,26 @@
     }
   },
   "timeline": {
-    "title": "Daily time on social media, worldwide",
-    "unit": "min a day",
-    "ariaLabel": "Line chart: average daily minutes on social media, 2012 to 2025",
+    "title": "Average daily minutes on social media",
+    "ariaLabel": "Line chart: average daily minutes on social media per year, 2017 to 2025, mean of the countries with data",
     "play": "Play timeline",
     "pause": "Pause timeline",
-    "worldAffected": "affected worldwide",
-    "estimate": "Before 2025, country values are estimates that follow the global trend."
+    "worldAffected": "affected in these countries",
+    "coverage": "Affected in the {count} countries with data this year. Countries without a value for a year are shown grey."
   },
   "info": {
     "button": "About the numbers",
     "title": "About the numbers",
     "close": "Close",
     "items": [
-      "“Affected” means social-media users who spend at least {threshold} a day in feeds. Individual daily times are assumed to vary exponentially around each country’s average.",
-      "Country averages are weekly times from Q4 2025 (video excluded). {share} of each population is assumed to use social media.",
-      "Generations are counted as of {year}. Age structure, user rates and the weighting by generation are rough global estimates, with US device data as a guide.",
-      "Health issues come from EU adolescents and are projected onto ages 10–19 in every country, using a modelled spread of weekend screen time.",
-      "Reasons come from a global survey of internet users aged 16–64. Multiple answers were possible.",
-      "The timeline scales every country by the global trend of data 2 (2012–2025), so earlier years are estimates. Population is held at today’s level.",
-      "All figures are estimates, not measurements."
+      "Times are assumed to spread exponentially around each country’s average.",
+      "Averages are reported daily minutes per year (GWI / DataReportal). Missing years stay blank.",
+      "{share} of each population is assumed to use social media.",
+      "Generations are counted as of {year}. Age structure and weighting are rough estimates.",
+      "Health data: EU adolescents, projected onto ages 10–19.",
+      "Reasons: global survey of internet users aged 16–64, multiple answers.",
+      "The timeline line averages the countries reporting that year. Population stays at today’s level.",
+      "All figures are estimates."
     ]
-  },
-  "footer": {
-    "popLoading": "Population: loading …",
-    "popLive": "Population: live",
-    "popSnapshot": "Population: snapshot from {date}",
-    "popNone": "Population: unavailable"
   }
 }

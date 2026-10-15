@@ -1,7 +1,9 @@
-// Overview only: the global daily-time curve (data 2) as a playable timeline. Playing (or dragging along the line) changes
-// the year shown on the globe; country values follow the global trend (an estimate, see calc.js yearFactor).
+// Overview only: average daily minutes per year (mean over the countries that report that year) as a playable timeline.
+// Playing (or dragging along the line) moves through time in quarters: between two reported years each country's value is
+// interpolated linearly (only when both neighbouring years are reported). Only the whole year is named; the globe, legend and
+// dot follow the slider smoothly.
 import { curveMonotoneX, line, scaleLinear } from '../../vendor/d3-lite.js';
-import { TIMELINE_STEP_MS } from '../config.js';
+import { TIMELINE_STEP_MS, TIMELINE_STEPS_PER_YEAR } from '../config.js';
 import { createCounter } from './counter.js';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -20,18 +22,17 @@ const svgEl = (tag, attrs = {}) => {
 /**
  * @param {object} o
  * @param {HTMLElement} o.el
- * @param {{year:number, minutes:number}[]} o.series  data 2
+ * @param {{year:number, minutes:number, countries:number}[]} o.series  model.yearSeries
  * @param {object} o.store
  * @param {() => object} o.getI18n
- * @param {(year:number) => number} o.totalFor  affected people worldwide in a year (respects the age filter)
+ * @param {(year:number) => {total:number, countries:number}} o.totalFor  affected people in the countries with data in a year (respects the age filter)
  */
 export function createTimeline({ el, series, store, getI18n, totalFor }) {
   const first = series[0], last = series.at(-1);
   const x = scaleLinear().domain([first.year, last.year]).range([M.left, W - M.right]);
   const ys = series.map((d) => d.minutes);
-  const y = scaleLinear().domain([Math.min(...ys) - 12, Math.max(...ys) + 12]).range([H - M.bottom, M.top]);
+  const y = scaleLinear().domain([Math.min(...ys) - 6, Math.max(...ys) + 6]).range([H - M.bottom, M.top]);
   const d = line().x((p) => x(p.year)).y((p) => y(p.minutes)).curve(curveMonotoneX)(series);
-  const minutesOf = new Map(series.map((p) => [p.year, p.minutes]));
 
   // ---- DOM (built once, texts refreshed on language change) ----
   el.innerHTML = `
@@ -67,20 +68,21 @@ export function createTimeline({ el, series, store, getI18n, totalFor }) {
   const total = createCounter($('.tl-total-num'), (n) => getI18n().compact(n));
 
   // ---- state ----
-  const yearOf = () => store.get().year ?? last.year;
+  const timeOf = () => store.get().year ?? last.year; // fractional year, e.g. 2018.25
+  const quarter = (t) => Math.round(t * TIMELINE_STEPS_PER_YEAR) / TIMELINE_STEPS_PER_YEAR;
   let playing = false, timer = 0;
 
   function setYear(year) { store.set({ year: year >= last.year ? null : year }); }
   function stop() { playing = false; clearInterval(timer); timer = 0; paint(); }
   function play() {
     if (playing) return;
-    if (yearOf() >= last.year) setYear(first.year);
+    if (timeOf() >= last.year) setYear(first.year);
     playing = true;
     timer = setInterval(() => {
-      const next = yearOf() + 1;
+      const next = quarter(timeOf() + 1 / TIMELINE_STEPS_PER_YEAR);
       if (next >= last.year) { setYear(last.year); stop(); return; }
       setYear(next);
-    }, TIMELINE_STEP_MS);
+    }, TIMELINE_STEP_MS / TIMELINE_STEPS_PER_YEAR);
     paint();
   }
   playBtn.addEventListener('click', () => (playing ? stop() : play()));
@@ -89,7 +91,14 @@ export function createTimeline({ el, series, store, getI18n, totalFor }) {
   const yearAt = (clientX) => {
     const r = svg.getBoundingClientRect();
     const px = ((clientX - r.left) / r.width) * W;
-    return Math.max(first.year, Math.min(last.year, Math.round(x.invert(px))));
+    return Math.max(first.year, Math.min(last.year, quarter(x.invert(px))));
+  };
+  /** y of the drawn curve at screen x (the dot rides on the smoothed line, not on straight segments). */
+  const curveY = (px) => {
+    const len = base.getTotalLength();
+    let lo = 0, hi = len;
+    for (let i = 0; i < 18; i++) { const mid = (lo + hi) / 2; if (base.getPointAtLength(mid).x < px) lo = mid; else hi = mid; }
+    return base.getPointAtLength(hi).y;
   };
   let scrubbing = false;
   hit.addEventListener('pointerdown', (e) => { scrubbing = true; hit.setPointerCapture(e.pointerId); stop(); setYear(yearAt(e.clientX)); });
@@ -102,25 +111,28 @@ export function createTimeline({ el, series, store, getI18n, totalFor }) {
   let lang = null;
   function paint() {
     const i18n = getI18n();
-    const year = yearOf();
+    const t = timeOf();
     if (lang !== i18n.lang) {
       lang = i18n.lang;
       $('.tl-title').textContent = i18n.t('timeline.title');
       $('.tl-total-label').textContent = i18n.t('timeline.worldAffected');
-      $('.tl-note').textContent = i18n.t('timeline.estimate');
-      labelFirst.textContent = `${first.year} · ${first.minutes} ${i18n.t('timeline.unit')}`;
-      labelLast.textContent = `${last.year} · ${last.minutes} ${i18n.t('timeline.unit')}`;
+      labelFirst.textContent = `${first.year} · ${i18n.minutes(first.minutes)}`;
+      labelLast.textContent = `${last.year} · ${i18n.minutes(last.minutes)}`;
       el.setAttribute('aria-label', i18n.t('timeline.ariaLabel'));
     }
     playBtn.innerHTML = playing ? ICON.pause : ICON.play;
     playBtn.setAttribute('aria-label', i18n.t(playing ? 'timeline.pause' : 'timeline.play'));
-    $('.tl-year').textContent = String(year);
-    const px = x(year);
+    $('.tl-year').textContent = String(Math.round(t));
+    const px = x(t);
     clipRect.setAttribute('width', px);
     guide.setAttribute('x1', px); guide.setAttribute('x2', px);
-    dot.setAttribute('cx', px); dot.setAttribute('cy', y(minutesOf.get(year)));
+    dot.setAttribute('cx', px); dot.setAttribute('cy', curveY(px));
     const population = store.get().population;
-    if (population) total.to(totalFor(year));
+    if (population) {
+      const { total: affected, countries } = totalFor(t);
+      total.to(affected, { duration: 400, ease: (u) => u });
+      $('.tl-note').textContent = i18n.t('timeline.coverage', { count: countries });
+    }
   }
 
   store.subscribe((s, prev) => {

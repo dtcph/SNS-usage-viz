@@ -54,7 +54,7 @@ Statista stores durations as `h.mm` (8.50 = 8 h 50 min). The converter restores 
 
 ## Population
 
-`js/data/population.js` tries Worldometer through a CORS proxy (`CORS_PROXY_URL_TEMPLATE` in config.js, timeout `POPULATION_FETCH_TIMEOUT_MS`) and falls back to `data/population-snapshot.json`. The footer shows which one is used. To use your own proxy, change the template (`{url}` is replaced by the encoded Worldometer address). `null` forces the snapshot.
+`js/data/population.js` tries Worldometer through a CORS proxy (`CORS_PROXY_URL_TEMPLATE` in config.js, timeout `POPULATION_FETCH_TIMEOUT_MS`) and falls back to `data/population-snapshot.json`. To use your own proxy, change the template (`{url}` is replaced by the encoded Worldometer address). `null` forces the snapshot.
 
 ## Constants (config.js)
 
@@ -73,11 +73,11 @@ Motion lives in `css/animations.css` (`--anim-duration`, `--anim-easing` and per
 ## Model in short
 
 - Users = population × user share, spread over generations by population share × propensity.
-- A generation's mean daily time = the country's daily time (data 1, h.mm → minutes, ÷ 7) × its relative device screen time (data 6, population-weighted mean = 1).
+- A generation's mean daily time = the country's average daily minutes (`data/social_media_time.json`, latest year 2025) × its relative device screen time (data 6, population-weighted mean = 1).
 - Individual times are assumed exponential: affected share = `exp(-threshold / mean)`.
-- Reasons (data 3): percent × affected. Health (data 5): teens 10–19 = population × `TEEN_SHARE`, reduced to the overlap of ages 10–19 with the selected generations; teens are spread over weekend-screen-time categories by a lognormal model whose mean scales from France (data 4) and the country's social-media time.
+- Reasons (data 3): percent × affected. Health (data 5): teens 10–19 = population × `TEEN_SHARE`, reduced to the overlap of ages 10–19 with the selected generations; teens are spread over weekend-screen-time categories by a lognormal model whose mean scales from France (data 4) and the country's daily social-media minutes.
 
 ## Known limits
 
 - 110m geometry lacks Singapore and Hong Kong (listed in the console). Set `MAP_TOPOLOGY_URL` to a 50m file (`world-atlas/countries-50m.json`) to draw them.
-- Data 1 excludes video time and covers internet users aged 16+; data 6 covers US adults only. Everything beyond that is an estimate, stated in the "i" card.
+- `social_media_time.json` has no value for some country-years (the map shows them as no data, nothing is interpolated); data 6 covers US adults only. Everything beyond that is an estimate, stated in the "i" card.

@@ -11,7 +11,7 @@ export function createInfo({ store, getI18n }) {
     list.replaceChildren(...i18n.list('info.items').map((tpl) => {
       const li = document.createElement('li');
       li.textContent = tpl.replace(/\{(\w+)\}/g, (_, k) => ({
-        threshold: i18n.hoursMinutes(DOOMSCROLL_THRESHOLD_MIN_PER_DAY),
+        threshold: i18n.minutes(DOOMSCROLL_THRESHOLD_MIN_PER_DAY),
         share: i18n.percent(SOCIAL_MEDIA_USER_SHARE),
         year: String(REFERENCE_YEAR),
       }[k] ?? `{${k}}`));
@@ -23,7 +23,7 @@ export function createInfo({ store, getI18n }) {
     if (store.get().infoOpen && !e.target.closest('#info-panel')) store.set({ infoOpen: false });
   });
   store.subscribe((s, prev) => {
-    if (s.infoOpen !== prev.infoOpen) { panel.hidden = !s.infoOpen; btn.setAttribute('aria-expanded', String(s.infoOpen)); }
+    if (s.infoOpen !== prev.infoOpen) { panel.hidden = !s.infoOpen; document.body.classList.toggle('is-info-open', s.infoOpen); btn.setAttribute('aria-expanded', String(s.infoOpen)); }
     if (s.lang !== prev.lang) render();
   });
   render();

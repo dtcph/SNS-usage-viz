@@ -3,7 +3,7 @@ import { DEFAULT_LANG, DOOMSCROLL_THRESHOLD_MIN_PER_DAY, LANGUAGES, GENERATIONS,
 import { createStore, initialState } from './state.js';
 import { loadAll } from './data/loader.js';
 import { loadPopulation } from './data/population.js';
-import { createModel, describeCountry, worldAffected } from './model/calc.js';
+import { createModel, describeCountry, extentFor, worldAffected } from './model/calc.js';
 import { buildGenerations } from './model/generations.js';
 import { createI18n, loadLang } from './ui/i18n.js';
 import { createMap } from './ui/map.js';
@@ -30,7 +30,7 @@ async function main() {
   let i18n = createI18n(lang, await loadLang(lang).catch(() => ({})));
   i18n.apply();
   const status = $('status');
-  const fail = (key, err) => { console.error(err); status.hidden = false; status.textContent = i18n.t(key); };
+  const fail = (key, err) => { console.error(err); status.hidden = false; status.classList.remove('is-loading'); status.textContent = i18n.t(key); };
 
   let data;
   try { data = await loadAll(); } catch (err) { return fail('map.error', err); }
@@ -42,14 +42,13 @@ async function main() {
   const tooltip = createTooltip($('tooltip'));
   let legend = null;
   const map = createMap({ svg: $('map'), topology: data.topology, index: data.index, model, store, getI18n: () => i18n, tooltip, onHoverTime: (m) => legend?.mark(m) });
-  legend = createLegend($('legend'), { extent: map.extent });
+  legend = createLegend($('legend'), { extentFor: (year) => extentFor(model, year) });
   const timeline = createTimeline({
-    el: $('timeline'), series: data.raw.daily.series, store, getI18n: () => i18n,
+    el: $('timeline'), series: model.yearSeries, store, getI18n: () => i18n,
     totalFor: (year) => worldAffected(model, store.get().population.byA3, store.get().ageGroups, year),
   });
   const headline = createHeadline({
-    nameEl: $('headline-name'), lineEl: $('headline-line'), basisEl: $('headline-basis'), weekEl: $('stat-week'), dayEl: $('stat-day'),
-    weekLabelEl: $('stat-week-label'), dayLabelEl: $('stat-day-label'),
+    nameEl: $('headline-name'), statsEl: $('headline-stats'),
   });
   const panels = await createPanels({ container: $('panels'), store });
   initZones({ store });
@@ -86,27 +85,22 @@ async function main() {
   }
 
   function renderDefinition() {
-    $('definition').textContent = i18n.t('app.definition', { duration: i18n.hoursMinutes(DOOMSCROLL_THRESHOLD_MIN_PER_DAY) });
-  }
-
-  function renderFooter() {
-    const { population } = store.get();
-    const key = !population ? 'footer.popLoading' : population.source === 'live' ? 'footer.popLive' : population.source === 'snapshot' ? 'footer.popSnapshot' : 'footer.popNone';
-    $('footnote').textContent = i18n.t(key, { date: population?.date ? i18n.date(population.date) : '' });
+    $('definition').textContent = i18n.t('app.definition', { duration: i18n.minutes(DOOMSCROLL_THRESHOLD_MIN_PER_DAY) });
   }
 
   store.subscribe((s, prev) => {
     document.body.classList.toggle('is-zoomed', !!s.country);
     if (s.theme !== prev.theme) { document.documentElement.dataset.theme = s.theme; remember('theme', s.theme); }
     if (s.lang !== prev.lang || s.year !== prev.year) legend.render(i18n, s.year, model.latestYear);
-    if (s.lang !== prev.lang) { renderFooter(); renderDefinition(); }
-    if (s.population !== prev.population) renderFooter();
+    if (s.lang !== prev.lang) renderDefinition();
     if (s.country !== prev.country) headline.reset();
     if (s.highlight && (s.zone !== prev.zone || s.country !== prev.country || s.ageGroups !== prev.ageGroups)) store.set({ highlight: null });
     if (s.country !== prev.country || s.ageGroups !== prev.ageGroups || s.lang !== prev.lang || s.population !== prev.population || s.zone !== prev.zone) renderCountry();
   });
 
-  legend.render(i18n, null, model.latestYear); renderFooter(); renderDefinition();
+  legend.render(i18n, null, model.latestYear); renderDefinition();
+
+  status.hidden = true; // loaded
 
   // ---- global input ----
   $('back').addEventListener('click', () => store.set({ country: null }));
@@ -123,5 +117,6 @@ main().catch((err) => {
   console.error(err);
   const status = document.getElementById('status');
   status.hidden = false;
+  status.classList.remove('is-loading');
   status.textContent = String(err.message ?? err);
 });
