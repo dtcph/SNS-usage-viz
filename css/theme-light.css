@@ -1,5 +1,6 @@
 /* Light theme: warm paper, one muted indigo accent, warm-tinted shadows. Heatmap colours are data and stay. Default. */
-:root, :root[data-theme="light"] {
+:root,
+:root[data-theme="light"] {
   color-scheme: light;
   --bg: #f7f5f0;
   --ambient: rgba(255, 253, 248, 0.85);
@@ -11,7 +12,9 @@
   --line-strong: rgba(52, 44, 30, 0.3);
   --accent: #3f4a8f;
   --accent-soft: rgba(63, 74, 143, 0.11);
-  --shadow-soft: 0 14px 34px -10px rgba(74, 56, 28, 0.2), 0 2px 4px rgba(74, 56, 28, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  --shadow-soft:
+    0 14px 34px -10px rgba(74, 56, 28, 0.2), 0 2px 4px rgba(74, 56, 28, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
 
   --land-stroke: #f7f5f0;
   --nodata: #b1ada3;

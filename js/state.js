@@ -24,5 +24,13 @@ export function createStore(initial) {
  *  year (2012..latest shown on the globe by the timeline; null = latest),
  *  highlight ({share 0-1 (fill level), count (people, shown as the big number in the country), context, label} | null: chart column hovered in a popup, drawn into the country). */
 export const initialState = (ageGroups, lang, theme) => ({
-  country: null, ageGroups, lang, theme, zone: 'middle', population: null, infoOpen: false, year: null, highlight: null,
+  country: null,
+  ageGroups,
+  lang,
+  theme,
+  zone: "middle",
+  population: null,
+  infoOpen: false,
+  year: null,
+  highlight: null,
 });

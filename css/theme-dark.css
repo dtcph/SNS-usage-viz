@@ -11,7 +11,9 @@
   --line-strong: rgba(236, 232, 223, 0.32);
   --accent: #a8b3ee;
   --accent-soft: rgba(168, 179, 238, 0.16);
-  --shadow-soft: 0 16px 36px -10px rgba(10, 8, 4, 0.55), 0 2px 4px rgba(10, 8, 4, 0.3), inset 0 1px 0 rgba(255, 244, 220, 0.07);
+  --shadow-soft:
+    0 16px 36px -10px rgba(10, 8, 4, 0.55), 0 2px 4px rgba(10, 8, 4, 0.3),
+    inset 0 1px 0 rgba(255, 244, 220, 0.07);
 
   --land-stroke: #1a1916;
   --nodata: #3a3832;

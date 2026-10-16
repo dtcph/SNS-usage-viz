@@ -6,13 +6,7 @@
   "unit": "minutes per day (converted from h.mm)",
   "region": "United States",
   "ageGroup": "18 years and older",
-  "devices": [
-    "smartphone",
-    "desktop",
-    "laptop",
-    "tablet",
-    "connectedTv"
-  ],
+  "devices": ["smartphone", "desktop", "laptop", "tablet", "connectedTv"],
   "generations": [
     {
       "id": "genZ",
