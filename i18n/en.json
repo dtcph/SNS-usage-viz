@@ -129,5 +129,25 @@
       "The timeline line averages the countries reporting that year. Population stays at today’s level.",
       "All figures are estimates."
     ]
+  },
+  "pager": {
+    "down": "Show the timeline chart",
+    "up": "Back to the globe"
+  },
+  "race": {
+    "play": "Play",
+    "pause": "Pause",
+    "replay": "Replay",
+    "unit": "minutes per day",
+    "ariaLabel": "Animated line chart: average daily minutes on social media per country, 2017 to 2025",
+    "topn": "Top {n} of {total} countries",
+    "topnAria": "Number of countries shown",
+    "info": {
+      "title": "Daily social media use",
+      "items": [
+        "Each line is a country: average minutes per day on social media, 2017 to 2025. The names on the left follow the values.",
+        "Press play. Drag or scroll sideways to look back. The slider sets how many of the highest countries are shown."
+      ]
+    }
   }
 }

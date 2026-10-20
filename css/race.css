@@ -1,0 +1,387 @@
+/* Two screens in a snapping scroll container, the pager arrows, and the second screen (animated line chart, js/chart/). */
+.pager {
+  position: fixed;
+  inset: 0;
+  overflow: hidden auto;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.pager::-webkit-scrollbar {
+  display: none;
+}
+.pager.is-locked {
+  overflow: hidden;
+} /* screen 1: no scrolling down (the globe owns the wheel) */
+.pager.is-gliding {
+  scroll-snap-type: none;
+}
+.screen {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+/* contain: layout makes the fixed elements of the globe screen position against the screen, so they scroll away with it */
+.screen-map,
+.screen-chart {
+  contain: layout paint;
+}
+
+.pager-arrow {
+  position: absolute;
+  z-index: var(--z-chrome);
+  left: 50%;
+  translate: -50% 0;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-soft);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px);
+  transition:
+    color var(--ui-duration) var(--ui-easing),
+    border-color var(--ui-duration) var(--ui-easing),
+    scale var(--ui-duration) var(--ui-easing),
+    opacity var(--fade-duration) var(--fade-easing);
+}
+.pager-arrow.is-down {
+  bottom: var(--page-margin);
+}
+.pager-arrow.is-up {
+  top: var(--page-margin);
+}
+.pager-arrow svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: translate var(--ui-duration) var(--ui-easing);
+}
+.pager-arrow:hover {
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+.pager-arrow.is-down:hover svg {
+  translate: 0 2px;
+}
+.pager-arrow.is-up:hover svg {
+  translate: 0 -2px;
+}
+.pager-arrow:active {
+  scale: 0.95;
+}
+.is-zoomed .pager-arrow.is-down {
+  opacity: 0;
+  pointer-events: none;
+} /* the headline sits there while zoomed */
+
+/* ---- screen 2 ---- */
+.race-stage {
+  /* Rule of thirds: the diagram fills the middle third-and-a-third. One sixth of the screen is white space on every side (% of the
+     screen, so it follows the viewport), and the playhead sits in the centre. */
+  position: absolute;
+  left: calc(100% / 6);
+  right: calc(100% / 6);
+  top: calc(100% / 6);
+  bottom: calc(100% / 6);
+}
+.race-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+.race-svg.is-dragging {
+  cursor: grabbing;
+}
+.race-year {
+  fill: var(--ink);
+  opacity: 0.055;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  pointer-events: none;
+} /* rolling digits: .pn rules of animations.css */
+.race-gridline,
+.race-axisline,
+.race-xtick {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.race-axisline,
+.race-xtick {
+  stroke: var(--line-strong);
+}
+.race-tick {
+  fill: var(--ink-soft);
+  font-size: var(--text-xs);
+}
+.race-guide {
+  stroke: var(--accent);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Country colour: --c is set per frame by js/chart/race-chart.js (the page's heat stops, scaled to the shown values). */
+.rc {
+  --c: var(--ink-soft);
+}
+.rc-line,
+.rc-ghost {
+  fill: none;
+  stroke: var(--c);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+.rc-dot {
+  fill: var(--c);
+  stroke: var(--bg);
+  stroke-width: 1.5;
+  pointer-events: none;
+}
+.rl {
+  cursor: default;
+}
+.rl-lead {
+  stroke: var(--c);
+  stroke-width: 1;
+  opacity: 0.7;
+  pointer-events: none;
+}
+.rl-name {
+  fill: color-mix(in srgb, var(--c) 45%, var(--ink));
+  stroke: var(--bg);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  paint-order: stroke;
+} /* heat colour, pulled towards the ink so it stays readable on both themes */
+.rl-min {
+  font-size: 0.82em;
+  fill-opacity: 0.72;
+  font-weight: 400;
+}
+.rl-name .rl-min {
+  stroke-opacity: 1;
+}
+
+/* Colour legend (top right): the heat gradient with the current min / max of the shown countries */
+.race-legend {
+  position: absolute;
+  z-index: var(--z-chrome);
+  top: var(--page-margin);
+  right: var(--page-margin);
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.race-leg-bar {
+  width: 120px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--bar);
+}
+
+/* Controls under the chart */
+.race-bar {
+  position: absolute;
+  left: 50%;
+  bottom: var(--page-margin);
+  translate: -50% 0;
+  width: min(640px, 46vw);
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-l);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px);
+}
+.race-play {
+  flex: none;
+  height: 32px;
+  min-width: 96px;
+  padding: 0 var(--space-4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  font-size: var(--text-s);
+  transition:
+    background-color var(--ui-duration) var(--ui-easing),
+    scale var(--ui-duration) var(--ui-easing);
+}
+.race-play:hover {
+  background: var(--accent-soft);
+}
+.race-play:active {
+  scale: 0.96;
+}
+.race-play svg {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+}
+.race-play svg .stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+.race-filter {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.race-filter-label {
+  flex: none;
+  font-size: var(--text-xs);
+  color: var(--ink-soft);
+  white-space: nowrap;
+  min-width: 17ch;
+  padding-right: var(--space-5);
+}
+.range-end {
+  flex: none;
+  font-size: var(--text-xs);
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.range {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 32px;
+}
+.range-track {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  border-radius: 1px;
+  background: var(--line-strong);
+}
+.range-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--accent);
+}
+.range-in {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  appearance: none;
+  background: none;
+  cursor: ew-resize;
+}
+.range-in::-webkit-slider-runnable-track {
+  appearance: none;
+  background: none;
+  height: 100%;
+}
+.range-in::-moz-range-track {
+  background: none;
+}
+.range-in::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 8px;
+  border-radius: 50%;
+  cursor: ew-resize;
+  background: var(--surface-solid);
+  border: 2px solid var(--accent);
+  box-shadow: var(--shadow-soft);
+}
+.range-in::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  cursor: ew-resize;
+  background: var(--surface-solid);
+  border: 2px solid var(--accent);
+}
+.range-in:focus-visible {
+  outline: none;
+}
+.range-in:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+/* Fly-in of screen 2's info button (from above) and control bar (from below). Only transform and opacity are animated; the pager adds
+   .is-in when the slide has finished and removes it when the way back starts. Hidden elements take no clicks. */
+.dock2 {
+  position: absolute;
+  z-index: var(--z-controls);
+  left: var(--page-margin);
+  bottom: var(--page-margin);
+}
+.fly-layer {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-chrome);
+  pointer-events: none;
+} /* full-size, so the fixed .info-btn keeps its corner */
+.fly-layer > * {
+  pointer-events: auto;
+}
+.fly-top,
+.fly-bottom {
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--enter-duration) var(--ui-easing),
+    opacity calc(var(--enter-duration) * 0.7) var(--ui-easing);
+}
+.fly-top {
+  transform: translate3d(0, -40px, 0);
+}
+.fly-bottom {
+  transform: translate3d(0, 40px, 0);
+}
+.is-in .fly-top,
+.is-in .fly-bottom {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+.is-in .fly-layer {
+  pointer-events: none;
+}
+.is-in .fly-bottom {
+  transition-delay: 0.08s;
+}
+.is-flying .fly-top,
+.is-flying .fly-bottom {
+  will-change: transform, opacity;
+}

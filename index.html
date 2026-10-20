@@ -32,89 +32,208 @@
     <link rel="stylesheet" href="css/map.css" />
     <link rel="stylesheet" href="css/panels.css" />
     <link rel="stylesheet" href="css/controls.css" />
+    <link rel="stylesheet" href="css/race.css" />
   </head>
   <body>
     <a class="skip-link" href="#controls" data-i18n="skip">Skip to controls</a>
-    <main id="main">
-      <svg
-        id="map"
-        class="map"
-        role="img"
-        data-i18n-attr="aria-label:map.ariaLabel"
-      ></svg>
-    </main>
+    <div id="pager" class="pager">
+      <section id="screen-map" class="screen screen-map">
+        <main id="main">
+          <svg
+            id="map"
+            class="map"
+            role="img"
+            data-i18n-attr="aria-label:map.ariaLabel"
+          ></svg>
+        </main>
 
-    <button id="back" class="back-btn" type="button" tabindex="-1">
-      <span aria-hidden="true">←</span>
-      <span data-i18n="back">Back to the map</span>
-    </button>
-    <button
-      id="info-btn"
-      class="info-btn"
-      type="button"
-      aria-expanded="false"
-      aria-controls="info-panel"
-      data-i18n-attr="aria-label:info.button;title:info.button"
-    >
-      i
-    </button>
-    <section
-      id="info-panel"
-      class="info-panel"
-      hidden
-      aria-labelledby="info-title"
-    >
-      <header class="info-head">
-        <h1 id="info-title" data-i18n="app.title">Out of the Pull</h1>
-        <p data-i18n="app.subtitle">Doomscrolling, country by country</p>
-        <p class="definition" id="definition"></p>
-      </header>
-      <ul id="info-list"></ul>
-    </section>
+        <button id="back" class="back-btn" type="button" tabindex="-1">
+          <span aria-hidden="true">←</span>
+          <span data-i18n="back">Back to the map</span>
+        </button>
+        <button
+          id="info-btn"
+          class="info-btn"
+          type="button"
+          aria-expanded="false"
+          aria-controls="info-panel"
+          data-i18n-attr="aria-label:info.button;title:info.button"
+        >
+          i
+        </button>
+        <section
+          id="info-panel"
+          class="info-panel"
+          hidden
+          aria-labelledby="info-title"
+        >
+          <header class="info-head">
+            <h1 id="info-title" data-i18n="app.title">Out of the Pull</h1>
+            <p data-i18n="app.subtitle">Doomscrolling, country by country</p>
+            <p class="definition" id="definition"></p>
+          </header>
+          <ul id="info-list"></ul>
+        </section>
 
-    <section id="headline" class="headline" aria-live="polite">
-      <p class="headline-name" id="headline-name"></p>
-      <div class="headline-stats" id="headline-stats"></div>
-    </section>
-    <div id="panels"></div>
+        <section id="headline" class="headline" aria-live="polite">
+          <p class="headline-name" id="headline-name"></p>
+          <div class="headline-stats" id="headline-stats"></div>
+        </section>
+        <div id="panels"></div>
 
-    <div class="dock">
-      <section
-        id="timeline"
-        class="timeline"
-        role="img"
-        data-i18n-attr="aria-label:timeline.ariaLabel"
-      ></section>
-      <div id="legend" class="legend" aria-hidden="true"></div>
-      <nav id="controls" class="controls" tabindex="-1">
-        <!-- Age-group filter, switched off for now (see js/ui/controls.js, css/controls.css):
+        <div class="dock">
+          <section
+            id="timeline"
+            class="timeline"
+            role="img"
+            data-i18n-attr="aria-label:timeline.ariaLabel"
+          ></section>
+          <div id="legend" class="legend" aria-hidden="true"></div>
+          <nav id="controls" class="controls" tabindex="-1">
+            <!-- Age-group filter, switched off for now (see js/ui/controls.js, css/controls.css):
       <div class="chip-row" id="chip-row" role="group" data-i18n-attr="aria-label:age.label"></div>
       -->
-        <div class="control-row">
+            <div class="control-row">
+              <button
+                id="theme-switch"
+                class="switch"
+                type="button"
+                role="switch"
+                aria-checked="false"
+              >
+                <span class="switch-track"
+                  ><span class="switch-thumb"></span
+                ></span>
+                <span data-i18n="controls.theme">Dark mode</span>
+              </button>
+              <span class="control-divider" aria-hidden="true"></span>
+              <div
+                class="segmented"
+                id="lang-switch"
+                role="group"
+                data-i18n-attr="aria-label:controls.language"
+              >
+                <button type="button" data-lang="en" aria-pressed="true">
+                  EN
+                </button>
+                <button type="button" data-lang="ko" aria-pressed="false">
+                  한국어
+                </button>
+              </div>
+            </div>
+          </nav>
+        </div>
+
+        <button
+          id="pager-down"
+          class="pager-arrow is-down"
+          type="button"
+          data-i18n-attr="aria-label:pager.down;title:pager.down"
+        >
+          <svg viewBox="0 0 14 14" aria-hidden="true">
+            <path d="M2.5 5 7 9.5 11.5 5" />
+          </svg>
+        </button>
+      </section>
+
+      <section
+        id="screen-chart"
+        class="screen screen-chart"
+        aria-label="Timeline chart"
+        data-i18n-attr="aria-label:race.ariaLabel"
+      >
+        <button
+          id="pager-up"
+          class="pager-arrow is-up"
+          type="button"
+          data-i18n-attr="aria-label:pager.up;title:pager.up"
+        >
+          <svg viewBox="0 0 14 14" aria-hidden="true">
+            <path d="M2.5 9 7 4.5 11.5 9" />
+          </svg>
+        </button>
+        <!-- Info button and control bar of this screen fly in once the slide has finished (css/race.css .fly-*). The fly layer is a full-size
+         overlay, so the fixed-position info button inside it keeps the exact corner position of screen 1. -->
+        <div class="fly-layer fly-top">
           <button
-            id="theme-switch"
-            class="switch"
+            id="info-btn-2"
+            class="info-btn"
             type="button"
-            role="switch"
-            aria-checked="false"
+            aria-expanded="false"
+            aria-controls="info-panel-2"
+            data-i18n-attr="aria-label:info.button;title:info.button"
           >
-            <span class="switch-track"><span class="switch-thumb"></span></span>
-            <span data-i18n="controls.theme">Dark mode</span>
+            i
           </button>
-          <span class="control-divider" aria-hidden="true"></span>
-          <div
-            class="segmented"
-            id="lang-switch"
-            role="group"
-            data-i18n-attr="aria-label:controls.language"
-          >
-            <button type="button" data-lang="en" aria-pressed="true">EN</button>
-            <button type="button" data-lang="ko" aria-pressed="false">
-              한국어
-            </button>
+        </div>
+        <section
+          id="info-panel-2"
+          class="info-panel"
+          hidden
+          aria-labelledby="info-title-2"
+        >
+          <header class="info-head">
+            <h1 id="info-title-2" data-i18n="race.info.title">
+              Daily social media use
+            </h1>
+          </header>
+          <ul id="race-info-list"></ul>
+        </section>
+        <div class="race-legend" aria-hidden="true">
+          <span id="race-leg-min"></span><i class="race-leg-bar"></i
+          ><span id="race-leg-max"></span>
+        </div>
+        <div id="race-stage" class="race-stage"></div>
+        <div class="race-bar">
+          <button id="race-play" class="race-play" type="button"></button>
+          <div class="race-filter">
+            <span id="race-n-label" class="race-filter-label"></span>
+            <span class="range-end">1</span>
+            <div id="race-range" class="range">
+              <div class="range-track">
+                <div id="race-fill" class="range-fill"></div>
+              </div>
+              <input
+                id="race-n"
+                class="range-in"
+                type="range"
+                data-i18n-attr="aria-label:race.topnAria"
+              />
+            </div>
+            <span id="race-n-hi" class="range-end"></span>
           </div>
         </div>
-      </nav>
+        <div class="dock2 fly-bottom">
+          <nav class="controls">
+            <div class="control-row">
+              <button
+                class="switch"
+                type="button"
+                role="switch"
+                aria-checked="false"
+              >
+                <span class="switch-track"
+                  ><span class="switch-thumb"></span
+                ></span>
+                <span data-i18n="controls.theme">Dark mode</span>
+              </button>
+              <span class="control-divider" aria-hidden="true"></span>
+              <div
+                class="segmented"
+                role="group"
+                data-i18n-attr="aria-label:controls.language"
+              >
+                <button type="button" data-lang="en" aria-pressed="true">
+                  EN
+                </button>
+                <button type="button" data-lang="ko" aria-pressed="false">
+                  한국어
+                </button>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </section>
     </div>
 
     <div id="tooltip" class="tooltip" role="tooltip"></div>

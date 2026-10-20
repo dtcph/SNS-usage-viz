@@ -14,8 +14,9 @@
 
 export function createControls({ store, generations, getI18n, onLang }) {
   // const chipRow = document.getElementById('chip-row');
-  const themeSwitch = document.getElementById('theme-switch');
-  const langButtons = [...document.querySelectorAll('#lang-switch button')];
+  // every control row on the page (screen 1 and the copy in screen 2) is wired the same way
+  const themeSwitches = [...document.querySelectorAll('.control-row .switch')];
+  const langButtons = [...document.querySelectorAll('.control-row .segmented button')];
   // const allIds = generations.map((g) => g.id);
 
   // const makeChip = (id) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.id = id; return b; };
@@ -29,7 +30,7 @@ export function createControls({ store, generations, getI18n, onLang }) {
   //   const { ageGroups } = store.get();
   //   store.set({ ageGroups: chip.dataset.id === '__all' ? allIds : nextSelection(ageGroups, chip.dataset.id, allIds) });
   // });
-  themeSwitch.addEventListener('click', () => store.set({ theme: store.get().theme === 'dark' ? 'light' : 'dark' }));
+  themeSwitches.forEach((sw) => sw.addEventListener('click', () => store.set({ theme: store.get().theme === 'dark' ? 'light' : 'dark' })));
   langButtons.forEach((b) => b.addEventListener('click', () => onLang(b.dataset.lang)));
 
   function render() {
@@ -42,7 +43,7 @@ export function createControls({ store, generations, getI18n, onLang }) {
     //   chips[i].textContent = `${i18n.t(`gen.${g.id}`)} · ${i18n.t('age.range', { from: i18n.number(g.ageFrom), to: i18n.number(g.ageTo) })}`;
     //   chips[i].setAttribute('aria-pressed', String(ageGroups.includes(g.id)));
     // });
-    themeSwitch.setAttribute('aria-checked', String(theme === 'dark'));
+    themeSwitches.forEach((sw) => sw.setAttribute('aria-checked', String(theme === 'dark')));
     langButtons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
   }
   store.subscribe(render);
