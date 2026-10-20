@@ -2,22 +2,24 @@
 :root,
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #f7f5f0;
-  --ambient: rgba(255, 253, 248, 0.85);
-  --surface: rgba(255, 253, 249, 0.82);
-  --surface-solid: #fffdf9;
-  --ink: #25231f;
-  --ink-soft: #6a665e;
-  --line: rgba(52, 44, 30, 0.13);
-  --line-strong: rgba(52, 44, 30, 0.3);
-  --accent: #3f4a8f;
-  --accent-soft: rgba(63, 74, 143, 0.11);
+  --bg: #f8f8f8;
+  --ambient: #ece7e4;
+  /* --surface: rgba(255, 253, 249, 0.82);
+  --surface-solid: #fffdf9; */
+  --surface: #f8f8f8;
+  --surface-solid: #ece7e4;
+  --ink: #262626;
+  --ink-soft: #b5afa6;
+  --line: rgba(38, 38, 38, 0.15);
+  --line-strong: #ece7e4;
+  --accent: #8dbbea;
+  --accent-soft: #ece7e4;
   --shadow-soft:
     0 14px 34px -10px rgba(74, 56, 28, 0.2), 0 2px 4px rgba(74, 56, 28, 0.07),
     inset 0 1px 0 rgba(255, 255, 255, 0.7);
 
   --land-stroke: #f7f5f0;
-  --nodata: #b1ada3;
+  --nodata: #b5afa6;
   --dim-opacity: 0.18;
   /* Heatmap, low -> high weekly time: blue -> violet -> pink -> red */
   --rb-0: #8dbbea;
@@ -27,8 +29,8 @@
   --rb-4: #ee9dbf;
   --rb-5: #f2848f;
   --rb-6: #e45d5f;
-  --globe-hi: #fffdf9;
-  --globe-lo: #ebe7dd;
+  --globe-hi: #f8f8f8;
+  --globe-lo: #ece7e4;
 
   --bar: linear-gradient(90deg, #8dbbea, #c3ade9, #ee9dbf, #e45d5f);
   --hl-fill: #2f3a78;
