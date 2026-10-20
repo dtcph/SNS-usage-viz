@@ -15,6 +15,9 @@ import { createTimeline } from './ui/timeline.js';
 import { createHeadline } from './ui/headline.js';
 import { createPanels } from './ui/panels.js';
 import { initZones } from './ui/zones.js';
+import { createPager } from './ui/pager.js';
+import { createRaceInfo } from './ui/race-info.js';
+import { createRaceChart } from './chart/race-chart.js';
 
 const $ = (id) => document.getElementById(id);
 const stored = (key) => { try { return localStorage.getItem(key); } catch { return null; } };
@@ -54,12 +57,21 @@ async function main() {
   initZones({ store });
   createInfo({ store, getI18n: () => i18n });
 
+  // Screen 2: animated line chart. Its info button and control row are their own instances (screen 1 stays untouched).
+  const race = createRaceChart({ root: $('screen-chart'), usage: data.raw.usage, getI18n: () => i18n });
+  const raceInfo = createRaceInfo({ btn: $('info-btn-2'), panel: $('info-panel-2'), list: $('race-info-list'), getI18n: () => i18n });
+  createPager({
+    pager: $('pager'), screens: [$('screen-map'), $('screen-chart')], down: $('pager-down'), up: $('pager-up'),
+    onVisible: race.setActive, onFlyIn: (on) => { if (!on) raceInfo.close(); },
+  });
+
   async function setLang(next) {
     if (next === store.get().lang) return;
     try { i18n = createI18n(next, await loadLang(next)); } catch (err) { console.error(err); return; }
     remember('lang', next);
     i18n.apply();
     store.set({ lang: next });
+    race.refresh(); raceInfo.render();
   }
   createControls({ store, generations, getI18n: () => i18n, onLang: setLang });
 
