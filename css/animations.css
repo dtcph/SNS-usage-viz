@@ -45,9 +45,9 @@
   opacity: 1;
 }
 .is-zoomed .legend,
-.is-zoomed .timeline,
-.is-info-open .legend,
-.is-info-open .timeline {
+.is-zoomed .timeline
+/* .is-info-open .legend,
+.is-info-open .timeline */ {
   opacity: 0;
   pointer-events: none;
 } /* the info card takes their place */
@@ -61,6 +61,11 @@
 }
 .info-btn {
   animation: enter var(--enter-duration) var(--ui-easing) backwards;
+}
+/* The CTA animation (race.css) replaces this one while .is-cta is set; without this, removing .is-cta would restart the entry.
+   js/ui/pager.js adds .is-entered once the entry has finished. */
+.info-btn.is-entered:not(.is-cta) {
+  animation: none;
 }
 .controls {
   animation: enter var(--enter-duration) var(--ui-easing) 0.1s backwards;

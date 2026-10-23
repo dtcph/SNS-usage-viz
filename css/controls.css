@@ -152,8 +152,7 @@
   overflow-y: auto;
   padding: var(--space-5);
   border-radius: var(--radius-l);
-  background: var(--surface-solid);
-  /* border: 1px solid var(--line); */
+  background: var(--surface);
   box-shadow: var(--shadow-soft);
   font-size: var(--text-m);
   line-height: 1.6;
@@ -167,7 +166,7 @@
   font-size: var(--text-2xl);
   font-weight: 600;
   letter-spacing: -0.035em;
-  line-height: 1.05;
+  /* line-height: 1.05; */
 }
 .info-head p {
   margin-top: var(--space-1);

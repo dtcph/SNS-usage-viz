@@ -39,7 +39,7 @@
   display: grid;
   place-items: center;
   border-radius: 10px;
-  border: 1px solid var(--line);
+  /* border: 1px solid var(--line); */
   background: var(--surface);
   color: var(--ink-soft);
   box-shadow: var(--shadow-soft);
@@ -83,6 +83,90 @@
   opacity: 0;
   pointer-events: none;
 } /* the headline sits there while zoomed */
+
+/* CTA nudge (js/ui/pager.js adds .is-cta after a period without interaction): an accent-coloured gradient wipes over the button
+   top to bottom, then the normal backdrop wipes it away the same way, while the button swells to 1.2x. The up arrow is mirrored. Also used by the info and play buttons. */
+:is(.pager-arrow, .info-btn, .tl-play, .race-play)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--cta-icon);
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1; /* above the button's own background (it is a stacking context), below its icon or letter */
+  /* 500%-tall mask: soft-edged opaque band in the middle; sliding the window up the mask moves the band down the button */
+  -webkit-mask: linear-gradient(
+      to bottom,
+      transparent 0 20%,
+      #000 30% 70%,
+      transparent 80% 100%
+    )
+    0 100% / 100% 500% no-repeat;
+  mask: linear-gradient(
+      to bottom,
+      transparent 0 20%,
+      #000 30% 70%,
+      transparent 80% 100%
+    )
+    0 100% / 100% 500% no-repeat;
+}
+.pager-arrow.is-up::before,
+#info-btn-2::before,
+#race-play::before {
+  scale: 1 -1;
+}
+:is(.pager-arrow, .info-btn, .tl-play, .race-play) svg {
+  position: relative;
+}
+:is(.pager-arrow, .info-btn, .tl-play, .race-play).is-cta {
+  animation: cta-swell var(--cta-duration, 1s) var(--ui-easing) both;
+}
+:is(.pager-arrow, .info-btn, .tl-play, .race-play).is-cta::before {
+  animation: cta-wipe var(--cta-duration, 1s) cubic-bezier(0.55, 0, 0.45, 1)
+    both;
+}
+@keyframes cta-wipe {
+  from {
+    opacity: 1;
+    mask-position: 0 100%;
+    -webkit-mask-position: 0 100%;
+  }
+  to {
+    opacity: 1;
+    mask-position: 0 0;
+    -webkit-mask-position: 0 0;
+  }
+}
+@keyframes cta-swell {
+  0%,
+  100% {
+    scale: 1;
+  }
+  45% {
+    scale: 1.2;
+    color: var(
+      --cta-icon,
+      var(--ink)
+    ); /* icon colour while the accent covers it */
+  }
+  70% {
+    scale: 1.2;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(.pager-arrow, .info-btn, .tl-play, .race-play).is-cta,
+  :is(.pager-arrow, .info-btn, .tl-play, .race-play).is-cta::before {
+    animation: none;
+  }
+}
+
+/* the play buttons are not positioned by themselves; the wipe layer needs a stacking context to sit behind their icon */
+.tl-play,
+.race-play {
+  position: relative;
+  isolation: isolate;
+}
 
 /* ---- screen 2 ---- */
 .race-stage {
@@ -212,7 +296,7 @@
   padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-l);
   background: var(--surface);
-  border: 1px solid var(--line);
+  /* border: 1px solid var(--line); */
   box-shadow: var(--shadow-soft);
   backdrop-filter: blur(10px);
 }

@@ -137,6 +137,8 @@ async function main() {
     screens: [$("screen-map"), $("screen-chart")],
     down: $("pager-down"),
     up: $("pager-up"),
+    infoBtns: [$("info-btn"), $("info-btn-2")],
+    playBtns: [document.querySelector(".tl-play"), $("race-play")],
     onVisible: race.setActive,
     onFlyIn: (on) => {
       if (!on) raceInfo.close();

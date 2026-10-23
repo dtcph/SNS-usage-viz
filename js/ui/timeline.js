@@ -121,6 +121,7 @@ export function createTimeline({ el, series, store, getI18n, totalFor }) {
       labelLast.textContent = `${last.year} · ${i18n.minutes(last.minutes)}`;
       el.setAttribute('aria-label', i18n.t('timeline.ariaLabel'));
     }
+    playBtn.dataset.mode = playing ? 'pause' : 'play'; // same marker as the race chart's button (read by ui/pager.js)
     playBtn.innerHTML = playing ? ICON.pause : ICON.play;
     playBtn.setAttribute('aria-label', i18n.t(playing ? 'timeline.pause' : 'timeline.play'));
     yearNum.to(Math.round(t));

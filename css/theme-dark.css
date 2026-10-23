@@ -12,10 +12,11 @@
   --line: #242526;
   --line-strong: #3a3b3c;
   --accent: #619bd0;
+  --cta-icon: var(--ambient);
   --accent-soft: #242526;
   --shadow-soft:
-    0 16px 36px -10px rgba(10, 8, 4, 0.55), 0 2px 4px rgba(10, 8, 4, 0.3),
-    inset 0 1px 0 rgba(255, 244, 220, 0.07);
+    0 16px 36px -10px rgba(10, 8, 4, 0.8), 0 2px 4px rgba(10, 8, 4, 0.4),
+    inset 0 1px 0 rgba(255, 244, 220, 0.15);
 
   --land-stroke: #242526;
   --nodata: #18191a;

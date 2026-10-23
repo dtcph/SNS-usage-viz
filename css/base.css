@@ -151,7 +151,7 @@ button {
   height: 32px;
   padding: 0 var(--space-4);
   border-radius: 10px;
-  border: 1px solid var(--line);
+  /* border: 1px solid var(--line); */
   background: var(--surface);
   color: var(--ink-soft);
   font-size: var(--text-s);

@@ -155,7 +155,7 @@ export const GLOBE_AUTOROTATE_DEG_PER_S = 4;
 export const GLOBE_AUTOROTATE_RAMP_MS = 3500;
 export const GLOBE_IDLE_DELAY_MS = 1500;
 /** Cap for the release speed, degrees per second. */
-export const GLOBE_MAX_SPIN_DEG_PER_S = 260;
+export const GLOBE_MAX_SPIN_DEG_PER_S = 200;
 /** Zoom fit: share of the neutral middle third the country may fill (0-1), and a cap on the zoom factor. */
 export const ZOOM_FILL = 0.92;
 export const ZOOM_MAX_SCALE = 40;

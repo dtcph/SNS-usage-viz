@@ -1,12 +1,35 @@
 // 3D globe (orthographic projection, SVG): heatmap choropleth, hover tooltip, drag to rotate, wheel to zoom, click-to-fly.
 // Hover styling is CSS only; pointer handling is rAF-throttled; the globe is redrawn at most once per frame.
-import { feature, geoArea, geoCentroid, geoGraticule10, geoOrthographic, geoPath, interpolateArray, scaleQuantize, select } from '../../vendor/d3-lite.js';
 import {
-  GLOBE_AUTOROTATE_DEG_PER_S, GLOBE_AUTOROTATE_RAMP_MS, GLOBE_DRAG_SMOOTHING_MS, GLOBE_IDLE_DELAY_MS, GLOBE_INERTIA_DECAY_MS, GLOBE_INITIAL_CENTER, GLOBE_MAX_SPIN_DEG_PER_S, GLOBE_ZOOM_MAX, GLOBE_ZOOM_MIN, MAP_COLOR_STEPS, MAP_HIDDEN_IDS, ZOOM_FILL, ZOOM_MAX_SCALE, ZOOM_MIN_PART_AREA_RATIO,
-} from '../config.js';
-import { dailyMinutes, describeCountry, extentFor } from '../model/calc.js';
-import { createPushNumber } from './push-number.js';
-import { readMotion, readPx } from './motion.js';
+  feature,
+  geoArea,
+  geoCentroid,
+  geoGraticule10,
+  geoOrthographic,
+  geoPath,
+  interpolateArray,
+  scaleQuantize,
+  select,
+} from "../../vendor/d3-lite.js";
+import {
+  GLOBE_AUTOROTATE_DEG_PER_S,
+  GLOBE_AUTOROTATE_RAMP_MS,
+  GLOBE_DRAG_SMOOTHING_MS,
+  GLOBE_IDLE_DELAY_MS,
+  GLOBE_INERTIA_DECAY_MS,
+  GLOBE_INITIAL_CENTER,
+  GLOBE_MAX_SPIN_DEG_PER_S,
+  GLOBE_ZOOM_MAX,
+  GLOBE_ZOOM_MIN,
+  MAP_COLOR_STEPS,
+  MAP_HIDDEN_IDS,
+  ZOOM_FILL,
+  ZOOM_MAX_SCALE,
+  ZOOM_MIN_PART_AREA_RATIO,
+} from "../config.js";
+import { dailyMinutes, describeCountry, extentFor } from "../model/calc.js";
+import { createPushNumber } from "./push-number.js";
+import { readMotion, readPx } from "./motion.js";
 
 const PAD_X = 24;
 const DRAG_THRESHOLD_PX = 4;
@@ -26,42 +49,83 @@ const HL_NUM_CHARS = 5; // widest count the readout has to fit, e.g. "12.3M"
  * @param {object} o.tooltip
  * @param {(minutes:number|null)=>void} [o.onHoverTime]  daily minutes of the hovered country (for the legend marker)
  */
-export function createMap({ svg: svgEl, topology, index, model, store, getI18n, tooltip, onHoverTime = () => {} }) {
+export function createMap({
+  svg: svgEl,
+  topology,
+  index,
+  model,
+  store,
+  getI18n,
+  tooltip,
+  onHoverTime = () => {},
+}) {
   const svg = select(svgEl);
-  const features = feature(topology, topology.objects.countries).features
-    .filter((f) => !MAP_HIDDEN_IDS.includes(String(f.id ?? '').padStart(3, '0')));
+  const features = feature(
+    topology,
+    topology.objects.countries,
+  ).features.filter(
+    (f) => !MAP_HIDDEN_IDS.includes(String(f.id ?? "").padStart(3, "0")),
+  );
 
   // Per feature: ISO country (if any) and its daily minutes in the shown year (`minutes`, set by colorize()). `hasAny` = the data covers it in some year.
   const entries = features.map((f) => {
-    const num = f.id == null ? null : String(f.id).padStart(3, '0');
-    const country = num ? index.byNum.get(num) ?? null : null;
+    const num = f.id == null ? null : String(f.id).padStart(3, "0");
+    const country = num ? (index.byNum.get(num) ?? null) : null;
     const a3 = country?.a3 ?? null;
     const hasAny = a3 != null && model.dailyByA3.has(a3);
-    return { f, num, a3, a2: country?.a2 ?? null, hasAny, minutes: null, hasData: false, name: f.properties?.name ?? '', step: null };
+    return {
+      f,
+      num,
+      a3,
+      a2: country?.a2 ?? null,
+      hasAny,
+      minutes: null,
+      hasData: false,
+      name: f.properties?.name ?? "",
+      step: null,
+    };
   });
 
   // Startup diagnostics: anything that cannot be linked is listed once in the console.
   const onMap = new Set(entries.map((e) => e.a3));
   const noGeometry = [...model.dailyByA3.keys()].filter((a3) => !onMap.has(a3));
-  if (noGeometry.length) console.warn('[country-map] usage-data countries without geometry in the topology (not drawn):', noGeometry.map((a3) => index.byA3.get(a3)?.name ?? a3));
+  if (noGeometry.length)
+    console.warn(
+      "[country-map] usage-data countries without geometry in the topology (not drawn):",
+      noGeometry.map((a3) => index.byA3.get(a3)?.name ?? a3),
+    );
   const noId = entries.filter((e) => !e.a3).map((e) => e.name);
-  if (noId.length) console.info('[country-map] topology features without ISO match (shown as "no data"):', noId);
+  if (noId.length)
+    console.info(
+      '[country-map] topology features without ISO match (shown as "no data"):',
+      noId,
+    );
 
   // The colour scale follows the shown year: its min and max are the legend's ends (see colorize()).
-  const colorStep = scaleQuantize().domain(extentFor(model)).range(Array.from({ length: MAP_COLOR_STEPS }, (_, i) => i));
+  const colorStep = scaleQuantize()
+    .domain(extentFor(model))
+    .range(Array.from({ length: MAP_COLOR_STEPS }, (_, i) => i));
 
   // ---- DOM ----
-  const defs = svg.append('defs');
-  const grad = defs.append('radialGradient').attr('id', 'globe-grad').attr('cx', 0.38).attr('cy', 0.3).attr('r', 0.9);
-  grad.append('stop').attr('offset', 0).attr('class', 'globe-hi');
-  grad.append('stop').attr('offset', 1).attr('class', 'globe-lo');
+  const defs = svg.append("defs");
+  const grad = defs
+    .append("radialGradient")
+    .attr("id", "globe-grad")
+    .attr("cx", 0.38)
+    .attr("cy", 0.3)
+    .attr("r", 0.9);
+  grad.append("stop").attr("offset", 0).attr("class", "globe-hi");
+  grad.append("stop").attr("offset", 1).attr("class", "globe-lo");
 
-  const gRoot = svg.append('g').attr('class', 'world');
-  const sphere = gRoot.append('path').attr('class', 'sphere');
-  const graticule = gRoot.append('path').attr('class', 'graticule');
-  const paths = gRoot.selectAll('path.country').data(entries).join('path')
-    .attr('class', 'country nodata')
-    .attr('data-a3', (e) => e.a3);
+  const gRoot = svg.append("g").attr("class", "world");
+  const sphere = gRoot.append("path").attr("class", "sphere");
+  const graticule = gRoot.append("path").attr("class", "graticule");
+  const paths = gRoot
+    .selectAll("path.country")
+    .data(entries)
+    .join("path")
+    .attr("class", "country nodata")
+    .attr("data-a3", (e) => e.a3);
 
   /** Heatmap class per country for the year on the timeline, on that year's own min-max scale. A country with no value that year is drawn as "no data" (never estimated). */
   function colorize() {
@@ -75,61 +139,98 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
       if (step === e.step) return;
       if (e.step != null) this.classList.remove(`rb${e.step}`);
       if (step != null) this.classList.add(`rb${step}`);
-      this.classList.toggle('has-data', e.hasData);
-      this.classList.toggle('nodata', !e.hasData);
+      this.classList.toggle("has-data", e.hasData);
+      this.classList.toggle("nodata", !e.hasData);
       e.step = step;
     });
   }
   const nodeByA3 = new Map();
-  paths.each(function (e) { if (e.a3) nodeByA3.set(e.a3, this); });
+  paths.each(function (e) {
+    if (e.a3) nodeByA3.set(e.a3, this);
+  });
 
   // Highlight layer: a level-fill clipped to the chosen country, driven by chart hovers in the popups.
-  const hlLayer = gRoot.append('g').attr('class', 'hl-layer');
-  const clipShape = hlLayer.append('clipPath').attr('id', 'hl-clip').append('path');
+  const hlLayer = gRoot.append("g").attr("class", "hl-layer");
+  const clipShape = hlLayer
+    .append("clipPath")
+    .attr("id", "hl-clip")
+    .append("path");
   // Only the fill is masked by the country outline. The number and the label are not, so they stay fully readable
   // (thin countries such as Chile would hide most of the number otherwise). Both are lifted together with the fill level.
-  const hlFill = hlLayer.append('g').attr('clip-path', 'url(#hl-clip)').append('rect').attr('class', 'hl-fill');
-  const hlLabelGroup = hlLayer.append('g').attr('class', 'hl-texts');
+  const hlFill = hlLayer
+    .append("g")
+    .attr("clip-path", "url(#hl-clip)")
+    .append("rect")
+    .attr("class", "hl-fill");
+  const hlLabelGroup = hlLayer.append("g").attr("class", "hl-texts");
   // The number stands on the fill edge (a <g> of character slots, see push-number.js; its right edge is fixed while the highlight is open);
   // the label sits outside the country's bounding box, on the side opposite to the open popup.
-  const hlNum = hlLabelGroup.append('g').attr('class', 'hl-num');
-  const hlLabel = hlLabelGroup.append('text').attr('class', 'hl-label');
+  const hlNum = hlLabelGroup.append("g").attr("class", "hl-num");
+  const hlLabel = hlLabelGroup.append("text").attr("class", "hl-label");
   const hlLifted = [hlLabelGroup];
-  const readoutCounter = createPushNumber(hlNum.node(), (n) => getI18n().compact(n));
+  const readoutCounter = createPushNumber(hlNum.node(), (n) =>
+    getI18n().compact(n),
+  );
 
   // ---- globe state ----
   const projection = geoOrthographic().clipAngle(90);
   const pathGen = geoPath(projection);
   const graticuleLines = geoGraticule10();
-  let width = 0, height = 0, cx = 0, cy = 0, radius = 1;
+  let width = 0,
+    height = 0,
+    cx = 0,
+    cy = 0,
+    radius = 1;
   let userZoom = 1;
   /** view = what is drawn: rotation (deg), scale (px) and screen position of the globe centre. */
-  let view = { lam: -GLOBE_INITIAL_CENTER[0], phi: -GLOBE_INITIAL_CENTER[1], scale: 1, tx: 0, ty: 0 };
+  let view = {
+    lam: -GLOBE_INITIAL_CENTER[0],
+    phi: -GLOBE_INITIAL_CENTER[1],
+    scale: 1,
+    tx: 0,
+    ty: 0,
+  };
 
   function drawNow() {
-    projection.rotate([view.lam, view.phi]).scale(view.scale).translate([view.tx, view.ty]);
-    sphere.attr('d', pathGen({ type: 'Sphere' }));
-    graticule.attr('d', pathGen(graticuleLines));
-    paths.attr('d', (e) => pathGen(e.f));
+    projection
+      .rotate([view.lam, view.phi])
+      .scale(view.scale)
+      .translate([view.tx, view.ty]);
+    sphere.attr("d", pathGen({ type: "Sphere" }));
+    graticule.attr("d", pathGen(graticuleLines));
+    paths.attr("d", (e) => pathGen(e.f));
   }
 
   // ---- smooth interaction: the view eases towards a target; a fast release keeps spinning (inertia) ----
   const target = { lam: view.lam, phi: view.phi, scale: view.scale };
   const spin = { lam: 0, phi: 0 }; // degrees per second
-  let loopRaf = 0, lastTick = 0, drag = null;
+  let loopRaf = 0,
+    lastTick = 0,
+    drag = null;
   const clampPhi = (p) => Math.max(-90, Math.min(90, p));
-  const syncTarget = () => { target.lam = view.lam; target.phi = view.phi; target.scale = view.scale; spin.lam = spin.phi = 0; };
-  const stopLoop = () => { cancelAnimationFrame(loopRaf); loopRaf = 0; spin.lam = spin.phi = 0; };
+  const syncTarget = () => {
+    target.lam = view.lam;
+    target.phi = view.phi;
+    target.scale = view.scale;
+    spin.lam = spin.phi = 0;
+  };
+  const stopLoop = () => {
+    cancelAnimationFrame(loopRaf);
+    loopRaf = 0;
+    spin.lam = spin.phi = 0;
+  };
 
   function tick(now) {
     const dt = Math.min(64, now - lastTick);
     lastTick = now;
-    const spinning = !drag?.moved && Math.hypot(spin.lam, spin.phi) > MIN_SPIN_DEG_PER_S;
+    const spinning =
+      !drag?.moved && Math.hypot(spin.lam, spin.phi) > MIN_SPIN_DEG_PER_S;
     if (spinning) {
       target.lam += (spin.lam * dt) / 1000;
       target.phi = clampPhi(target.phi + (spin.phi * dt) / 1000);
       const decay = Math.exp(-dt / GLOBE_INERTIA_DECAY_MS);
-      spin.lam *= decay; spin.phi *= decay;
+      spin.lam *= decay;
+      spin.phi *= decay;
       if (Math.abs(target.phi) === 90) spin.phi = 0; // stopped at a pole
     } else spin.lam = spin.phi = 0;
     const a = 1 - Math.exp(-dt / GLOBE_DRAG_SMOOTHING_MS);
@@ -137,47 +238,93 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
       ...view,
       lam: view.lam + (target.lam - view.lam) * a,
       phi: view.phi + (target.phi - view.phi) * a,
-      scale: Math.exp(Math.log(view.scale) + (Math.log(target.scale) - Math.log(view.scale)) * a),
+      scale: Math.exp(
+        Math.log(view.scale) +
+          (Math.log(target.scale) - Math.log(view.scale)) * a,
+      ),
     };
-    const settled = !spinning && Math.abs(target.lam - view.lam) < 0.01 && Math.abs(target.phi - view.phi) < 0.01 && Math.abs(Math.log(target.scale / view.scale)) < 0.0005;
-    if (settled) { view = { ...view, lam: target.lam, phi: target.phi, scale: target.scale }; loopRaf = 0; } else loopRaf = requestAnimationFrame(tick);
+    const settled =
+      !spinning &&
+      Math.abs(target.lam - view.lam) < 0.01 &&
+      Math.abs(target.phi - view.phi) < 0.01 &&
+      Math.abs(Math.log(target.scale / view.scale)) < 0.0005;
+    if (settled) {
+      view = { ...view, lam: target.lam, phi: target.phi, scale: target.scale };
+      loopRaf = 0;
+    } else loopRaf = requestAnimationFrame(tick);
     drawNow();
   }
-  function startLoop() { if (!loopRaf) { lastTick = performance.now(); loopRaf = requestAnimationFrame(tick); } }
-
-  function layout() {
-    width = svgEl.clientWidth; height = svgEl.clientHeight;
-    svg.attr('viewBox', `0 0 ${width} ${height}`);
-    const top = readPx('--map-pad-top'), bottom = readPx('--map-pad-bottom');
-    cx = (width * 2) / 3; // rule of thirds: the globe is centred on the right third line, the left third holds info and controls
-    cy = top + (height - top - bottom) / 2;
-    radius = Math.max(50, Math.min((height - top - bottom) / 2, width / 3 - PAD_X));
+  function startLoop() {
+    if (!loopRaf) {
+      lastTick = performance.now();
+      loopRaf = requestAnimationFrame(tick);
+    }
   }
 
-  const worldView = () => ({ lam: view.lam, phi: view.phi, scale: radius * userZoom, tx: cx, ty: cy });
+  function layout() {
+    width = svgEl.clientWidth;
+    height = svgEl.clientHeight;
+    svg.attr("viewBox", `0 0 ${width} ${height}`);
+    const top = readPx("--map-pad-top"),
+      bottom = readPx("--map-pad-bottom");
+    cx = (width * 2) / 3; // rule of thirds: the globe is centred on the right third line, the left third holds info and controls
+    cy = top + (height - top - bottom) / 2;
+    radius = Math.max(
+      50,
+      Math.min((height - top - bottom) / 2, width / 3 - PAD_X),
+    );
+  }
+
+  const worldView = () => ({
+    lam: view.lam,
+    phi: view.phi,
+    scale: radius * userZoom,
+    tx: cx,
+    ty: cy,
+  });
 
   /** The part of a country that counts for zooming: overseas pieces below ZOOM_MIN_PART_AREA_RATIO are ignored. */
   function mainGeometry(f) {
     const g = f.geometry;
-    if (g.type !== 'MultiPolygon') return g;
-    const areas = g.coordinates.map((coordinates) => geoArea({ type: 'Polygon', coordinates }));
+    if (g.type !== "MultiPolygon") return g;
+    const areas = g.coordinates.map((coordinates) =>
+      geoArea({ type: "Polygon", coordinates }),
+    );
     const max = Math.max(...areas);
-    return { type: 'MultiPolygon', coordinates: g.coordinates.filter((_, i) => areas[i] >= max * ZOOM_MIN_PART_AREA_RATIO) };
+    return {
+      type: "MultiPolygon",
+      coordinates: g.coordinates.filter(
+        (_, i) => areas[i] >= max * ZOOM_MIN_PART_AREA_RATIO,
+      ),
+    };
   }
 
   /** View that turns the country towards the viewer and fits it into the neutral middle third. */
   function countryView(a3) {
     const geometry = mainGeometry(entries.find((e) => e.a3 === a3).f);
     const [lon, lat] = geoCentroid(geometry);
-    const probe = geoOrthographic().rotate([-lon, -lat]).scale(radius).translate([0, 0]); // centroid sits at the origin
+    const probe = geoOrthographic()
+      .rotate([-lon, -lat])
+      .scale(radius)
+      .translate([0, 0]); // centroid sits at the origin
     const [[x0, y0], [x1, y1]] = geoPath(probe).bounds(geometry);
-    const third = width / 3, inset = (third * (1 - ZOOM_FILL)) / 2;
-    const rx0 = third + inset, rx1 = 2 * third - inset;
-    const ry0 = readPx('--zoom-pad-top'), ry1 = height - readPx('--zoom-pad-bottom');
-    const k = Math.min(ZOOM_MAX_SCALE, (rx1 - rx0) / Math.max(1, x1 - x0), (ry1 - ry0) / Math.max(1, y1 - y0));
+    const third = width / 3,
+      inset = (third * (1 - ZOOM_FILL)) / 2;
+    const rx0 = third + inset,
+      rx1 = 2 * third - inset;
+    const ry0 = readPx("--zoom-pad-top"),
+      ry1 = height - readPx("--zoom-pad-bottom");
+    const k = Math.min(
+      ZOOM_MAX_SCALE,
+      (rx1 - rx0) / Math.max(1, x1 - x0),
+      (ry1 - ry0) / Math.max(1, y1 - y0),
+    );
     return {
-      lam: -lon, phi: -lat, scale: radius * k,
-      tx: (rx0 + rx1) / 2 - k * (x0 + x1) / 2, ty: (ry0 + ry1) / 2 - k * (y0 + y1) / 2,
+      lam: -lon,
+      phi: -lat,
+      scale: radius * k,
+      tx: (rx0 + rx1) / 2 - (k * (x0 + x1)) / 2,
+      ty: (ry0 + ry1) / 2 - (k * (y0 + y1)) / 2,
     };
   }
 
@@ -186,81 +333,148 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   function flyTo(destination, animate) {
     cancelAnimationFrame(flightRaf);
     stopLoop();
-    const { duration, ease } = readMotion('zoom');
-    if (!animate || duration <= 20) { view = destination; syncTarget(); drawNow(); return; }
+    const { duration, ease } = readMotion("zoom");
+    if (!animate || duration <= 20) {
+      view = destination;
+      syncTarget();
+      drawNow();
+      return;
+    }
     const from = view;
     let lam = destination.lam; // take the short way round
     while (lam - from.lam > 180) lam -= 360;
     while (lam - from.lam < -180) lam += 360;
-    const lerp = interpolateArray([from.lam, from.phi, Math.log(from.scale), from.tx, from.ty], [lam, destination.phi, Math.log(destination.scale), destination.tx, destination.ty]);
+    const lerp = interpolateArray(
+      [from.lam, from.phi, Math.log(from.scale), from.tx, from.ty],
+      [
+        lam,
+        destination.phi,
+        Math.log(destination.scale),
+        destination.tx,
+        destination.ty,
+      ],
+    );
     const t0 = performance.now();
     const step = (now) => {
-      const p = Math.min(1, (now - t0) / duration), v = lerp(ease(p));
-      view = { lam: v[0], phi: v[1], scale: Math.exp(v[2]), tx: v[3], ty: v[4] };
+      const p = Math.min(1, (now - t0) / duration),
+        v = lerp(ease(p));
+      view = {
+        lam: v[0],
+        phi: v[1],
+        scale: Math.exp(v[2]),
+        tx: v[3],
+        ty: v[4],
+      };
       drawNow();
-      if (p < 1) flightRaf = requestAnimationFrame(step); else { view = destination; syncTarget(); }
+      if (p < 1) flightRaf = requestAnimationFrame(step);
+      else {
+        view = destination;
+        syncTarget();
+      }
     };
     flightRaf = requestAnimationFrame(step);
   }
 
   // ---- highlight (level fill inside the country) ----
-  let hlOn = false, hlGeom = null;
+  let hlOn = false,
+    hlGeom = null;
 
   /** Greedy word wrap by character count (SVG text does not wrap). */
   function wrap(text, maxChars, maxLines) {
     const lines = [];
-    let line = '';
+    let line = "";
     for (const word of text.split(/\s+/)) {
-      if (line && (line + ' ' + word).length > maxChars) { lines.push(line); line = word; } else line = line ? `${line} ${word}` : word;
+      if (line && (line + " " + word).length > maxChars) {
+        lines.push(line);
+        line = word;
+      } else line = line ? `${line} ${word}` : word;
     }
     if (line) lines.push(line);
-    if (lines.length > maxLines) { lines.length = maxLines; lines[maxLines - 1] = lines[maxLines - 1].replace(/.{0,2}$/, '…'); }
+    if (lines.length > maxLines) {
+      lines.length = maxLines;
+      lines[maxLines - 1] = lines[maxLines - 1].replace(/.{0,2}$/, "…");
+    }
     return lines;
   }
 
   function setHighlight(hl) {
     const a3 = store.get().country;
     if (!hl || !a3) {
-      if (hlOn) { hlOn = false; hlFill.style('--level', 0); hlLifted.forEach((g) => g.style('--lift', '0px').classed('is-on', false)); }
+      if (hlOn) {
+        hlOn = false;
+        hlFill.style("--level", 0);
+        hlLifted.forEach((g) =>
+          g.style("--lift", "0px").classed("is-on", false),
+        );
+      }
       return;
     }
     const i18n = getI18n();
-    if (!hlOn) { // fresh start: everything rises from the bottom of the country
+    if (!hlOn) {
+      // fresh start: everything rises from the bottom of the country
       const entry = entries.find((e) => e.a3 === a3);
       const [[x0, y0], [x1, y1]] = pathGen.bounds(mainGeometry(entry.f));
       hlGeom = { x0, y0, x1, y1, w: x1 - x0, h: y1 - y0, cx: (x0 + x1) / 2 };
-      clipShape.attr('d', pathGen(entry.f));
-      hlFill.attr('x', x0).attr('y', y0).attr('width', hlGeom.w).attr('height', hlGeom.h).style('--level', 0);
-      hlLifted.forEach((g) => g.style('--lift', '0px').classed('is-on', false));
+      clipShape.attr("d", pathGen(entry.f));
+      hlFill
+        .attr("x", x0)
+        .attr("y", y0)
+        .attr("width", hlGeom.w)
+        .attr("height", hlGeom.h)
+        .style("--level", 0);
+      hlLifted.forEach((g) => g.style("--lift", "0px").classed("is-on", false));
       // Number size depends on the country only, never on the value, so it stays the same while hovering. Large for
       // contrast: up to 70 % of the country width for a worst-case count (HL_NUM_CHARS characters) and 30 % of its height.
       const { w, h } = hlGeom;
-      hlGeom.numSize = Math.max(40, Math.min(110, (0.7 * w) / (0.62 * HL_NUM_CHARS), 0.3 * h));
+      hlGeom.numSize = Math.max(
+        40,
+        Math.min(110, (0.7 * w) / (0.62 * HL_NUM_CHARS), 0.3 * h),
+      );
       hlGeom.labelSize = Math.max(12, Math.min(16, w * 0.045));
     }
     const { w, h, cx, y1, numSize, labelSize: fs } = hlGeom;
-    hlNum.style('font-size', `${numSize}px`);
-    if (!hlOn) { // fresh start: show the value, then centre the number on the country; later values push in place (right edge fixed)
+    hlNum.style("font-size", `${numSize}px`);
+    if (!hlOn) {
+      // fresh start: show the value, then centre the number on the country; later values push in place (right edge fixed)
       readoutCounter.set(hl.count);
       hlGeom.numRight = cx + hlNum.node().getBBox().width / 2;
     }
-    hlNum.attr('transform', `translate(${hlGeom.numRight},${y1})`);
+    hlNum.attr("transform", `translate(${hlGeom.numRight},${y1})`);
 
     // Context + label: plain text in the page ink with a thin halo in the page colour (no box), at the height of the number,
     // next to the bounding box. The left popup opens it on the right of the country, the right popup on the left.
-    const onRight = store.get().zone !== 'right';
+    const onRight = store.get().zone !== "right";
     const labelX = onRight ? hlGeom.x1 + fs * 1.2 : hlGeom.x0 - fs * 1.2;
     const lines = [...wrap(hl.context, 18, 2), ...wrap(hl.label, 18, 2)];
-    const lh = fs * 1.3, capHeight = 0.72 * numSize;
-    hlLabel.attr('text-anchor', onRight ? 'start' : 'end').attr('x', labelX).attr('y', y1).style('font-size', `${fs}px`).selectAll('tspan').remove();
-    lines.forEach((line, i) => hlLabel.append('tspan').attr('x', labelX)
-      .attr('dy', i === 0 ? -capHeight / 2 - ((lines.length - 1) * lh) / 2 + fs * 0.32 : lh).text(line));
+    const lh = fs * 1.3,
+      capHeight = 0.72 * numSize;
+    hlLabel
+      .attr("text-anchor", onRight ? "start" : "end")
+      .attr("x", labelX)
+      .attr("y", y1)
+      .style("font-size", `${fs}px`)
+      .selectAll("tspan")
+      .remove();
+    lines.forEach((line, i) =>
+      hlLabel
+        .append("tspan")
+        .attr("x", labelX)
+        .attr(
+          "dy",
+          i === 0
+            ? -capHeight / 2 - ((lines.length - 1) * lh) / 2 + fs * 0.32
+            : lh,
+        )
+        .text(line),
+    );
 
     const hlOnBefore = hlOn;
     hlOn = true;
     requestAnimationFrame(() => {
-      hlFill.style('--level', hl.share);
-      hlLifted.forEach((g) => g.style('--lift', `${hl.share * h}px`).classed('is-on', true));
+      hlFill.style("--level", hl.share);
+      hlLifted.forEach((g) =>
+        g.style("--lift", `${hl.share * h}px`).classed("is-on", true),
+      );
       if (hlOnBefore) readoutCounter.to(hl.count);
     });
   }
@@ -268,11 +482,12 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   let shown = null; // country currently flown to
   function sync(animate = true) {
     const a3 = store.get().country;
-    svg.classed('has-selection', !!a3);
-    paths.classed('is-selected', (e) => !!a3 && e.a3 === a3);
+    svg.classed("has-selection", !!a3);
+    paths.classed("is-selected", (e) => !!a3 && e.a3 === a3);
     if (a3) {
       const node = nodeByA3.get(a3);
-      if (node && node.parentNode.lastChild !== node) node.parentNode.appendChild(node); // draw the chosen country on top
+      if (node && node.parentNode.lastChild !== node)
+        node.parentNode.appendChild(node); // draw the chosen country on top
       hlLayer.node().parentNode.appendChild(hlLayer.node()); // ...and the level fill above it
       flyTo(countryView(a3), animate && shown !== a3);
     } else {
@@ -282,41 +497,79 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
   }
 
   // ---- pointer: drag rotates, wheel zooms (world state only) ----
-  const entryOf = (target) => target.closest?.('.country')?.__data__ ?? null;
-  let suppressClick = false, lastEvent = null, raf = 0;
+  const entryOf = (target) => target.closest?.(".country")?.__data__ ?? null;
+  let suppressClick = false,
+    lastEvent = null,
+    raf = 0;
 
   function flushPointer() {
     raf = 0;
     const e = lastEvent;
     if (!e) return;
-    const entry = store.get().country || drag?.moved || loopRaf ? null : entryOf(e.target); // no tooltip while the globe moves
-    if (!entry) { tooltip.hide(); onHoverTime(null); return; }
+    const entry =
+      store.get().country || drag?.moved || loopRaf ? null : entryOf(e.target); // no tooltip while the globe moves
+    if (!entry) {
+      tooltip.hide();
+      onHoverTime(null);
+      return;
+    }
     const i18n = getI18n();
     const { population, ageGroups, year } = store.get();
     const pop = population?.byA3[entry.a3];
     const lines = [];
-    const vm = entry.hasData && pop != null ? describeCountry(model, entry.a3, pop, ageGroups, year) : null;
-    if (pop != null) lines.push(`${i18n.t('tooltip.population')}: ${i18n.compact(vm ? vm.population : pop)}`); // age filter only applies where data exists
+    const vm =
+      entry.hasData && pop != null
+        ? describeCountry(model, entry.a3, pop, ageGroups, year)
+        : null;
+    if (pop != null)
+      lines.push(
+        `${i18n.t("tooltip.population")}: ${i18n.compact(vm ? vm.population : pop)}`,
+      ); // age filter only applies where data exists
     if (entry.hasData) {
-      lines.push(`${i18n.t('tooltip.daily')}: ${i18n.minutes(entry.minutes)}`);
-      if (vm) lines.push(`${i18n.t('tooltip.affected')}: ${i18n.compact(vm.affected)}`);
+      lines.push(`${i18n.t("tooltip.daily")}: ${i18n.minutes(entry.minutes)}`);
+      if (vm)
+        lines.push(
+          `${i18n.t("tooltip.affected")}: ${i18n.compact(vm.affected)}`,
+        );
       onHoverTime(entry.minutes);
     } else {
-      lines.push(entry.hasAny ? i18n.t('tooltip.noDataYear', { year: Math.round(year ?? model.latestYear) }) : i18n.t('tooltip.noData'));
+      lines.push(
+        entry.hasAny
+          ? i18n.t("tooltip.noDataYear", {
+              year: Math.round(year ?? model.latestYear),
+            })
+          : i18n.t("tooltip.noData"),
+      );
       onHoverTime(null);
     }
-    tooltip.show(i18n.countryName(entry.a2, entry.name), lines, e.clientX, e.clientY);
+    tooltip.show(
+      i18n.countryName(entry.a2, entry.name),
+      lines,
+      e.clientX,
+      e.clientY,
+    );
   }
 
   // ---- idle rotation: starts with the page, stops on any interaction, ramps up again after a pause ----
-  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-  let lastActivity = performance.now() - GLOBE_IDLE_DELAY_MS, idleMs = GLOBE_AUTOROTATE_RAMP_MS, idleLast = 0, tipLast = 0; // starts at full speed on load, no wait
-  function touch() { lastActivity = performance.now(); idleMs = 0; }
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  let lastActivity = performance.now() - GLOBE_IDLE_DELAY_MS,
+    idleMs = GLOBE_AUTOROTATE_RAMP_MS,
+    idleLast = 0,
+    tipLast = 0; // starts at full speed on load, no wait
+  function touch() {
+    lastActivity = performance.now();
+    idleMs = 0;
+  }
   function idleTick(now) {
     const dt = Math.min(64, now - (idleLast || now));
     idleLast = now;
     // Only while the world view is free: no country chosen, no drag, no inertia/zoom easing (main loop) running.
-    const free = !store.get().country && !drag && !loopRaf && !reducedMotion.matches && now - lastActivity >= GLOBE_IDLE_DELAY_MS;
+    const free =
+      !store.get().country &&
+      !drag &&
+      !loopRaf &&
+      !reducedMotion.matches &&
+      now - lastActivity >= GLOBE_IDLE_DELAY_MS;
     idleMs = free ? Math.min(GLOBE_AUTOROTATE_RAMP_MS, idleMs + dt) : 0;
     const p = idleMs / GLOBE_AUTOROTATE_RAMP_MS;
     const speed = GLOBE_AUTOROTATE_DEG_PER_S * p * p * (3 - 2 * p); // smoothstep ramp
@@ -325,35 +578,61 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
       view = { ...view, lam: view.lam + d };
       target.lam = view.lam;
       drawNow();
-      if (lastEvent && now - tipLast > 120) { // the surface moves under a resting cursor: keep the tooltip on the country below it
+      if (lastEvent && now - tipLast > 120) {
+        // the surface moves under a resting cursor: keep the tooltip on the country below it
         tipLast = now;
-        lastEvent = { clientX: lastEvent.clientX, clientY: lastEvent.clientY, target: document.elementFromPoint(lastEvent.clientX, lastEvent.clientY) };
+        lastEvent = {
+          clientX: lastEvent.clientX,
+          clientY: lastEvent.clientY,
+          target: document.elementFromPoint(
+            lastEvent.clientX,
+            lastEvent.clientY,
+          ),
+        };
         flushPointer();
       }
     }
     requestAnimationFrame(idleTick);
   }
 
-  svgEl.addEventListener('pointerdown', (e) => {
+  svgEl.addEventListener("pointerdown", (e) => {
     touch();
     if (store.get().country || e.button !== 0) return;
     cancelAnimationFrame(flightRaf);
     syncTarget(); // grabbing the globe stops any spin
-    drag = { x: e.clientX, y: e.clientY, moved: false, id: e.pointerId, samples: [] };
+    drag = {
+      x: e.clientX,
+      y: e.clientY,
+      moved: false,
+      id: e.pointerId,
+      samples: [],
+    };
   });
-  svgEl.addEventListener('pointermove', (e) => {
+  svgEl.addEventListener("pointermove", (e) => {
     lastEvent = e; // hovering is not an interaction for the idle rotation; grabbing the globe is
     if (drag && e.pointerId === drag.id) {
-      const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      const dx = e.clientX - drag.x,
+        dy = e.clientY - drag.y;
       if (!drag.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD_PX) return;
-      if (!drag.moved) { drag.moved = true; svgEl.setPointerCapture(e.pointerId); svg.classed('is-dragging', true); tooltip.hide(); onHoverTime(null); }
+      if (!drag.moved) {
+        drag.moved = true;
+        svgEl.setPointerCapture(e.pointerId);
+        svg.classed("is-dragging", true);
+        tooltip.hide();
+        onHoverTime(null);
+      }
       const k = RAD_TO_DEG / target.scale; // 1 px at the globe centre = the angle it covers, so the surface follows the cursor
       target.lam += dx * k;
       target.phi = clampPhi(target.phi - dy * k);
-      drag.x = e.clientX; drag.y = e.clientY;
+      drag.x = e.clientX;
+      drag.y = e.clientY;
       const now = performance.now();
       drag.samples.push({ t: now, lam: target.lam, phi: target.phi });
-      while (drag.samples.length > 2 && now - drag.samples[0].t > VELOCITY_WINDOW_MS) drag.samples.shift();
+      while (
+        drag.samples.length > 2 &&
+        now - drag.samples[0].t > VELOCITY_WINDOW_MS
+      )
+        drag.samples.shift();
       startLoop();
       return;
     }
@@ -363,12 +642,19 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
     if (!drag || e.pointerId !== drag.id) return;
     suppressClick = drag.moved;
     if (drag.moved) {
-      if (svgEl.hasPointerCapture(e.pointerId)) svgEl.releasePointerCapture(e.pointerId);
+      if (svgEl.hasPointerCapture(e.pointerId))
+        svgEl.releasePointerCapture(e.pointerId);
       // release speed from the last ~110 ms of movement; a pause before releasing means no spin
-      const first = drag.samples[0], last = drag.samples.at(-1), now = performance.now();
+      const first = drag.samples[0],
+        last = drag.samples.at(-1),
+        now = performance.now();
       const span = last.t - first.t;
       if (GLOBE_INERTIA_DECAY_MS > 0 && span > 8 && now - last.t < 60) {
-        const cap = (v) => Math.max(-GLOBE_MAX_SPIN_DEG_PER_S, Math.min(GLOBE_MAX_SPIN_DEG_PER_S, v));
+        const cap = (v) =>
+          Math.max(
+            -GLOBE_MAX_SPIN_DEG_PER_S,
+            Math.min(GLOBE_MAX_SPIN_DEG_PER_S, v),
+          );
         spin.lam = cap(((last.lam - first.lam) / span) * 1000);
         spin.phi = cap(((last.phi - first.phi) / span) * 1000);
       }
@@ -376,35 +662,60 @@ export function createMap({ svg: svgEl, topology, index, model, store, getI18n, 
     }
     drag = null;
     touch(); // the wait before the globe turns again counts from the release
-    svg.classed('is-dragging', false);
+    svg.classed("is-dragging", false);
   };
-  svgEl.addEventListener('pointerup', endDrag);
-  svgEl.addEventListener('pointercancel', endDrag);
-  svgEl.addEventListener('pointerleave', () => { lastEvent = null; tooltip.hide(); onHoverTime(null); });
-
-  svgEl.addEventListener('wheel', (e) => {
-    touch();
-    e.preventDefault();
-    if (store.get().country) return;
+  svgEl.addEventListener("pointerup", endDrag);
+  svgEl.addEventListener("pointercancel", endDrag);
+  svgEl.addEventListener("pointerleave", () => {
+    lastEvent = null;
     tooltip.hide();
-    userZoom = Math.max(GLOBE_ZOOM_MIN, Math.min(GLOBE_ZOOM_MAX, userZoom * Math.exp(-e.deltaY * 0.0015)));
-    cancelAnimationFrame(flightRaf);
-    if (!loopRaf) syncTarget();
-    target.scale = radius * userZoom;
-    startLoop();
-  }, { passive: false });
+    onHoverTime(null);
+  });
 
-  svgEl.addEventListener('click', (e) => {
-    if (suppressClick) { suppressClick = false; return; } // the click that ends a drag
+  svgEl.addEventListener(
+    "wheel",
+    (e) => {
+      touch();
+      e.preventDefault();
+      if (store.get().country) return;
+      tooltip.hide();
+      userZoom = Math.max(
+        GLOBE_ZOOM_MIN,
+        Math.min(GLOBE_ZOOM_MAX, userZoom * Math.exp(-e.deltaY * 0.0015)),
+      );
+      cancelAnimationFrame(flightRaf);
+      if (!loopRaf) syncTarget();
+      target.scale = radius * userZoom;
+      startLoop();
+    },
+    { passive: false },
+  );
+
+  svgEl.addEventListener("click", (e) => {
+    if (suppressClick) {
+      suppressClick = false;
+      return;
+    } // the click that ends a drag
     const entry = entryOf(e.target);
     const { country } = store.get();
-    if (country) { onHoverTime(null); if (!entry || entry.a3 !== country) store.set({ country: null }); return; } // click outside the chosen country: back
-    if (entry?.hasData) { tooltip.hide(); onHoverTime(null); store.set({ country: entry.a3, zone: 'middle', year: null }); }
+    if (country) {
+      onHoverTime(null);
+      if (!entry || entry.a3 !== country) store.set({ country: null });
+      return;
+    } // click outside the chosen country: back
+    if (entry?.hasData) {
+      tooltip.hide();
+      onHoverTime(null);
+      store.set({ country: entry.a3, zone: "middle", year: null });
+    }
   });
 
   store.subscribe((s, prev) => {
     if (s.country !== prev.country) touch(); // after leaving a country the globe waits before it starts turning again
-    if (s.country !== prev.country) { setHighlight(null); sync(true); }
+    if (s.country !== prev.country) {
+      setHighlight(null);
+      sync(true);
+    }
     if (s.highlight !== prev.highlight) setHighlight(s.highlight);
     if (s.year !== prev.year) colorize();
   });

@@ -7,6 +7,7 @@ import { cubicBezier } from "./motion.js";
 
 const GLIDE_MS = 900;
 const ease = cubicBezier(0.65, 0, 0.35, 1);
+const CTA_IDLE_MS = 6000; // screen 1; screen 2 waits twice as long
 
 /**
  * @param {object} o
@@ -14,6 +15,8 @@ const ease = cubicBezier(0.65, 0, 0.35, 1);
  * @param {HTMLElement[]} o.screens  [first, second]
  * @param {HTMLElement} o.down  arrow in screen 1
  * @param {HTMLElement} o.up    arrow in screen 2
+ * @param {HTMLElement[]} [o.playBtns]  [screen 1 play button, screen 2 play button]; same idle animation
+ * @param {HTMLElement[]} [o.infoBtns]  [screen 1 info button, screen 2 info button]; they share the arrows' idle animation
  * @param {(visible:boolean)=>void} o.onVisible  screen 2 is (partly) in view
  * @param {(on:boolean)=>void} [o.onFlyIn]  the fly-in elements of screen 2 are shown (true) or sent away (false)
  */
@@ -22,6 +25,8 @@ export function createPager({
   screens: [first, second],
   down,
   up,
+  infoBtns = [],
+  playBtns = [],
   onVisible,
   onFlyIn = () => {},
 }) {
@@ -133,5 +138,72 @@ export function createPager({
         pager.scrollTop > pager.clientHeight / 2 ? pager.clientHeight : 0;
   });
 
+  // CTA nudge: after a while without interaction the arrow of the current screen plays a wipe (css/race.css .is-cta); repeats while idle.
+  let idleTimer = 0;
+  const arm = () => {
+    clearTimeout(idleTimer);
+    if (reduced.matches) return;
+    const onSecond = pager.scrollTop > pager.clientHeight / 2;
+    idleTimer = setTimeout(() => {
+      const zoomed = document.body.classList.contains("is-zoomed"); // screen 1's arrow is hidden while zoomed
+      const btns = [
+        onSecond ? up : down,
+        infoBtns[onSecond ? 1 : 0],
+        playBtns[onSecond ? 1 : 0],
+      ].filter(
+        (b) =>
+          b &&
+          !(b === down && zoomed) &&
+          b.getAttribute("aria-expanded") !== "true", // not while its card is open
+      );
+      const playing = playBtns.some((b) => b?.dataset.mode === "pause"); // playback counts as interaction
+      if (!anim && btns.length && !document.hidden && !playing) {
+        for (const b of btns) {
+          b.classList.remove("is-cta");
+          void b.offsetWidth; // restart the animation
+          b.classList.add("is-cta");
+        }
+      }
+      arm(); // next run CTA_IDLE_MS after this one started, until the user interacts
+    }, CTA_IDLE_MS);
+  };
+  const ctaBtns = [down, up, ...infoBtns, ...playBtns];
+  // The info buttons' entry animation (css/animations.css) must run only once: the CTA animation temporarily replaces it, and
+  // dropping .is-cta would otherwise start it again.
+  for (const b of infoBtns) {
+    const entry = b.getAnimations().find((a) => a.animationName === "enter");
+    const done = () => b.classList.add("is-entered");
+    if (entry)
+      entry.finished.then(done, done); // also when cancelled (e.g. replaced by the CTA animation)
+    else b.classList.add("is-entered");
+  }
+  for (const btn of ctaBtns)
+    btn.addEventListener("animationend", (e) => {
+      if (e.target !== btn) return;
+      btn.classList.remove("is-cta");
+    });
+  const interact = () => {
+    for (const b of ctaBtns) b.classList.remove("is-cta");
+    arm();
+  };
+  for (const ev of [
+    "pointerdown",
+    "pointermove",
+    "wheel",
+    "keydown",
+    "touchstart",
+  ])
+    document.addEventListener(ev, interact, { passive: true, capture: true });
+  pager.addEventListener("scroll", interact, { passive: true });
+  // Starting, pausing or finishing playback (data-mode on the play buttons) restarts the idle time.
+  const modeWatch = new MutationObserver(interact);
+  for (const b of playBtns)
+    if (b)
+      modeWatch.observe(b, {
+        attributes: true,
+        attributeFilter: ["data-mode"],
+      });
+
   apply("first");
+  arm();
 }

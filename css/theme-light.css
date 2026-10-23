@@ -9,14 +9,15 @@
   --surface: #f8f8f8;
   --surface-solid: #ece7e4;
   --ink: #262626;
-  --ink-soft: #b5afa6;
+  --ink-soft: rgba(38, 38, 38, 0.66);
   --line: rgba(38, 38, 38, 0.15);
   --line-strong: #ece7e4;
   --accent: #8dbbea;
+  --cta-icon: var(--nodata);
   --accent-soft: #ece7e4;
   --shadow-soft:
-    0 14px 34px -10px rgba(74, 56, 28, 0.2), 0 2px 4px rgba(74, 56, 28, 0.07),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    0 14px 34px -10px rgba(38, 38, 38, 0.3), 0 2px 4px rgba(38, 38, 38, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 
   --land-stroke: #f7f5f0;
   --nodata: #b5afa6;
